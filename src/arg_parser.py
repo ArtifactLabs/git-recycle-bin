@@ -81,11 +81,11 @@ def parse_args():
 
     args = parser.parse_args()
 
-    def chech_query(args):
+    def check_query(args):
         if args.query is None:
             args.query = ("all", None)
 
-    ignore_attr_except(chech_query, args)
+    ignore_attr_except(check_query, args)
 
     printer.verbosity = args.verbosity
     printer.colorize = args.color
@@ -93,7 +93,7 @@ def parse_args():
     # Sanity-check
     try:
         if args.force_tag and not args.force_branch:
-            printer.error("Error: `--force-tag` requires `--force-branch`")
+            printer.error("Error: '--force-tag' requires '--force-branch'")
             return None
     except AttributeError:
         pass
