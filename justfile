@@ -10,6 +10,10 @@ lint:  docs-lint shell-lint md-lint rst-lint
 unittest:
     PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src" pytest --cov=src --cov-report=xml
 
+# Test of aux/git_add_ssh_remote.sh
+test_git_add_ssh_remote:
+    tests/test_git_add_ssh_remote.sh
+
 ########################
 
 # Demonstrate --help
