@@ -144,6 +144,20 @@ test_subdirectory_path() {
     run_test "${test_dir}" "Repository in subdirectory" "git@github.com:org/subgroup/repo.git"
 }
 
+test_help_option() {
+    local output
+    output=$(bash "${DUT_SCRIPT}" --help 2>&1)
+    
+    if [[ $? -eq 0 && "${output}" == *"Usage:"* && "${output}" == *"Options:"* ]]; then
+        echo -e "${GREEN}PASS${NC}: Help option displays usage information"
+        return 0
+    else
+        echo -e "${RED}FAIL${NC}: Help option test failed"
+        echo "Got output: ${output}"
+        return 1
+    fi
+}
+
 ################
 
 {
@@ -156,11 +170,12 @@ test_subdirectory_path() {
     test_gerrit_ssh_url && ((TESTS_PASSED++))
     test_https_with_credentials && ((TESTS_PASSED++))
     test_subdirectory_path && ((TESTS_PASSED++))
+    test_help_option && ((TESTS_PASSED++))
 }
 
 ################
 
-TESTS_TOTAL=9
+TESTS_TOTAL=10
 echo -e "Tests passed: ${TESTS_PASSED}/${TESTS_TOTAL}"
 
 if [[ "${TESTS_PASSED}" -eq "${TESTS_TOTAL}" ]]; then

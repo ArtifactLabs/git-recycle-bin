@@ -17,6 +17,36 @@
 # After running, you can use 'git push origin_ssh <branch>' to push via SSH.
 set -eu
 
+# Show help if requested
+show_help() {
+    cat << EOF
+Usage: $(basename "$0") [OPTIONS] [REMOTE_NAME]
+
+Add SSH remote with "_ssh" suffix to a Git repository, based on existing
+(https) remote's URL.
+
+E.g. if you have a remote named "origin" that is an https URL, this script
+will add a new remote named "origin_ssh" that is the SSH equivalent of the
+https URL.
+
+Options:
+  --help        Display this help message and exit
+
+Arguments:
+  REMOTE_NAME   Name of the remote to convert (default: origin)
+
+Examples:
+  $(basename "$0")           # Convert the 'origin' remote to SSH
+  $(basename "$0") upstream  # Convert the 'upstream' remote to SSH
+EOF
+    exit 0
+}
+
+# Parse command line arguments
+if [[ $# -gt 0 && "$1" == "--help" ]]; then
+    show_help
+fi
+
 REMOTE_NAME="${1:-origin}"
 
 # Function to extract the repository URL
