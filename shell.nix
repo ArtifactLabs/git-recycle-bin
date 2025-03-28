@@ -25,6 +25,12 @@ in pkgs.mkShellNoCC {
     pkgs.python311Packages.isort
     pkgs.python311Packages.python-lsp-server  # Language server for better VS Code support
 
+    # Type checking and linting tools
+    pkgs.python311Packages.pylint
+    pkgs.python311Packages.mypy
+    pkgs.python311Packages.types-colorama
+    pkgs.python311Packages.types-python-dateutil
+
     # Sphinx documentation tools
     pkgs.python311Packages.sphinx
     pkgs.python311Packages.pydata-sphinx-theme

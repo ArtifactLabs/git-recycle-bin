@@ -2,7 +2,7 @@
 clean: docs-clean python-clean
 
 # Run all linters (practical set)
-lint:  docs-lint shell-lint md-lint rst-lint
+lint:  docs-lint shell-lint md-lint rst-lint mypy pylint
 
 ########################
 
@@ -20,6 +20,15 @@ test_git_add_ssh_remote:
 demo0:
     git_recycle_bin.py --help
 
+# Run mypy type checking
+mypy:
+    (cd src && mypy --explicit-package-bases --disable-error-code=assignment .)
+
+# Run pylint linting
+pylint:
+    PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src" pylint src tests
+
+########################
 # for general flags look at push.justfile
 # the other examples are only command specific
 mod demo-push 'demos/push.justfile'
