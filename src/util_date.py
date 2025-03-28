@@ -11,14 +11,43 @@ DATE_FMT_EXPIRE_YMD = "%Y-%m-%d"  # E.g. "2023-07-27". Machine sortable. Used in
 DATE_FMT_EXPIRE_HMz = "%H.%M%z"   # E.g. "13.14+0200". Machine sortable
 DATE_FMT_EXPIRE = f"{DATE_FMT_EXPIRE_YMD}/{DATE_FMT_EXPIRE_HMz}"  # E.g. "2023-07-27/13.14+0200". Used in branch-names, machine sortable
 
-def parse_fuzzy_time(fuzzy_time: str) -> datetime:
-    """Parse fuzzy time expressions and return a timezone aware ``datetime``."""
-
-    dt = dateparser.parse(fuzzy_time, settings={"RETURN_AS_TIMEZONE_AWARE": True})
-    if dt is None:
-        # Fallback to maya for expressions dateparser does not understand
-        dt = maya.when(fuzzy_time).datetime()
-    return dt
+def parse_fuzzy_time(fuzzy_time: str) -> datetime.datetime:
+    """
+    Parse fuzzy date expressions into datetime objects using a consistent approach.
+    For relative day-based expressions, we use datetime.timedelta for consistent DST handling.
+    For other expressions, we fall back to maya's parser.
+    """
+    now = datetime.datetime.now(tzlocal())
+    
+    # Handle "now" and "today" specially
+    if fuzzy_time.lower() in ["now", "today"]:
+        return now
+    
+    # Handle "tomorrow" specially
+    if fuzzy_time.lower() == "tomorrow":
+        return now + datetime.timedelta(days=1)
+    
+    # Check for patterns like "in X days/weeks" or "now in X days/weeks"
+    # This handles expressions like "in 3 weeks", "in 21 days", "now in 3 weeks", etc.
+    days_pattern = r'(?:now\s+)?in\s+(\d+)\s*(?:day|days|d)s?'
+    weeks_pattern = r'(?:now\s+)?in\s+(\d+)\s*(?:week|weeks|w)s?'
+    
+    days_match = re.match(days_pattern, fuzzy_time.lower())
+    weeks_match = re.match(weeks_pattern, fuzzy_time.lower())
+    
+    if days_match:
+        days = int(days_match.group(1))
+        return now + datetime.timedelta(days=days)
+    
+    if weeks_match:
+        weeks = int(weeks_match.group(1))
+        return now + datetime.timedelta(days=weeks * 7)
+    
+    # For everything else, fall back to maya
+    dt = maya.when(fuzzy_time)
+    if dt.timezone == 'UTC':
+        dt = dt.datetime().astimezone(tzlocal())
+    return dt.datetime() if hasattr(dt, 'datetime') else dt
 
 def parse_expire_date(expiry_formatted: str, prefix_discard: str = "") -> dict:
     """ Parse a string formatted as `DATE_FMT_EXPIRE` with an optional prefix to discard """
@@ -42,7 +71,7 @@ def date_fuzzy2expiryformat(fuzzy_date: str) -> str:
     dt_obj = dt_obj.astimezone(tzlocal())
     return datetime.datetime.strftime(dt_obj, DATE_FMT_EXPIRE)
 
-def date_parse_formatted(date_string: str, date_format: str) -> datetime:
+def date_parse_formatted(date_string: str, date_format: str) -> datetime.datetime:
     return datetime.datetime.strptime(date_string, date_format)
 
 def date_formatted2unix(date_string: str, date_format: str) -> float:
@@ -50,7 +79,7 @@ def date_formatted2unix(date_string: str, date_format: str) -> float:
     unix_time = date_parse_formatted(date_string=date_string, date_format=date_format).timestamp()
     return unix_time
 
-def format_timespan(dt_from: datetime, dt_to: datetime) -> str:
+def format_timespan(dt_from: datetime.datetime, dt_to: datetime.datetime) -> str:
     delta = dateutil.relativedelta.relativedelta(dt_to, dt_from)
 
     if delta.days != 0:
