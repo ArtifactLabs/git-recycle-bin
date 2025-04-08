@@ -284,3 +284,7 @@ class RbGit:
         self.cmd("fetch", remote, ref)
         content = self.cmd("cat-file", "-p", "FETCH_HEAD")
         return content
+
+    def meta_for_commit_refs(self, remote: str):
+        lines = self.cmd("ls-remote", "--refs", remote, "refs/artifact/meta-for-commit/*")
+        return lines.splitlines()

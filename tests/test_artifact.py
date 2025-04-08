@@ -4,6 +4,10 @@ import datetime
 import pytest
 import dateparser
 from dateutil.tz import tzlocal
+import os
+from contextlib import contextmanager
+import subprocess
+from typing import Set
 
 from src import git_recycle_bin as grb  # DUT
 
@@ -143,14 +147,117 @@ def test_url_redact():
     result = grb.url_redact(url="ssh://service/my/re:po@hmm.git", replacement="REDACTED")
     assert result == "ssh://service/my/re:po@hmm.git"
 
-    # Non-protocol URLs should remain unchanged
-    result = grb.url_redact(url="foo:pass@service/my/repo.git", replacement="REDACTED")
-    assert result == "foo:pass@service/my/repo.git"
-    result = grb.url_redact(url="foo@service/my/repo.git", replacement="REDACTED")
-    assert result == "foo@service/my/repo.git"
-    result = grb.url_redact(url="service/my/repo.git", replacement="REDACTED")
-    assert result == "service/my/repo.git"
-    result = grb.url_redact(url="service/my/re:po.git", replacement="REDACTED")
-    assert result == "service/my/re:po.git"
-    result = grb.url_redact(url="service/my/re:po@hmm.git", replacement="REDACTED")
-    assert result == "service/my/re:po@hmm.git"
+    assert grb.url_redact(url="foo:pass@service/my/repo.git", replacement="REDACTED") == "foo:pass@service/my/repo.git"
+    assert grb.url_redact(url="foo@service/my/repo.git", replacement="REDACTED")      == "foo@service/my/repo.git"
+    assert grb.url_redact(url="service/my/repo.git", replacement="REDACTED")          == "service/my/repo.git"
+    assert grb.url_redact(url="service/my/re:po.git", replacement="REDACTED")         == "service/my/re:po.git"
+    assert grb.url_redact(url="service/my/re:po@hmm.git", replacement="REDACTED")     == "service/my/re:po@hmm.git"
+
+
+@pytest.fixture
+def temp_git_setup(tmpdir):
+    # Create temporary directories
+    local_repo = tmpdir.mkdir("local_repo")
+    remote_repo = tmpdir.mkdir("remote_repo")
+    artifact_repo = tmpdir.mkdir("artifact_repo")
+
+    # Initialize the 'remote' repository
+    subprocess.run(['git', 'init', '--bare'], cwd=remote_repo, check=True)
+
+    # Initialize the local repository
+    subprocess.run(['git', 'init'], cwd=local_repo, check=True)
+
+    # Initialize the artifact repository
+    subprocess.run(['git', 'init', '--bare'], cwd=artifact_repo, check=True)
+
+    # Add the remote
+    remote_url = f"file://{remote_repo}"
+    subprocess.run(['git', 'remote', 'add', 'origin', remote_url], cwd=local_repo, check=True)
+
+    # add some files to the local repository
+    local_file = local_repo.join("example.txt")
+    local_file.write("This is a test file.")
+    with git_user_info():
+        subprocess.run(['git', 'add', 'example.txt'], cwd=local_repo, check=True)
+        subprocess.run(['git', 'commit', '-m', 'Initial commit'], cwd=local_repo, check=True)
+        subprocess.run(['git', 'push', 'origin', 'master'], cwd=local_repo, check=True)
+
+    # Return both directories as a tuple to be used in tests
+    yield (local_repo, remote_repo, artifact_repo, [(local_file, "example.txt")])
+
+
+@contextmanager
+def change_dir(path):
+    original_dir = os.getcwd()
+    os.chdir(path)
+    try:
+        yield
+    finally:
+        os.chdir(original_dir)
+
+@contextmanager
+def git_user_info():
+    old_env = os.environ.copy()
+    os.environ["GIT_AUTHOR_NAME"] = "mock"
+    os.environ["GIT_AUTHOR_EMAIL"] = "mock@mock.mock"
+    os.environ["GIT_COMMITTER_NAME"] = "mock"
+    os.environ["GIT_COMMITTER_EMAIL"] = "mock@mock.mock"
+    try:
+        yield
+    finally:
+        os.environ = old_env
+
+
+def contains_metas(rbgit: grb.RbGit, remote: str, commit_shas: Set[str]) -> bool:
+    metas = rbgit.meta_for_commit_refs(remote)
+    assert commit_shas == { meta[-40:] for meta in metas }
+    # return True to allow us to do assert contains_metas which reads better than
+    # just contains_metas
+    return True
+
+def test_flush_meta_for_commit(temp_git_setup):
+    local, _, artifact_remote, artifacts = temp_git_setup
+    artifact_path, artifact_name = artifacts[0]
+
+    _args = ["push", f"{artifact_remote}",
+             "--path", f"{artifact_path}",
+             "--name", artifact_name,
+             ]
+    _dead = _args + ["--expire", "2 hours ago"]
+    dead = grb.parse_args(_dead)
+    longlived = grb.parse_args(_args + ["--expire", "in 30 days"])
+    dead_flush = grb.parse_args(_dead + ["--flush-meta"])
+    dead_rm_flush = grb.parse_args(_dead + ["--rm-expired", "--flush-meta"])
+    dead_rm = grb.parse_args(_dead + ["--rm-expired"])
+
+    rbgit=grb.create_rbgit(local, dead.path, clean=True)
+    rb_remote="rbgit"
+
+    def push(args):
+        return grb.push(args, rbgit, rb_remote, artifact_name)['bin_sha_commit']
+
+    with change_dir(local), git_user_info():
+        bin_commit = push(dead)
+        assert contains_metas(rbgit, rb_remote, {bin_commit})
+
+        # without --remove-expired the refs should still exist
+        bin_commit2 = push(dead_flush)
+        assert contains_metas(rbgit, rb_remote, {bin_commit, bin_commit2})
+
+        # with --remove-expired the refs should be removed
+        push(dead_rm_flush)
+        assert contains_metas(rbgit, rb_remote, set())
+
+        # with only --remove-expired the refs should not be removed
+        bin_commit = push(dead_rm)
+        assert contains_metas(rbgit, rb_remote, {bin_commit})
+
+        # with --flush-meta the new artifact should not be removed but the old one should
+        bin_commit = push(dead_flush)
+        assert contains_metas(rbgit, rb_remote, {bin_commit})
+
+        # only the longlived artifact should be present
+        bin_commit = push(longlived)
+        push(dead_rm_flush)
+        assert contains_metas(rbgit, rb_remote, {bin_commit})
+>>>>>>> db426b4 (metas: Align code for meta handling with schema)

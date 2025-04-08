@@ -331,14 +331,12 @@ def clean_command(rbgit, remote_bin_name):
     return 0
 
 def push_command(args, rbgit, remote_bin_name, path):
-    """Execute push command to upload artifact to repository."""
-    printer.high_level(
-        f"Making local commit of artifact {path} in artifact-repo at {rbgit.rbgit_dir}",
-        file=sys.stderr
-    )
-    d = create_artifact_commit(
-        rbgit, args.name, path, args.expire, args.add_ignored, args.src_remote_name
-    )
+    """like push but discard the result"""
+    push(args, rbgit, remote_bin_name, path)
+
+def push(args, rbgit, remote_bin_name, path) -> dict[str, str]:
+    printer.high_level(f"Making local commit of artifact {path} in artifact-repo at {rbgit.rbgit_dir}", file=sys.stderr)
+    d = create_artifact_commit(rbgit, args.name, path, args.expire, args.add_ignored, args.src_remote_name)
     printer.detail(rbgit.cmd("branch", "-vv"))
     printer.detail(rbgit.cmd("log", "-1", d['bin_branch_name']))
 
@@ -352,7 +350,7 @@ def push_command(args, rbgit, remote_bin_name, path):
         remote_delete_expired_branches(rbgit, remote_bin_name)
     if args.flush_meta:
         remote_flush_meta_for_commit(rbgit, remote_bin_name)
-    return 0
+    return d
 
 def push_branch(args, d, rbgit, remote_bin_name):
     """Push branch to binary remote.
@@ -427,14 +425,8 @@ def push_tag(args, d, rbgit, remote_bin_name):
         remote_bin_name, d['bin_tag_name']
     )
     if remote_bin_sha_commit:
-        printer.high_level(
-            f"Bin-remote already has a tag named {d['bin_tag_name']} pointing to "
-            f"{remote_bin_sha_commit[:8]}.",
-            file=sys.stderr
-        )
-        remote_meta = rbgit.fetch_cat_pretty(
-            remote_bin_name, f"refs/artifact/meta-for-commit/{remote_bin_sha_commit}"
-        )
+        printer.high_level(f"Bin-remote already has a tag named {d['bin_tag_name']} pointing to {remote_bin_sha_commit[:8]}.", file=sys.stderr)
+        remote_meta = rbgit.fetch_cat_pretty(remote_bin_name, d['bin_ref_only_metadata'])
 
         commit_time_theirs = parse_commit_msg(remote_meta)['src-git-commit-time-commit']
         commit_time_ours = d['src_time_commit']
@@ -521,15 +513,17 @@ def remote_flush_meta_for_commit(rbgit, remote_bin_name):
         This subroutine will scan all existing meta-for-commit references and determine if an artifact is still
         available. If not, the metadata commit will be removed.
     """
-    meta_set = rbgit.cmd("ls-remote", "--refs", remote_bin_name, "refs/artifact/meta-for-commit/*").splitlines()
+    meta_set = rbgit.meta_for_commit_refs(remote_bin_name)
     heads    = rbgit.cmd("ls-remote", "--heads", remote_bin_name, "refs/heads/*").splitlines()
     tags     = rbgit.cmd("ls-remote", "--tags", remote_bin_name, "refs/tags/*").splitlines()
 
     sha_len = 40
-    commits = { l[-sha_len:] for l in meta_set }
-    commits.difference_update((l[:sha_len] for l in heads))
-    commits.difference_update((l[:sha_len] for l in tags))
-    branches = ["refs/artifact/meta-for-commit/" + c for c in commits]
+    commits = { l[-sha_len:]: l[sha_len+1:] for l in meta_set }
+    heads = { l[:sha_len] for l in heads }
+    tags  = { l[:sha_len] for l in tags }
+    branches = [ refspec for commit_sha, refspec in commits.items()
+                 if commit_sha not in heads and commit_sha not in tags
+                ]
     if branches:
         rbgit.cmd("push", remote_bin_name, "--delete", *branches, max_retries=3)
 

@@ -23,7 +23,7 @@ def tuple1(key):
     return f
 
 
-def parse_args():
+def parse_args(args=None):
     """Parse command-line arguments for Git Recycle Bin."""
     class CustomHelpFormatter(argparse.HelpFormatter):
         """Custom help formatter for argument parsing."""
@@ -197,7 +197,7 @@ def parse_args():
         help="Force download, even if local files "
     )
 
-    args = parser.parse_args()
+    args = parser.parse_args(args)
 
     def check_query(args):
         if args.query is None:
