@@ -11,6 +11,7 @@ pkgs.mkShell {
   packages = [
     pkgs.just
     git-recycle-bin
+    pkgs.ruff
   ];
   shellHook = ''
     export JUST_UNSTABLE=1
