@@ -16,6 +16,7 @@ Unlike many artifact management systems out there, the artifacts published here 
 # Usage
 * Locally or CI-side, this tool creates and pushes artifacts, see `--help` and examples below.
 * Garbage collection of expired artifacts is done at server-side.
+* GitHub Actions in `.github/workflows/ci.yml` run tests and demo commands.
 
 
 ## Schema

@@ -9,7 +9,7 @@ env:
   NIX_PATH: "nixpkgs=channel:nixos-24.05"
 
 jobs:
-  test:
+  usage:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,7 +18,65 @@ jobs:
         run: nix-shell --pure --run "git_recycle_bin.py --help"
       - name: Just list
         run: nix-shell --pure --run "just --list"
+
+  unittest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v25
       - name: Unit tests
         env:
           TZ: Europe/Copenhagen
         run: nix-shell --pure --run "just unittest"
+
+  demo_help:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v25
+      - name: Demo help
+        run: nix-shell --pure --run "just demo0"
+
+  demo_push:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        demo: [demo1, demo1_quiet, demo1_verbose, demo1_vverbose, demo2, demo3, demo4, demo5]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v25
+      - name: Demo push
+        run: nix-shell --pure --run "just push::${{ matrix.demo }}"
+
+  demo_clean:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        demo: [demo1]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v25
+      - name: Demo clean
+        run: nix-shell --pure --run "just clean::${{ matrix.demo }}"
+
+  demo_list:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        demo: [demo1, demo2, demo3, demo4]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v25
+      - name: Demo list
+        run: nix-shell --pure --run "just list::${{ matrix.demo }}"
+
+  demo_download:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        demo: [demo1]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v25
+      - name: Demo download
+        run: nix-shell --pure --run "just download::${{ matrix.demo }}"
