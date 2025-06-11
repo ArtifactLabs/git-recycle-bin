@@ -77,7 +77,7 @@ def create_artifact_commit(rbgit, artifact_name: str, binpath: str, expire_branc
     d['artifact_relpath_nca'] = rel_dir(pto=binpath, pfrom=d['nca_dir'])        # Relative path to artifact from nca_dir. Artifact is always within nca_dir
     d['artifact_relpath_src'] = rel_dir(pto=binpath, pfrom=d['src_tree_root'])  # Relative path to artifact from src-git-root. Artifact might be outside of source git.
 
-    # 'expire' branch ref will be deleted with '--rm-expire' argument.
+    # 'expire' branch ref will be deleted with '--rm-expired' argument.
     # E.g.: 'artifact/expire/2024-07-20/14.17+0200/project.git@182db9b0696a5e9f97a5800e4866917c5465b2c6/{obj/doc/html}'
     d['bin_branch_name'] = f"artifact/expire/{d['bin_branch_expire']}/{d['src_repo']}@{d['src_sha']}/{{{d['artifact_relpath_nca']}}}"
     # 'latest' tag ref will not expire but is overwritten to point to newer SHA.
