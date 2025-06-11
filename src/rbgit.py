@@ -1,6 +1,7 @@
 import os
 import sys
 import subprocess
+import re
 
 class RbGit:
     def __init__(self, printer, rbgit_dir=None, rbgit_work_tree=None):
