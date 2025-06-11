@@ -59,11 +59,7 @@ With these two commands you can push a build result and later retrieve it anywhe
 
 ## Benefits
 
-Git Recycle Bin keeps your artifacts versioned alongside code so you can easily
-reuse them. Skip entire rebuilds by fetching a previous binary via associative
-Git notes and share it with your team. Expired artifacts disappear after
-`git gc`, saving disk space with zero manual maintenance. Because everything is
-plain Git you can browse, clone and mirror using the tools you already know.
+Git Recycle Bin keeps your artifacts versioned alongside code so you can easily reuse them. Skip entire rebuilds by fetching a previous binary via associative Git notes and share it with your team. Expired artifacts disappear after `git gc`, saving disk space with zero manual maintenance. Because everything is plain Git you can browse, clone and mirror using the tools you already know.
 
 Why the name? We "recycle" your build results – store them for later reuse and
 garbage collect them when they're obsolete. ♻️
