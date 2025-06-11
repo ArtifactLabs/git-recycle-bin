@@ -2,23 +2,95 @@ name: CI
 
 on:
   push:
-    branches: [master]
+    branches: ["*"]
   pull_request:
 
 env:
   NIX_PATH: "nixpkgs=channel:nixos-24.05"
 
 jobs:
-  test:
+  usage:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: cachix/install-nix-action@v25
-      - name: Usage help
-        run: nix-shell --pure --run "git_recycle_bin.py --help"
-      - name: Just list
-        run: nix-shell --pure --run "just --list"
-      - name: Unit tests
-        env:
-          TZ: Europe/Copenhagen
-        run: nix-shell --pure --run "just unittest"
+      - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v23
+      - run: nix-shell --pure --run "git_recycle_bin.py --help"
+      - run: nix-shell --pure --run "just --list"
+
+  unittest_nix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v23
+      - run: nix-shell --pure --run "just unittest"
+
+  unittest_pip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - run: sudo apt-get update && sudo apt-get install -y just
+      - run: pip install python-dateutil colorama maya
+      - run: pip install .
+      - run: just unittest
+
+  demo_help:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v23
+      - run: nix-shell --pure --run "just demo0"
+
+  demo_push:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        DEMO: [demo1, demo1_quiet, demo1_verbose, demo1_vverbose, demo2, demo3, demo4, demo5]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v23
+      - run: nix-shell --pure --run "just push::$DEMO"
+
+  demo_push_note:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v23
+      - run: git remote -vv
+      - run: aux/git_add_ssh_remote.sh origin
+      - run: git remote remove origin
+      - run: git remote rename origin_ssh origin
+      - run: git remote -vv
+      - run: nix-shell --run "just push::demo6_note"
+
+  demo_clean:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        DEMO: [demo1]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v23
+      - run: nix-shell --pure --run "just clean::$DEMO"
+
+  demo_list:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        DEMO: [demo1, demo2, demo3, demo4]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v23
+      - run: nix-shell --pure --run "just list::$DEMO"
+
+  demo_download:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        DEMO: [demo1]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: cachix/install-nix-action@v23
+      - run: nix-shell --pure --run "just download::$DEMO"

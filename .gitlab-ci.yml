@@ -17,6 +17,14 @@ unittest:
   script:
     - nix-shell --pure --run "just unittest"
 
+unittest_pip:
+  stage: test
+  image: python:3.11
+  script:
+    - pip install python-dateutil colorama maya
+    - pip install .
+    - pytest -q
+
 demo_help:
   stage: demos
   script:
