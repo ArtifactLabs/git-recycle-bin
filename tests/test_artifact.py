@@ -52,10 +52,10 @@ def test_relative_date():
     assert grb.date_fuzzy2expiryformat("next month") == grb.date_fuzzy2expiryformat("now in 1 month")
 
 def test_invalid_date():
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="invalid datetime input"):
         grb.date_fuzzy2expiryformat("invalid")
-    with pytest.raises(ValueError):
-        assert grb.date_fuzzy2expiryformat("Mon, 32 Feb 1994 21:21:42 GMT") == "there is no Feb 32"
+    with pytest.raises(ValueError, match="invalid datetime input"):
+        grb.date_fuzzy2expiryformat("Mon, 32 Feb 1994 21:21:42 GMT")
 
 def test_parse_expire_datetime():
     p = "artifact/expire/"
