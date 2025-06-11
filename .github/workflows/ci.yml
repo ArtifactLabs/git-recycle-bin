@@ -5,6 +5,9 @@ on:
     branches: [master]
   pull_request:
 
+env:
+  NIX_PATH: "nixpkgs=channel:nixos-24.05"
+
 jobs:
   test:
     runs-on: ubuntu-latest
