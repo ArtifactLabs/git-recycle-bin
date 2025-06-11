@@ -2,6 +2,10 @@
 unittest:
     PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src" pytest
 
+# Run code linter
+lint:
+    ruff check . --exit-zero
+
 # Demonstrate help
 demo0:
     git_recycle_bin.py --help

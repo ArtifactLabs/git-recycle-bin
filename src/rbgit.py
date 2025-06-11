@@ -1,15 +1,19 @@
 import os
-import sys
+import re
 import subprocess
+import sys
+from typing import Optional
+
+from printer import Printer
 
 class RbGit:
-    def __init__(self, printer, rbgit_dir=None, rbgit_work_tree=None):
+    def __init__(self, printer: Printer, rbgit_dir: Optional[str] = None, rbgit_work_tree: Optional[str] = None) -> None:
         self.printer = printer
         self.rbgit_dir = rbgit_dir if rbgit_dir else os.environ["RBGIT_DIR"]
         self.rbgit_work_tree = rbgit_work_tree if rbgit_work_tree else os.environ["RBGIT_WORK_TREE"]
         self.init_idempotent()
 
-    def cmd(self, *args, input=None, capture_output=True):
+    def cmd(self, *args: str, input: Optional[str] = None, capture_output: bool = True) -> str:
         # Override environment variables
         envcopy = os.environ.copy()
         envcopy["GIT_DIR"] = self.rbgit_dir
@@ -26,7 +30,7 @@ class RbGit:
         # return the result of the command
         return result.stdout
 
-    def init_idempotent(self):
+    def init_idempotent(self) -> None:
         try:
             # Check if inside git work tree
             self.cmd("rev-parse", "--is-inside-work-tree")
@@ -40,7 +44,7 @@ class RbGit:
         with open(f"{self.rbgit_dir}/info/exclude", "w") as file:
             file.write(".rbgit/\n")
 
-    def checkout_orphan_idempotent(self, branch_name: str):
+    def checkout_orphan_idempotent(self, branch_name: str) -> None:
         try:
             # Try to checkout the branch, if it exists
             self.cmd("show-ref", "--verify", "--quiet", f"refs/heads/{branch_name}")
@@ -68,17 +72,17 @@ class RbGit:
 
         return changes
 
-    def add_remote_idempotent(self, name: str, url: str):
+    def add_remote_idempotent(self, name: str, url: str) -> None:
         try:
             self.cmd("remote", "add", name, url)
         except RuntimeError:
             # If the remote already exists, set its URL
             self.cmd("remote", "set-url", name, url)
 
-    def fetch_only_tags(self, remote: str):
+    def fetch_only_tags(self, remote: str) -> None:
         self.cmd("fetch", remote, 'refs/tags/*:refs/tags/*')
 
-    def set_tag(self, tag_name: str, tag_val: str):
+    def set_tag(self, tag_name: str, tag_val: str) -> None:
         self.cmd("tag", "--force", tag_name, tag_val)
 
     def tree_size(self, ref: str = "HEAD") -> int:
@@ -93,12 +97,12 @@ class RbGit:
         sizes = [int(re.split(r'\s+', line)[3]) for line in lines.splitlines()]
         return sum(sizes)
 
-    def remote_already_has_ref(self, remote: str, ref_name: str):
+    def remote_already_has_ref(self, remote: str, ref_name: str) -> bool:
         """ `ls-remote` is pretty forgiving, e.g. either {master, refs/heads/master} will be found """
         lines = self.cmd("ls-remote", remote, ref_name)
         return (lines != "")
 
-    def fetch_current_tag_value(self, remote: str, tag_name: str):
+    def fetch_current_tag_value(self, remote: str, tag_name: str) -> Optional[str]:
         lines = self.cmd("ls-remote", "--tags", remote, tag_name)
         for line in lines.splitlines():
             cols = line.split()
