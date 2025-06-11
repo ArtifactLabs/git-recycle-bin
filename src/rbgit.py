@@ -3,7 +3,6 @@ import re
 import subprocess
 import sys
 from typing import Optional
-
 from printer import Printer
 
 class RbGit:
