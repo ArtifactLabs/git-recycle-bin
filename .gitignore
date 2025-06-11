@@ -1,2 +1,5 @@
 __pycache__
 tmp/
+build/
+dist/
+git_recycle_bin.egg-info/
