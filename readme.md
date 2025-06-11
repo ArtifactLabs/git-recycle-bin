@@ -9,7 +9,8 @@ Unlike many artifact management systems out there, the artifacts published here 
 - Have full traceabillity back to their original source code.
 - Support expiry and garbage collection - achieved via git gc of orphan branches with absolute expiry date in their ref.
 - Prolong expiry (absolute or indefinite) via simple git commands.
-- Permit discoverability of available artifacts via `git notes`. TODO.
+- Permit discoverability of available artifacts via `git notes`.
+  Implemented as described in [issue #1](issues/0001-git-notes-integration.md).
 
 
 # Usage

@@ -10,6 +10,8 @@ Post-glue := Non-intrusive state glued on externally afterwards:
     1) src can have a git notes branch of where OK-binaries exists (in {git bin repo, NFS, artifactory, etc})
     2) src can have a git tag on each commit, of sha in binary repo holding the OK-binaries.
     MPED: Prefer 1 ie git-notes as they are future-proof in {scope, content}.
+    Implementation exists as of commit 5ef2128.
+    See [issue #1](issues/0001-git-notes-integration.md) for design details.
 
 Post-glue can always be added/changed/redesigned, but the atomic design of bin repo needs upfront consideration:
 
