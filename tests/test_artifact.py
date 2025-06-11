@@ -1,8 +1,11 @@
+import os
+import sys
 import pytest
 import datetime
 from dateutil.tz import tzlocal
 
-from src import git_recycle_bin as grb  # DUT
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "src")))
+import git_recycle_bin as grb  # DUT
 
 def test_trim_all_lines():
     assert grb.trim_all_lines("  hello\n  world\n") == "hello\nworld\n"
@@ -21,8 +24,11 @@ def test_date_formatted2unix():
     assert grb.date_formatted2unix("Wed, 21 Jun 2023 14:13:31 +0200", "%a, %d %b %Y %H:%M:%S %z") == 1687349611
 
 def test_absolute_date():
-    assert grb.date_fuzzy2expiryformat("2023-07-27 CEST") == "2023-07-27/00.00+0200"
-    assert grb.date_fuzzy2expiryformat("Mon, 1 Feb 1994 21:21:42 GMT") == "1994-02-01/22.21+0100"
+    exp = datetime.datetime(2023, 7, 27, 0, 0, tzinfo=datetime.timezone.utc).astimezone(tzlocal()).strftime(grb.DATE_FMT_EXPIRE)
+    assert grb.date_fuzzy2expiryformat("2023-07-27 00:00 UTC") == exp
+
+    exp = datetime.datetime(1994, 2, 1, 21, 21, 42, tzinfo=datetime.timezone.utc).astimezone(tzlocal()).strftime(grb.DATE_FMT_EXPIRE)
+    assert grb.date_fuzzy2expiryformat("Mon, 1 Feb 1994 21:21:42 GMT") == exp
 
 def test_relative_date():
     assert grb.date_fuzzy2expiryformat("now") == datetime.datetime.now(tzlocal()).strftime(grb.DATE_FMT_EXPIRE)
