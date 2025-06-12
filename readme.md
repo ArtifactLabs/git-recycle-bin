@@ -6,7 +6,7 @@ Say you/CI build an app; now you can publish your binary to git! Not to your sam
 
 # Why?
 Unlike many artifact management systems out there, the artifacts published here will:
-- Have full traceabillity back to their original source code.
+ - Have full traceability back to their original source code.
 - Support expiry and garbage collection - achieved via git gc of orphan branches with absolute expiry date in their ref.
 - Prolong expiry (absolute or indefinite) via simple git commands.
 - Permit discoverability of available artifacts via `git notes`.
@@ -19,7 +19,7 @@ Unlike many artifact management systems out there, the artifacts published here 
 
 
 ## Schema
-Artifacts come with meta-data, for {expiry, traceabillity, audit, placement} purposes. \
+Artifacts come with meta-data, for {expiry, traceability, audit, placement} purposes. \
 Meta-data is stored as trailer fields in the commit message, forming a schema, e.g.:
 
 * `artifact-schema-version: 1` : Integer. The version of the schema.
@@ -43,7 +43,7 @@ Meta-data is stored as trailer fields in the commit message, forming a schema, e
 * `src-git-status: clean` : String or strings. Either `clean` or list of locally {modified, deleted} files in source git repo. Untracked files are ignored.
 
 This scheme captures only what is intrinsically tied to the artifact and the sources it comes from.
-Adding further meta-data should be carefully considered, so as to not compromise the repeatability/_stabillity_ of the artifact's commit SHA.
+Adding further meta-data should be carefully considered, so as to not compromise the repeatability/_stability_ of the artifact's commit SHA.
 
 
 ### Other schema ideas
