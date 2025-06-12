@@ -1,6 +1,7 @@
 # Git Recycle Bin ♻️
 
-**Turn any git host into your own artifact vault**.
+**Use any other git repo as an artifact build cache** 🤯.
+With bidirectional traceability 🎉!
 Store build outputs right alongside your source and skip costly rebuilds while
 keeping complete traceability.
 
