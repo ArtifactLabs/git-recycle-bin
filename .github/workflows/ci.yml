@@ -29,6 +29,20 @@ jobs:
           TZ: Europe/Copenhagen
         run: nix-shell --pure --run "just unittest"
 
+  pip_install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install package
+        run: pip install .
+      - name: Run tests
+        run: pytest
+      - name: CLI help
+        run: git_recycle_bin.py --help
+
   demo_help:
     runs-on: ubuntu-latest
     steps:
