@@ -13,3 +13,11 @@ mod push 'demos/push.justfile'
 mod list 'demos/list.justfile'
 mod clean 'demos/clean.justfile'
 mod download 'demos/download.justfile'
+
+# Lint shell scripts with shellcheck
+shellcheck:
+    shellcheck $(git ls-files '*.sh')
+
+# Lint Markdown files with markdownlint
+mdlint:
+    markdownlint $(git ls-files '*.md')

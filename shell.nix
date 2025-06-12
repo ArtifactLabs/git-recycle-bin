@@ -10,6 +10,8 @@ pkgs.mkShell {
   name = "git-recycle-bin";
   packages = [
     pkgs.just
+    pkgs.shellcheck
+    pkgs.markdownlint-cli
     git-recycle-bin
   ];
   shellHook = ''
