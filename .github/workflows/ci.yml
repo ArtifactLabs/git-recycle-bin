@@ -38,6 +38,8 @@ jobs:
           python-version: '3.11'
       - name: Install package
         run: pip install .
+      - name: Install test deps
+        run: pip install pytest
       - name: Run tests
         run: pytest
       - name: CLI help

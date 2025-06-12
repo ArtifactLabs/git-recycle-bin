@@ -16,10 +16,24 @@ keeping complete traceability.
 
 ### Using Nix
 
-Fetch this repository via `fetchgit` or add it as a submodule.
-You can then build the package with `nix build` and find the executables under
-`./result/bin`.
-For a development shell run:
+Add this package in a development shell using `callPackage`:
+
+```nix
+{ pkgs ? import <nixpkgs> {} }:
+pkgs.mkShell {
+  buildInputs = [
+    (pkgs.callPackage (pkgs.fetchFromGitHub {
+      owner = "artifactLabs";
+      repo = "git-recycle-bin";
+      rev = "master"; # use a specific tag or commit
+      sha256 = "0000000000000000000000000000000000000000000000000000";
+    } + "/default.nix") {})
+  ];
+}
+```
+
+Run `nix build` and find the executables under `result/bin`.
+For a shell with all tools:
 
 ```bash
 nix-shell
@@ -28,7 +42,7 @@ nix-shell
 ### Via pip
 
 ```bash
-pip install git+https://github.com/your-org/git-recycle-bin.git
+pip install git+https://github.com/ArtifactLabs/git-recycle-bin.git
 ```
 
 You can also install from a local checkout with:
