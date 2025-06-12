@@ -24,7 +24,7 @@ Artifacts come with meta-data, for {expiry, traceability, audit, placement} purp
 Meta-data is stored as trailer fields in the commit message, forming a schema, e.g.:
 
 * `artifact-schema-version: 1` : Integer. The version of the schema.
-* `artifact-name: Aurora-RST-Documentation` : String. Name of the artifact.
+* `artifact-name: Example-RST-Documentation` : String. Name of the artifact.
 * `artifact-mime-type: directory` : String or tuple. MIME type of the artifact.
   - One of {[`mimetypes.guess_type()`](https://docs.python.org/3/library/mimetypes.html#mimetypes.guess_type), `directory`, `link`, `mount`, `unknown`}.
 * `artifact-tree-prefix: obj/doc/html` : String. Files in this artifact commit all share this directory-prefix.
@@ -38,7 +38,7 @@ Meta-data is stored as trailer fields in the commit message, forming a schema, e
 * `src-git-commit-time-commit: Wed, 21 Jun 2023 15:42:49 +0200` : Date. Artifact was built from this commit in source git repo.
 * `src-git-branch: feature/wrk_le_audio_7.0` : String. Locally-checked out branch in source git repo or `Detached HEAD`.
 * `src-git-repo-name: firmware` : String. Basename of `src-git-repo-url`.
-* `src-git-repo-url: ssh://gerrit.ci.demant.com:29418/firmware` : String. URL of remote in source git repo.
+* `src-git-repo-url: ssh://git.example.com:29418/firmware` : String. URL of remote in source git repo.
 * `src-git-commits-ahead: ?`: Integer or `?`. How many commits source git repo branch was locally ahead of its remote upstream tracking branch.
 * `src-git-commits-behind: ?`: Integer or `?`. How many commits source git repo branch was locally behind of its remote upstream tracking branch.
 * `src-git-status: clean` : String or strings. Either `clean` or list of locally {modified, deleted} files in source git repo. Untracked files are ignored.
@@ -70,8 +70,8 @@ These could still be useful but do no belong in the artifact's commit message; w
 ```
 git_recycle_bin.py \
     --path ../obj/doc/html \
-    --name "Aurora-RST-Documentation" \
-    --remote git@gitlab.ci.demant.com:csfw/documentation/generated/aurora_rst_html_mpeddemo.git \
+    --name "Example-RST-Documentation" \
+    --remote git@example.com:documentation/generated/rst_html.git \
     --push \
     --push-tag
 ```
