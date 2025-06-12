@@ -25,15 +25,14 @@ pkgs.mkShell {
     (pkgs.callPackage (pkgs.fetchFromGitHub {
       owner = "artifactLabs";
       repo = "git-recycle-bin";
-      rev = "master"; # use a specific tag or commit
-      sha256 = "0000000000000000000000000000000000000000000000000000";
+      rev = "master"; # use a specific tag or commit  # TODO: pin revision
+      sha256 = "0000000000000000000000000000000000000000000000000000"; # TODO: update hash
     } + "/default.nix") {})
   ];
 }
 ```
 
-Run `nix build` and find the executables under `result/bin`.
-For a shell with all tools:
+Then enter the shell:
 
 ```bash
 nix-shell
