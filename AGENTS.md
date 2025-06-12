@@ -9,6 +9,18 @@ The repository is organised into a few key folders:
 - `demos/` shows practical usage of the tools.
 - `aux/` holds helper scripts that are not part of the build itself but may be
   useful.
+- `issues/` contains markdown tickets that track design ideas and
+  open tasks. When starting new work, add a ticket here first.
+
+### Issue ticket style
+Tickets under `issues/` should outline:
+- **Purpose** of the idea or feature
+- **Acceptance Criteria** describing what must be true to close the ticket
+- **Prerequisites** needed before work can begin
+- **Questions** that remain open
+- **Status** of the issue (e.g. Open, Done)
+Wrap lines in these markdown files at roughly 72 characters for
+readability.
 
 ## Coding Conventions
 - Follow PEP 8 style with four-space indentation and descriptive names.
