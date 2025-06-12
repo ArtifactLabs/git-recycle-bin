@@ -68,12 +68,11 @@ These could still be useful but do no belong in the artifact's commit message; w
 
 # Usage example 1
 ```
-git_recycle_bin.py \
+git_recycle_bin.py push \
+    git@example.com:documentation/generated/rst_html.git \
     --path ../obj/doc/html \
     --name "Example-RST-Documentation" \
-    --remote git@example.com:documentation/generated/rst_html.git \
-    --push \
-    --push-tag
+    --tag
 ```
 
 This will:
