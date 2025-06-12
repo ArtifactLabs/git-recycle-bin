@@ -16,8 +16,8 @@ mod download 'demos/download.justfile'
 
 # Lint shell scripts with shellcheck
 shellcheck:
-    shellcheck $(git ls-files '*.sh')
+    shellcheck -- $(git ls-files '*.sh')
 
 # Lint Markdown files with markdownlint
 mdlint:
-    markdownlint $(git ls-files '*.md')
+    markdownlint -- $(git ls-files '*.md')
