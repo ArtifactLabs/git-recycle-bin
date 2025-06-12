@@ -41,7 +41,7 @@ jobs:
       - name: Install test deps
         run: pip install pytest
       - name: Run tests
-        run: pytest
+        run: PYTHONPATH=$PWD:$PWD/src pytest
       - name: CLI help
         run: git_recycle_bin.py --help
 

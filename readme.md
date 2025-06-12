@@ -25,8 +25,8 @@ pkgs.mkShell {
     (pkgs.callPackage (pkgs.fetchFromGitHub {
       owner = "artifactLabs";
       repo = "git-recycle-bin";
-      rev = "master"; # use a specific tag or commit  # TODO: pin revision
-      sha256 = "0000000000000000000000000000000000000000000000000000"; # TODO: update hash
+      rev = "<commit>";   # pin a specific tag or commit
+      sha256 = "<hash>";   # update this hash
     } + "/default.nix") {})
   ];
 }
