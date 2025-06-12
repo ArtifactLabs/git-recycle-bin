@@ -36,3 +36,14 @@ def test_parse_args_push():
 def test_parse_args_force_tag_requires_force_branch():
     res = run_parse_args(['push', 'https://example.com', '--path', '/tmp/foo', '--name', 'bar', '--force-tag'])
     assert res is None
+
+
+def test_parse_args_list_name():
+    args = run_parse_args(['list', 'https://example.com', '--name', 'foo'])
+    assert args.command == 'list'
+    assert args.query == ('name', 'foo')
+
+
+def test_parse_args_missing_remote():
+    with pytest.raises(SystemExit):
+        run_parse_args(['list'])
