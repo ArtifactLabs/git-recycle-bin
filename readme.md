@@ -1,11 +1,13 @@
 # Git Recycle Bin ♻️
 
 **Turn any git host into your own artifact vault**.
-Store build outputs right alongside your source, skip costly rebuilds and keep complete traceability.
+Store build outputs right alongside your source and skip costly rebuilds while
+keeping complete traceability.
 
 ## Why adopt?
 
-- 🌱 *Self-governed*: no special server software or enterprise tools required. Any git host works.
+- 🌱 *Self-governed*: no special server software or enterprise tools required.
+  Any git host works.
 - ♻️ *Reuse binaries*: retrieve previous build artifacts and avoid unnecessary rebuilds.
 - 🔍 *Full traceability*: artifacts are tied to the exact source commit via git notes.
 - 🗑️ *Garbage collect*: expired artifacts vanish with `git gc`.
@@ -14,19 +16,27 @@ Store build outputs right alongside your source, skip costly rebuilds and keep c
 
 ### Using Nix
 
-```bash
-nix-shell --pure --run "just unittest"
-```
+Fetch this repository via `fetchgit` or add it as a submodule.
+You can then build the package with `nix build` and find the executables under
+`./result/bin`.
+For a development shell run:
 
-This drops you into a shell with all dependencies. From there run the tools directly.
+```bash
+nix-shell
+```
 
 ### Via pip
 
 ```bash
-pip install git-recycle-bin
+pip install git+https://github.com/your-org/git-recycle-bin.git
 ```
 
-You can also install from a checkout with `pip install .` (tested in CI 🎉).
+You can also install from a local checkout with:
+
+```bash
+pip install .
+```
+(tested in CI 🎉)
 
 ## Quick start
 
@@ -58,9 +68,11 @@ git_recycle_bin.py list . --name "Example-RST-Documentation"
 
 ## How it works
 
-`git-recycle-bin` keeps artifacts in their own branches while associating them with commits using git notes.
+`git-recycle-bin` stores artifacts in dedicated branches and links them to source
+commits using git notes.
 Because notes are non-destructive, you can look up previous binaries and reuse them.
-The name comes from the ability to recycle artifacts and eventually remove them when no longer needed.
+The name comes from the ability to recycle artifacts.
+Stale ones can be removed when no longer needed.
 CI pipelines can fetch a matching artifact and skip rebuilding altogether.
 
 ## Technical details
