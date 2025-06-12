@@ -19,6 +19,15 @@ pkgs.python311Packages.buildPythonApplication rec {
     pytest
   ];
 
+  checkInputs = with pkgs.python311Packages; [ pytest ];
+
+  checkPhase = ''
+    runHook preCheck
+    export PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src"
+    python -m pytest -vv
+    runHook postCheck
+  '';
+
   postInstall = ''
     install -Dm755 ${./aux/git_add_ssh_remote.sh} $out/bin/git_add_ssh_remote.sh
   '';
