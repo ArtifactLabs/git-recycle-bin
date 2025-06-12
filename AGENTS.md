@@ -7,12 +7,14 @@ The repository is organised into a few key folders:
 - `src/` contains the application code and executable entrypoints.
 - `tests/` holds unit and future integration tests.
 - `demos/` shows practical usage of the tools.
-- `aux/` stores helper scripts used by the build.
+- `aux/` holds helper scripts that are not part of the build itself but may be
+  useful.
 
 ## Coding Conventions
 - Follow PEP 8 style with four-space indentation and descriptive names.
 - Use type hints where sensible and keep functions short and readable.
 - Prefer standard library modules over additional dependencies when possible.
+- Use `snake_case` for modules and functions, and `PascalCase` for classes.
 
 ## General Conventions for AGENTS.md Implementation
 - Keep this document in sync with the code base. Update guidelines alongside feature or behaviour changes.
@@ -31,6 +33,12 @@ The repository is organised into a few key folders:
 - Keep the code base robust and industrial readable. Use type hints and descriptive names.
 - Avoid breaking changes. Introduce integration tests comparing HEAD with previous tagged releases when altering behaviour.
 - Keep documentation and design notes in sync with the implementation to avoid drift.
+- Wrap lines in Markdown to keep them reasonably short and readable.
+- Embrace the UNIX and KISS philosophies and apply POLA (principle of least
+  astonishment).
+- Consider input/output and data-structures first, then implementation.
+- Avoid refactoring unless explicitly approved. If refactoring occurs, ensure
+  end-to-end tests exist and add unit tests.
 
 ## Pull Request Guidelines
 - Keep PRs focused and include a summary of changes and testing steps.
