@@ -20,4 +20,4 @@ shellcheck:
 
 # Lint Markdown files with markdownlint
 mdlint:
-    markdownlint -- $(git ls-files '*.md' ':!:readme.md' ':!:AGENTS.md') || true
+    markdownlint -- $(git ls-files '*.md' ':!:readme.md' ':!:AGENTS.md')

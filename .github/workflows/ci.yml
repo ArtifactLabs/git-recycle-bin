@@ -70,6 +70,17 @@ jobs:
       - name: Demo list
         run: nix-shell --pure --run "just list::${{ matrix.demo }}"
 
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v25
+      - name: Shellcheck
+        run: nix-shell --pure --run "just shellcheck"
+      - name: Markdown lint
+        run: nix-shell --pure --run "just mdlint"
+        continue-on-error: true
+
   demo_download:
     runs-on: ubuntu-latest
     strategy:
