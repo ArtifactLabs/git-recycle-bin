@@ -37,7 +37,7 @@ def emit_commit_msg(d: dict):
 
     commit_msg_body = """
         This is a (binary) artifact with expiry. Expiry can be changed.
-        See https://gitlab.ci.demant.com/csfw/flow/git-recycle-bin#usage
+        See https://example.com/git-recycle-bin#usage
     """
 
     commit_msg_trailers = f"""
