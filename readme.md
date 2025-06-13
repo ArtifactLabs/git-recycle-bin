@@ -53,6 +53,7 @@ You can also install from a local checkout with:
 ```bash
 pip install .
 ```
+
 (tested in CI 🎉)
 
 ## Quick start
@@ -63,8 +64,9 @@ Push an artifact to a binary repository:
 git_recycle_bin.py push \
     git@example.com:documentation/generated/rst_html.git \
     --path ../obj/doc/html \
-    --name "Example-RST-Documentation" --tag
+--name "Example-RST-Documentation" --tag
 ```
+
 Push with expiry:
 
 ```bash
@@ -77,6 +79,7 @@ Download an artifact back into your working tree:
 git_recycle_bin.py list . | head -n 1 | \
     xargs -I _ git_recycle_bin.py download . _
 ```
+
 List artifacts:
 
 ```bash
@@ -96,14 +99,13 @@ CI pipelines can fetch a matching artifact and skip rebuilding altogether.
 
 Artifacts include metadata stored as trailer fields in the commit message. Key fields:
 
-* `artifact-schema-version`
-* `artifact-name`
-* `artifact-mime-type`
-* `artifact-tree-prefix`
-* `src-git-relpath`
-* `src-git-commit-sha`
-* `src-git-branch`
-* `src-git-repo-url`
+- `artifact-schema-version`
+- `artifact-name`
+- `artifact-mime-type`
+- `artifact-tree-prefix`
+- `src-git-relpath`
+- `src-git-commit-sha`
+- `src-git-branch`
+- `src-git-repo-url`
 
 For a full schema see [issue #1](issues/0001-git-notes-integration.md).
-
