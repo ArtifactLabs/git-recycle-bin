@@ -19,6 +19,9 @@ unittest:
   stage: test
   script:
     - nix-shell --pure --run "just unittest"
+    - curl -Os https://uploader.codecov.io/latest/linux/codecov
+    - chmod +x codecov
+    - ./codecov -t ${CODECOV_TOKEN} -r ArtifactLabs/git-recycle-bin -f coverage.xml
 
 pip_install:
   stage: test

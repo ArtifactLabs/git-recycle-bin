@@ -28,8 +28,11 @@ jobs:
         env:
           TZ: Europe/Copenhagen
         run: nix-shell --pure --run "just unittest"
-      - uses: codecov/codecov-action@v4
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
         with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: ArtifactLabs/git-recycle-bin
           files: coverage.xml
 
   pip_install:
