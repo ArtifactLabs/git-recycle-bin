@@ -1,5 +1,6 @@
 __pycache__
 tmp/
 build/
+docs/_build/
 dist/
 git_recycle_bin.egg-info/

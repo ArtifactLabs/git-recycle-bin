@@ -17,6 +17,8 @@ pkgs.python311Packages.buildPythonApplication rec {
     colorama
     dateparser
     pytest
+    sphinx
+    sphinx-material
   ];
 
   postInstall = ''

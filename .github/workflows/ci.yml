@@ -22,3 +22,20 @@ jobs:
         env:
           TZ: Europe/Copenhagen
         run: nix-shell --pure --run "just unittest"
+
+  docs:
+    needs: test
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v25
+      - name: Build documentation
+        run: nix-shell --pure --run "just docs-html"
+      - uses: actions/upload-pages-artifact@v2
+        with:
+          path: docs/_build/html
+      - uses: actions/deploy-pages@v2

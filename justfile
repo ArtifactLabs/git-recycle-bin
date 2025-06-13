@@ -6,6 +6,10 @@ unittest:
 demo0:
     git_recycle_bin.py --help
 
+# Build HTML documentation
+docs-html:
+    sphinx-build -b html docs docs/_build/html
+
 
 # for general flags look at push.justfile
 # the other examples are only command specific

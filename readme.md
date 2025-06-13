@@ -17,6 +17,16 @@ Unlike many artifact management systems out there, the artifacts published here 
 * Locally or CI-side, this tool creates and pushes artifacts, see `--help` and examples below.
 * Garbage collection of expired artifacts is done at server-side.
 
+## Documentation
+Documentation is built with [Sphinx](https://www.sphinx-doc.org/). A
+`docs-html` target is provided in the `justfile`. Run it from the Nix shell:
+
+```bash
+nix-shell shell.nix --pure --run 'just docs-html'
+```
+
+The resulting HTML is located under `docs/_build/html` and published from CI.
+
 
 ## Schema
 Artifacts come with meta-data, for {expiry, traceabillity, audit, placement} purposes. \
