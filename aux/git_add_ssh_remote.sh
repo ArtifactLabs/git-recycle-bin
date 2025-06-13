@@ -58,4 +58,4 @@ else
     git remote add "${REMOTE_NAME}_ssh" "$ssh_url" 2>/dev/null || true
 fi
 
-echo "Remote '${REMOTE_NAME}_ssh' added: $(git remote get-url ${REMOTE_NAME}_ssh)" 1>&2
+echo "Remote '${REMOTE_NAME}_ssh' added: $(git remote get-url "${REMOTE_NAME}_ssh")" 1>&2
