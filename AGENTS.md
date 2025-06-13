@@ -83,6 +83,8 @@ Wrap lines in these markdown files at roughly 72 characters for readability.
   succeed.
 - Run `nix-shell --run 'just lint'` and fix any reported issues.
 - Validate that documentation updates accompany code changes to prevent drift.
+- When editing CLI examples, run `git_recycle_bin.py --help` to verify option
+  names and arguments.
 
 ## Continuous Integration
 
