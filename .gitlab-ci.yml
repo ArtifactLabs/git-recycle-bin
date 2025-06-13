@@ -2,6 +2,9 @@ stages:
   - test
   - demos
 
+variables:
+  NIX_PATH: "nixpkgs=channel:nixos-24.05"
+
 default:
   tags:
     - csfw-minion
@@ -16,6 +19,15 @@ unittest:
   stage: test
   script:
     - nix-shell --pure --run "just unittest"
+
+pip_install:
+  stage: test
+  image: python:3.11
+  script:
+    - pip install .
+    - pip install pytest
+    - PYTHONPATH=$PWD:$PWD/src pytest
+    - git_recycle_bin.py --help
 
 demo_help:
   stage: demos
@@ -51,6 +63,7 @@ demo_push_note:
     # This will actually push a note to src remote, so it is not local-only!
     # Not --pure so as to use host system's ssh client
     - nix-shell --run "just push::demo6_note"
+
 
 demo_clean:
   stage: demos

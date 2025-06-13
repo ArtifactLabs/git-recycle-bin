@@ -59,3 +59,9 @@ readability.
 ## Programmatic Checks
 - Run `nix-shell shell.nix --pure --run "just unittest"` and ensure all tests succeed.
 - Validate that documentation updates accompany code changes to prevent drift.
+
+## Continuous Integration
+The project maintains both GitHub and GitLab pipelines. When changing one CI
+configuration, update the other in a comparable manner so the steps remain
+logically aligned. Keep `.gitlab-ci.yml` and `.github/workflows/ci.yml`
+synchronized to avoid divergent behaviour.
