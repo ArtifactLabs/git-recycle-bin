@@ -46,6 +46,7 @@ Wrap lines in these markdown files at roughly 72 characters for readability.
 ## Testing Requirements
 
 - Preferred: `nix-shell shell.nix --pure --run "just unittest"`.
+- Always run `nix-shell --run 'just lint'` to verify code style.
 - Non-Nix: install dependencies from `setup.py` and run `pytest` with
   `PYTHONPATH=$PWD:$PWD/src`.
 - Integration tests comparing HEAD with prior tagged releases must pass
@@ -80,6 +81,7 @@ Wrap lines in these markdown files at roughly 72 characters for readability.
 
 - Run `nix-shell shell.nix --pure --run "just unittest"` and ensure all tests
   succeed.
+- Run `nix-shell --run 'just lint'` and fix any reported issues.
 - Validate that documentation updates accompany code changes to prevent drift.
 
 ## Continuous Integration
