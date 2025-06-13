@@ -81,3 +81,15 @@ demo_download:
     matrix:
       - DEMO:
         - demo1
+
+lint_shell:
+  stage: test
+  script:
+    - nix-shell --pure --run "just lint-shell"
+  allow_failure: true
+
+lint_md:
+  stage: test
+  script:
+    - nix-shell --pure --run "just lint-md"
+  allow_failure: true

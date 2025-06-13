@@ -99,3 +99,21 @@ jobs:
       - uses: cachix/install-nix-action@v25
       - name: Demo download
         run: nix-shell --pure --run "just download::${{ matrix.demo }}"
+
+  lint-shell:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v25
+      - name: ShellCheck
+        run: nix-shell --pure --run "just lint-shell"
+
+  lint-md:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v25
+      - name: Markdownlint
+        run: nix-shell --pure --run "just lint-md"

@@ -8,3 +8,6 @@ Tickets should follow the style outlined in `AGENTS.md` with sections for
 purpose, acceptance criteria, prerequisites, questions and status.
 Follow the coding and testing conventions in `AGENTS.md` when submitting
 a pull request.
+
+Before opening a pull request, you can run `just lint` to check shell
+scripts with ShellCheck and Markdown files with `markdownlint`.

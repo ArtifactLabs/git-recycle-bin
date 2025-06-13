@@ -13,3 +13,14 @@ mod push 'demos/push.justfile'
 mod list 'demos/list.justfile'
 mod clean 'demos/clean.justfile'
 mod download 'demos/download.justfile'
+
+# Lint shell scripts
+lint-shell:
+    find . -name '*.sh' -print0 | xargs -0 shellcheck
+
+# Lint Markdown files
+lint-md:
+    markdownlint '**/*.md'
+
+# Run all linters
+lint: lint-shell lint-md
