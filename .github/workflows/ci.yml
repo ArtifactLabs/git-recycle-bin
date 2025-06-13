@@ -9,7 +9,7 @@ env:
   NIX_PATH: "nixpkgs=channel:nixos-24.05"
 
 jobs:
-  test:
+  usage:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,13 +18,25 @@ jobs:
         run: nix-shell --pure --run "git_recycle_bin.py --help"
       - name: Just list
         run: nix-shell --pure --run "just --list"
+
+  unittest:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v25
       - name: Unit tests
         env:
           TZ: Europe/Copenhagen
         run: nix-shell --pure --run "just unittest"
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          slug: ArtifactLabs/git-recycle-bin
+          files: coverage.xml
 
   docs:
-    needs: test
+    needs: unittest
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -39,3 +51,89 @@ jobs:
         with:
           path: docs/_build/html
       - uses: actions/deploy-pages@v2
+
+  pip_install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install package
+        run: pip install .
+      - name: Install test deps
+        run: pip install pytest
+      - name: Run tests
+        run: PYTHONPATH=$PWD:$PWD/src pytest
+      - name: CLI help
+        run: git_recycle_bin.py --help
+
+  demo_help:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v25
+      - name: Demo help
+        run: nix-shell --pure --run "just demo0"
+
+  demo_push:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        demo: [demo1, demo1_quiet, demo1_verbose, demo1_vverbose, demo2, demo3, demo4, demo5]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v25
+      - name: Demo push
+        run: nix-shell --pure --run "just push::${{ matrix.demo }}"
+
+  demo_clean:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        demo: [demo1]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v25
+      - name: Demo clean
+        run: nix-shell --pure --run "just clean::${{ matrix.demo }}"
+
+  demo_list:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        demo: [demo1, demo2, demo3, demo4]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v25
+      - name: Demo list
+        run: nix-shell --pure --run "just list::${{ matrix.demo }}"
+
+  demo_download:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        demo: [demo1]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v25
+      - name: Demo download
+        run: nix-shell --pure --run "just download::${{ matrix.demo }}"
+
+  lint-shell:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v25
+      - name: ShellCheck
+        run: nix-shell --pure --run "just lint-shell"
+
+  lint-md:
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v25
+      - name: Markdownlint
+        run: nix-shell --pure --run "just lint-md"
