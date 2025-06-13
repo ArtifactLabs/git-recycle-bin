@@ -3,3 +3,6 @@ tmp/
 build/
 dist/
 git_recycle_bin.egg-info/
+.coverage
+coverage.xml
+htmlcov/

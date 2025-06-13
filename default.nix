@@ -17,9 +17,10 @@ pkgs.python311Packages.buildPythonApplication rec {
     colorama
     dateparser
     pytest
+    pytest-cov
   ];
 
-  checkInputs = with pkgs.python311Packages; [ pytest ];
+  checkInputs = with pkgs.python311Packages; [ pytest pytest-cov ];
 
   checkPhase = ''
     runHook preCheck

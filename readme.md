@@ -1,5 +1,8 @@
 # Git Recycle Bin ♻️
 
+[![CI](https://github.com/ArtifactLabs/git-recycle-bin/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/ArtifactLabs/git-recycle-bin/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/ArtifactLabs/git-recycle-bin/branch/master/graph/badge.svg)](https://codecov.io/gh/ArtifactLabs/git-recycle-bin)
+
 **Use any other git repo as an artifact build cache** 🤯.
 With bidirectional traceability 🎉!
 Store build outputs right alongside your source and skip costly rebuilds while

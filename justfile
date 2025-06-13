@@ -1,6 +1,6 @@
 # Run unit tests
 unittest:
-    PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src" pytest
+    PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src" pytest --cov=src --cov-report=xml
 
 # Demonstrate help
 demo0:
