@@ -56,3 +56,84 @@ def test_fetch_cat_pretty():
     res = RbGit.fetch_cat_pretty(dummy, 'origin', 'ref')
     assert calls[0] == ('fetch', 'origin', 'ref')
     assert res == 'content'
+
+
+def test_add_no_changes(tmp_path):
+    path = tmp_path / 'file'
+    path.write_text('data')
+
+    calls = []
+
+    class D:
+        def cmd(self, *args, **kwargs):
+            calls.append(args)
+            if args[0] == 'diff-index':
+                return ''
+            return ''
+
+    dummy = D()
+    res = RbGit.add(dummy, str(path))
+    assert res is False
+    assert ('add', str(path)) in calls
+
+
+def test_add_changes_force(tmp_path):
+    path = tmp_path / 'file'
+    path.write_text('data')
+
+    calls = []
+
+    class D:
+        def cmd(self, *args, **kwargs):
+            calls.append(args)
+            if args[0] == 'diff-index':
+                raise RuntimeError('changed')
+            return ''
+
+    dummy = D()
+    res = RbGit.add(dummy, str(path), force=True)
+    assert res is True
+    assert ('add', '--force', str(path)) in calls
+
+
+def test_add_remote_idempotent_adds():
+    calls = []
+
+    class D:
+        def cmd(self, *args, **kwargs):
+            calls.append(args)
+            return ''
+
+    dummy = D()
+    RbGit.add_remote_idempotent(dummy, 'origin', 'url')
+    assert calls == [('remote', 'add', 'origin', 'url')]
+
+
+def test_add_remote_idempotent_set_url():
+    calls = []
+
+    class D:
+        def cmd(self, *args, **kwargs):
+            calls.append(args)
+            if args[:2] == ('remote', 'add'):
+                raise RuntimeError('exists')
+            return ''
+
+    dummy = D()
+    RbGit.add_remote_idempotent(dummy, 'origin', 'url')
+    assert ('remote', 'set-url', 'origin', 'url') in calls
+
+
+def test_fetch_only_tags_and_set_tag():
+    calls = []
+
+    class D:
+        def cmd(self, *args, **kwargs):
+            calls.append(args)
+            return ''
+
+    dummy = D()
+    RbGit.fetch_only_tags(dummy, 'origin')
+    RbGit.set_tag(dummy, 'v1', 'sha')
+    assert ('fetch', 'origin', 'refs/tags/*:refs/tags/*') in calls
+    assert ('tag', '--force', 'v1', 'sha') in calls

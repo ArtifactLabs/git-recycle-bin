@@ -123,3 +123,45 @@ def test_remote_flush_meta_for_commit(monkeypatch):
     grb.remote_flush_meta_for_commit(dummy, 'remote')
     assert ('push', 'remote', '--delete', 'refs/artifact/meta-for-commit/' + sha1) in calls
     assert all('refs/artifact/meta-for-commit/' + sha2 not in a for a in calls)
+
+
+def test_note_append_push(monkeypatch):
+    calls = []
+
+    def fake_exec(cmd, env=None):
+        calls.append(("exec", cmd, env))
+        return ''
+
+    def fake_exec_nostderr(cmd, env=None):
+        calls.append(("exec_nostderr", cmd, env))
+        return ''
+
+    monkeypatch.setattr(grb, 'exec', fake_exec)
+    monkeypatch.setattr(grb, 'exec_nostderr', fake_exec_nostderr)
+    monkeypatch.setattr(grb, 'get_user', lambda: 'u')
+    monkeypatch.setattr(grb, 'get_hostname', lambda: 'h')
+
+    args = SimpleNamespace(
+        remote='https://remote',
+        name='artifact',
+        src_remote_name='origin',
+        user_name='me',
+        user_email='me@example.com',
+    )
+    d = {
+        'src_status': '',
+        'bin_time_commit': 't',
+        'bin_branch_expire': 'exp',
+        'bin_sha_commit': 'sha',
+    }
+
+    grb.note_append_push(args, d)
+
+    gitenv = calls[0][2]
+    expected_ref = grb.sanitize_branch_name(
+        f"refs/notes/artifact/{grb.sanitize_slashes(args.remote)}/{grb.sanitize_slashes(args.name)}/{d['bin_sha_commit']}-clean"
+    )
+    assert gitenv['GIT_NOTES_REF'] == expected_ref
+    assert gitenv['GIT_AUTHOR_NAME'] == 'me'
+    assert any(c[1][:2] == ['git', 'notes'] and 'append' in c[1] for c in calls)
+    assert any(c[1][:2] == ['git', 'push'] for c in calls)
