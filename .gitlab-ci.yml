@@ -2,6 +2,9 @@ stages:
   - test
   - demos
 
+variables:
+  NIX_PATH: "nixpkgs=channel:nixos-24.05"
+
 default:
   tags:
     - csfw-minion
@@ -16,6 +19,28 @@ unittest:
   stage: test
   script:
     - nix-shell --pure --run "just unittest"
+    - curl -Os https://uploader.codecov.io/latest/linux/codecov
+    - chmod +x codecov
+    - ./codecov -t ${CODECOV_TOKEN} -r ArtifactLabs/git-recycle-bin -f coverage.xml
+
+docs:
+  stage: test
+  needs: ["unittest"]
+  script:
+    - nix-shell --pure --run "just docs-html"
+  artifacts:
+    paths:
+      - docs/_build/html
+    expire_in: 1 week
+
+pip_install:
+  stage: test
+  image: python:3.11
+  script:
+    - pip install .
+    - pip install pytest
+    - PYTHONPATH=$PWD:$PWD/src pytest
+    - git_recycle_bin.py --help
 
 demo_help:
   stage: demos
@@ -52,6 +77,7 @@ demo_push_note:
     # Not --pure so as to use host system's ssh client
     - nix-shell --run "just push::demo6_note"
 
+
 demo_clean:
   stage: demos
   script:
@@ -81,3 +107,15 @@ demo_download:
     matrix:
       - DEMO:
         - demo1
+
+lint_shell:
+  stage: test
+  script:
+    - nix-shell --pure --run "just lint-shell"
+  allow_failure: true
+
+lint_md:
+  stage: test
+  script:
+    - nix-shell --pure --run "just lint-md"
+  allow_failure: true

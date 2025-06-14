@@ -17,7 +17,19 @@ pkgs.python311Packages.buildPythonApplication rec {
     colorama
     dateparser
     pytest
+    pytest-cov
+    sphinx
+    sphinx-material
   ];
+
+  checkInputs = with pkgs.python311Packages; [ pytest pytest-cov ];
+
+  checkPhase = ''
+    runHook preCheck
+    export PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src"
+    python -m pytest -vv
+    runHook postCheck
+  '';
 
   postInstall = ''
     install -Dm755 ${./aux/git_add_ssh_remote.sh} $out/bin/git_add_ssh_remote.sh

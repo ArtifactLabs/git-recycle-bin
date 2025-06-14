@@ -11,6 +11,8 @@ pkgs.mkShell {
   packages = [
     pkgs.just
     git-recycle-bin
+    pkgs.shellcheck
+    pkgs.nodePackages.markdownlint-cli
   ];
   shellHook = ''
     export JUST_UNSTABLE=1

@@ -1,10 +1,14 @@
 # Run unit tests
 unittest:
-    PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src" pytest
+    PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src" pytest --cov=src --cov-report=xml
 
 # Demonstrate help
 demo0:
     git_recycle_bin.py --help
+
+# Build HTML documentation
+docs-html:
+    sphinx-build -b html docs docs/_build/html
 
 
 # for general flags look at push.justfile
@@ -13,3 +17,14 @@ mod push 'demos/push.justfile'
 mod list 'demos/list.justfile'
 mod clean 'demos/clean.justfile'
 mod download 'demos/download.justfile'
+
+# Lint shell scripts
+lint-shell:
+    find . -name '*.sh' -print0 | xargs -0 shellcheck
+
+# Lint Markdown files
+lint-md:
+    markdownlint '**/*.md'
+
+# Run all linters
+lint: lint-shell lint-md
