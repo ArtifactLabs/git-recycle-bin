@@ -13,6 +13,8 @@ pkgs.mkShell {
     git-recycle-bin
     pkgs.shellcheck
     pkgs.nodePackages.markdownlint-cli
+    pkgs.python311Packages.sphinx
+    pkgs.python311Packages.sphinx-material
   ];
   shellHook = ''
     export JUST_UNSTABLE=1

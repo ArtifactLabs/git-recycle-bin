@@ -6,3 +6,4 @@ git_recycle_bin.egg-info/
 .coverage
 coverage.xml
 htmlcov/
+docs/_build/

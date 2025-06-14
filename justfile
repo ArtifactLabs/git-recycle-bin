@@ -24,3 +24,9 @@ lint-md:
 
 # Run all linters
 lint: lint-shell lint-md
+
+# Build Sphinx documentation
+# Output goes to docs/_build/html
+# Use PYTHONPATH so autodoc can find modules
+docs:
+    PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src" sphinx-build -b html docs docs/_build/html
