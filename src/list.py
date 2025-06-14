@@ -1,7 +1,7 @@
 from printer import printer
-from commit_msg import *
 from util import exec
-from util_string import *
+from util_string import sanitize_branch_name
+from commit_msg import parse_commit_msg
 
 
 def list_command(args, rbgit, remote_bin_name):

@@ -8,13 +8,30 @@ from collections import OrderedDict
 
 from rbgit import RbGit
 from printer import printer
-from util_string import *
-from util_file import *
-from util_date import *
-from util_sysinfo import *
-from util import *
-from arg_parser import *
-from commit_msg import *
+from util_string import (
+    prefix_lines,
+    sanitize_branch_name,
+    sanitize_slashes,
+    string_trunc_ellipsis,
+    trim_all_lines,
+    url_redact,
+)
+from util_file import nca_path, rel_dir, classify_path
+from util_date import (
+    DATE_FMT_GIT,
+    DATE_FMT_EXPIRE,
+    date_fuzzy2expiryformat,
+    date_formatted2unix,
+    date_parse_formatted,
+    format_timespan,
+    parse_expire_date,
+)
+from dateutil.tz import tzlocal
+import datetime
+from util_sysinfo import get_user, get_hostname
+from util import exec, exec_nostderr
+from arg_parser import parse_args
+from commit_msg import emit_commit_msg, parse_commit_msg, extract_gerrit_change_id
 
 # commands
 from list import list_command

@@ -1,4 +1,12 @@
-from util_string import *
+import re
+
+from util_string import (
+    prefix_lines,
+    remove_empty_lines,
+    string_trunc_ellipsis,
+    trim_all_lines,
+    url_redact,
+)
 
 
 def extract_gerrit_change_id(commit_message: str) -> str:
