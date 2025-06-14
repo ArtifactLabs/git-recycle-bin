@@ -1,6 +1,7 @@
 stages:
   - test
   - demos
+  - deploy
 
 variables:
   NIX_PATH: "nixpkgs=channel:nixos-24.05"
@@ -109,3 +110,13 @@ lint_md:
   script:
     - nix-shell --pure --run "just lint-md"
   allow_failure: true
+
+pages:
+  stage: deploy
+  script:
+    - nix-shell --pure --run "just docs"
+  artifacts:
+    paths:
+      - docs/_build/html
+  only:
+    - master

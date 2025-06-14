@@ -11,6 +11,8 @@ With bidirectional traceability 🎉!
 Store build outputs right alongside your source and skip costly rebuilds while
 keeping complete traceability.
 
+Full documentation is available on [GitHub Pages](https://artifactlabs.github.io/git-recycle-bin/).
+
 ## What is Git Recycle Bin?
 
 Git Recycle Bin uses Git so you can manage build artifacts in a
