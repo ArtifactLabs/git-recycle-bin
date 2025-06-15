@@ -65,9 +65,9 @@ def create_artifact_commit(rbgit, artifact_name: str, binpath: str, expire_branc
     # Author time is easily set with `git commit --date`.
     d['src_time_author']  = exec(["git", "show", "-s", "--format=%ad", f"--date=format:{DATE_FMT_GIT}", d['src_sha']])
 
-    # Commiter time changes every time the commit-SHA changes, for example {rebasing, amending, ...}.
-    # Commiter time can be set with $GIT_COMMITTER_DATE or `git rebase --committer-date-is-author-date`.
-    # Commiter time is monotonically increasing but sampled locally, so graph could still be non-monotonic if a collaborator has a very wrong clock.
+    # Committer time changes every time the commit-SHA changes, for example {rebasing, amending, ...}.
+    # Committer time can be set with $GIT_COMMITTER_DATE or `git rebase --committer-date-is-author-date`.
+    # Committer time is monotonically increasing but sampled locally, so graph could still be non-monotonic if a collaborator has a very wrong clock.
     d['src_time_commit']  = exec(["git", "show", "-s", "--format=%cd", f"--date=format:{DATE_FMT_GIT}", d['src_sha']])
 
     d['src_branch']       = exec(["git", "rev-parse", "--abbrev-ref", "HEAD"])

@@ -102,7 +102,7 @@ Implementing download.
            It is likely that different kinds of artifacts may be pushed to different remotes. E.g. HTML vs ELF.
            I.e. this is not discoverable.
 
-        b) Look for avilable git notes.
+        b) Look for available git notes.
            Run from within SRC_REPO:
            $ git fetch origin "refs/notes/*:refs/notes/*"
 
