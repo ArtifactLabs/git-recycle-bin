@@ -30,3 +30,8 @@ lint: lint-shell lint-md
 # Use PYTHONPATH so autodoc can find modules
 docs:
     PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src" sphinx-build -b html docs docs/_build/html
+
+# Lint documentation with Sphinx
+# Treat warnings as errors to catch broken references
+docs-lint:
+    PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src" sphinx-build -n -W -b dummy docs docs/_build/dummy

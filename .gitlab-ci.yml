@@ -111,6 +111,11 @@ lint_md:
     - nix-shell --pure --run "just lint-md"
   allow_failure: true
 
+docs_lint:
+  stage: test
+  script:
+    - nix-shell --pure --run "just docs-lint"
+
 pages:
   stage: deploy
   script:
