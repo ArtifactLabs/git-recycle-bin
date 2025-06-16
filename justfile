@@ -34,4 +34,4 @@ docs:
 # Lint documentation with Sphinx
 # Treat warnings as errors to catch broken references
 docs-lint:
-    PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src" sphinx-build -n -W -b dummy docs docs/_build/dummy
+    PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src" sphinx-build -E -n -W -b dummy docs docs/_build/dummy
