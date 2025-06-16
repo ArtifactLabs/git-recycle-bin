@@ -69,14 +69,18 @@ build avoidance.
 
 ```nix
 { pkgs ? import <nixpkgs> {} }:
-pkgs.mkShell {
-  buildInputs = [
-    (pkgs.callPackage (pkgs.fetchFromGitHub {
+let
+  git-recycle-bin =
+    pkgs.callPackage (pkgs.fetchFromGitHub {
       owner = "artifactLabs";
       repo = "git-recycle-bin";
-      rev = "<commit>";
-      sha256 = "<hash>";
-    } + "/default.nix") {})
+      rev = "<commit>";   # pin a specific tag or commit
+      sha256 = "<hash>";   # update this hash
+    } + "/default.nix") {};
+in
+pkgs.mkShell {
+  buildInputs = [
+    git-recycle-bin
   ];
 }
 ```
