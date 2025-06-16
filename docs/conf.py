@@ -24,8 +24,10 @@ try:
 
     def setup(app):
         sphinx_material.setup(app)
+
         def _clear_context(app, env):
-            env.config.html_context = {}
+            env.config.html_context = sphinx_material.get_html_context()
+
         app.connect("env-updated", _clear_context)
 except Exception:
     pass
