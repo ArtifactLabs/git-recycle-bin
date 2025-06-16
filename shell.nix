@@ -15,6 +15,11 @@ pkgs.mkShell {
     pkgs.nodePackages.markdownlint-cli
     pkgs.python311Packages.sphinx
     pkgs.python311Packages.sphinx-material
+    pkgs.python311Packages.pydata-sphinx-theme
+    pkgs.python311Packages.sphinx-design
+    # RST linting tools
+    pkgs.python311Packages.rstcheck
+    pkgs.python311Packages.restructuredtext-lint
   ];
   shellHook = ''
     export JUST_UNSTABLE=1

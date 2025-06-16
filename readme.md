@@ -72,7 +72,7 @@ build avoidance.
 let
   git-recycle-bin =
     pkgs.callPackage (pkgs.fetchFromGitHub {
-      owner = "artifactLabs";
+      owner = "ArtifactLabs";
       repo = "git-recycle-bin";
       rev = "<commit>";   # pin a specific tag or commit
       sha256 = "<hash>";   # update this hash
