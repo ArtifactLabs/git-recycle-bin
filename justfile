@@ -1,18 +1,25 @@
+# Clean generated docs, lint reports, python caches, etc
+clean: docs-clean
+
+########################
 # Run unit tests
 unittest:
     PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src" pytest --cov=src --cov-report=xml
 
-# Demonstrate help
+########################
+
+# Demonstrate --help
 demo0:
     git_recycle_bin.py --help
 
-
 # for general flags look at push.justfile
 # the other examples are only command specific
-mod push 'demos/push.justfile'
-mod list 'demos/list.justfile'
-mod clean 'demos/clean.justfile'
-mod download 'demos/download.justfile'
+mod demo-push 'demos/push.justfile'
+mod demo-list 'demos/list.justfile'
+mod demo-clean 'demos/clean.justfile'
+mod demo-download 'demos/download.justfile'
+
+########################
 
 # Lint shell scripts
 lint-shell:
@@ -25,6 +32,8 @@ lint-md:
 # Run all linters
 lint: lint-shell lint-md
 
+########################
+
 # Build Sphinx documentation
 # Output goes to docs/_build/html
 # Use PYTHONPATH so autodoc can find modules
@@ -35,3 +44,7 @@ docs:
 # Treat warnings as errors to catch broken references
 docs-lint:
     PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src" sphinx-build -E -n -W -b dummy docs docs/_build/dummy
+
+# Clean documentation build artifacts
+docs-clean:
+    -rm -rf docs/_build/
