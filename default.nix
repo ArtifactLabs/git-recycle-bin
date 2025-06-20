@@ -7,7 +7,27 @@ pkgs.python311Packages.buildPythonApplication rec {
   pname = "git-recycle-bin";
   version = "0.2.5";
 
-  src = ./.;
+  src = pkgs.lib.fileset.toSource {
+    root = ./.;
+    fileset = pkgs.lib.fileset.unions [
+      # Python source files - filter out  __pycache__ and linter cruft
+      (pkgs.lib.fileset.fileFilter (file: file.hasExt "py") ./src)
+
+      # Setup and configuration files
+      ./setup.py
+      ./pyproject.toml
+
+      # Test files for checkPhase
+      ./tests
+
+      # Auxiliary scripts needed for postInstall
+      ./aux/git_add_ssh_remote.sh
+
+      # License and readme files
+      ./LICENSE
+      ./readme.md
+    ];
+  };
   format = "setuptools";
 
   propagatedBuildInputs = [ pkgs.git ] ++ pythonPath;
