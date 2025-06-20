@@ -5,6 +5,9 @@ on:
     branches: [master]
   pull_request:
 
+permissions:
+  contents: read
+
 env:
   NIX_PATH: "nixpkgs=channel:nixos-24.05"
 
@@ -61,6 +64,8 @@ jobs:
 
   demo_push:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     strategy:
       matrix:
         demo: [demo1, demo1_quiet, demo1_verbose, demo1_vverbose, demo2, demo3, demo4, demo5]
