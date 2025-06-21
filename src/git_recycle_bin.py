@@ -71,9 +71,17 @@ def create_artifact_commit(rbgit, artifact_name: str, binpath: str, expire_branc
     d['src_time_commit']  = exec(["git", "show", "-s", "--format=%cd", f"--date=format:{DATE_FMT_GIT}", d['src_sha']])
 
     d['src_branch']       = exec(["git", "rev-parse", "--abbrev-ref", "HEAD"])
-    d['src_repo_url']     = exec(["git", "config", "--get", f"remote.{d['src_remote_name']}.url"])
-    d['src_repo']         = os.path.basename(d['src_repo_url'])
     d['src_tree_root']    = exec(["git", "rev-parse", "--show-toplevel"])
+    
+    # Handle the case where the repository has no remote configured
+    try:
+        d['src_repo_url']     = exec(["git", "config", "--get", f"remote.{d['src_remote_name']}.url"])
+        d['src_repo']         = os.path.basename(d['src_repo_url'])
+    except subprocess.CalledProcessError:
+        # No remote configured, use a fallback based on the git directory
+        d['src_repo_url']     = f"{get_hostname()}:{d['src_tree_root']}"  # Use hostname:local_path as URL
+        d['src_repo']         = os.path.basename(d['src_tree_root'])
+    
     d['src_status']       = exec(["git", "status", "--porcelain=1", "--untracked-files=no"])
 
     if d['src_branch'] == "HEAD":
