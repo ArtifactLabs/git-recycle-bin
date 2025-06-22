@@ -5,7 +5,7 @@
 
 pkgs.python311Packages.buildPythonApplication rec {
   pname = "git-recycle-bin";
-  version = "0.2.5";
+  version = "0.2.6";
 
   src = pkgs.lib.fileset.toSource {
     root = ./.;

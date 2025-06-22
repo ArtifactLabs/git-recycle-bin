@@ -4,7 +4,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="git-recycle-bin",
-    version="0.2.5",
+    version="0.2.6",
     # Modules to import from other scripts:
     packages=find_packages(),
     install_requires=[

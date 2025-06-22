@@ -47,7 +47,7 @@ Create a ``shell.nix`` file in your project:
      git-recycle-bin = pkgs.callPackage (pkgs.fetchFromGitHub {
        owner = "ArtifactLabs";
        repo = "git-recycle-bin";
-       rev = "v0.2.5";  # Pin to a specific version
+       rev = "v0.2.6";  # Pin to a specific version
        sha256 = "sha256-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=";  # Update this hash
      } + "/default.nix") {};
    in

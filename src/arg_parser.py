@@ -2,6 +2,9 @@ import argparse
 import os
 from printer import printer
 
+# Version information
+__version__ = "0.2.6"
+
 def str2bool(v):
     if isinstance(v, bool):
        return v
@@ -40,6 +43,7 @@ def parse_args():
 
     g = top_parser.add_argument_group('terminal output style')
     g.add_argument("-h", "--help", action="help", default=argparse.SUPPRESS, help="Show this help message and exit.")
+    g.add_argument("--version", action="version", version=f"{__version__}", help="Show version and exit.")
     g.add_argument('-v', '--verbose', action='count', dest='verbosity', default=1, help="Increase output verbosity. Can be repeated, e.g. -vv.")
     g.add_argument('-q', '--quiet', action='store_const', dest='verbosity', const=0, help="Suppress output.")
     dv = 'True' ;  g.add_argument("--color", metavar='bool', type=str2bool, nargs='?', const=True, default=os.getenv('GITRB_COLOR', dv), help=f"Colorized output. Default {dv}.")
