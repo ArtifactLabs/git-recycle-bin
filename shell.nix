@@ -13,15 +13,28 @@ pkgs.mkShell {
     git-recycle-bin
     pkgs.shellcheck
     pkgs.nodePackages.markdownlint-cli
+    
+    # Python development tools for VS Code integration
+    pkgs.python311
+    pkgs.python311Packages.black
+    pkgs.python311Packages.isort
+    pkgs.python311Packages.python-lsp-server  # Language server for better VS Code support
+    
+    # Sphinx documentation tools
     pkgs.python311Packages.sphinx
     pkgs.python311Packages.sphinx-material
     pkgs.python311Packages.pydata-sphinx-theme
     pkgs.python311Packages.sphinx-design
+    
     # RST linting tools
     pkgs.python311Packages.rstcheck
     pkgs.python311Packages.restructuredtext-lint
   ];
+  
   shellHook = ''
     export JUST_UNSTABLE=1
+    
+    # Set up Python path for development
+    export PYTHONPATH="$PWD/src:$PYTHONPATH"
   '';
 }

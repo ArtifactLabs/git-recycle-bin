@@ -1,0 +1,45 @@
+{
+    // ----------------------
+    // Nix Environment Setup
+    // ----------------------
+    // Path to the Nix configuration file that defines the development environment
+    "nixEnvSelector.nixFile": "${workspaceFolder}/shell.nix",
+
+    // When true, uses nix-shell to create an isolated development environment
+    // defined by the specified Nix file
+    "nixEnvSelector.useNixShell": true,
+
+    // ----------------------
+    // Python Configuration
+    // ----------------------
+    
+    // Python interpreter path
+    "python.defaultInterpreterPath": "${workspaceFolder}/.vscode/python3_nix",
+
+    // Activate the environment when opening a terminal
+    "python.terminal.activateEnvironment": true,
+
+    // ----------------------
+    // Python Analysis & Linting
+    // ----------------------
+    
+    // Type checking level for the Pylance language server
+    // Options:
+    //   "off" - No type checking
+    //   "basic" - Standard type checking
+    //   "strict" - Comprehensive type checking (similar to mypy --strict)
+    "python.analysis.typeCheckingMode": "strict",
+
+    // Enable auto imports from external packages
+    "python.analysis.autoImportCompletions": true,
+
+    // ----------------------
+    // Formatting Configuration
+    // ----------------------
+    
+    // Controls whether files are automatically formatted when saved
+    "editor.formatOnSave": false,
+
+    // Use Black as the Python formatter
+    "python.formatting.provider": "black"
+}
