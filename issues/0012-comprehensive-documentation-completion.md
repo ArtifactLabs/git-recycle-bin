@@ -2,8 +2,8 @@
 
 ## Purpose
 
-Implement the remaining documentation files outlined in Phase 2 and Phase 3 of 
-the documentation roadmap to provide complete, user-friendly documentation for 
+Implement the remaining documentation files outlined in Phase 2 and Phase 3 of
+the documentation roadmap to provide complete, user-friendly documentation for
 git-recycle-bin.
 
 ## Acceptance Criteria
@@ -49,10 +49,10 @@ Open
 
 ## Implementation Notes
 
-Current status: Phase 1 complete with `quickstart.rst`, `concepts.rst`, 
-`usage/basic-operations.rst`, `examples/basic-workflow.rst`, and updated 
-`index.rst`. This provides essential documentation for users to get started 
+Current status: Phase 1 complete with `quickstart.rst`, `concepts.rst`,
+`usage/basic-operations.rst`, `examples/basic-workflow.rst`, and updated
+`index.rst`. This provides essential documentation for users to get started
 and understand core functionality.
 
-Remaining work focuses on advanced usage, complete reference materials, 
-and developer documentation to support both power users and contributors. 
+Remaining work focuses on advanced usage, complete reference materials,
+and developer documentation to support both power users and contributors.
