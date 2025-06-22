@@ -130,7 +130,7 @@ Push Your First Artifact
    Artifact will expire: 2024-01-22 10:30 +0200
 
 **What Happened:**
-1. Git Recycle Bin created a commit in the artifact repository containing your build files
+1. |grb| created a commit in the artifact repository containing your build files
 2. It created a branch with expiry information in the name
 3. It updated a "latest" tag for easy access
 4. It stored metadata linking back to your source commit
@@ -436,8 +436,8 @@ Checking for Expired Artifacts
 
 .. code-block:: bash
 
-   # Check what's expired
-   git_recycle_bin.py list git@artifacts.company.com:webapp-artifacts.git --expired
+   # List all artifacts to see which ones are expired
+   git_recycle_bin.py list git@artifacts.company.com:webapp-artifacts.git
 
 **Expected Output (if today is Jan 19):**
 
@@ -580,26 +580,71 @@ Cross-Team Sharing
 Build Avoidance Pattern
 ~~~~~~~~~~~~~~~~~~~~~~~
 
+.. uml::
+
+   @startuml
+   !theme plain
+   skinparam backgroundColor #FFFFFF
+   skinparam arrow {
+       Color #333333
+       FontColor #333333
+   }
+   skinparam activity {
+       BackgroundColor #E8F4FD
+       BorderColor #1976D2
+       FontColor #333333
+   }
+   skinparam decision {
+       BackgroundColor #FFF3E0
+       BorderColor #F57C00
+       FontColor #333333
+   }
+   skinparam note {
+       BackgroundColor #F3E5F5
+       BorderColor #7B1FA2
+       FontColor #333333
+   }
+   
+   start
+   
+   :Get current commit SHA;
+   :Check if artifact exists;
+   
+   if (Artifact exists?) then (yes)
+     :Download existing artifact;
+     note right: Skip build process
+   else (no)
+     :Run build process;
+     :Push new artifact;
+     note right: Let CI and Developers reuse
+   endif
+   
+   :Use artifact;
+   stop
+   
+   @enduml
+
+The build avoidance pattern works by:
+
+1. **Check**: Query artifact repository for current commit
+2. **Download**: If artifact exists, download it (skip build)  
+3. **Build**: If no artifact, run build process and push result
+4. **Use**: Deploy/test with the artifact
+
+**Implementation:**
+
 .. code-block:: bash
 
-   #!/bin/bash
-   # smart-build.sh
-   
-   # Check if artifact exists for current commit
+   # Check for existing artifact
    current_commit=$(git rev-parse HEAD)
-   
-   if git_recycle_bin.py list git@artifacts.company.com:webapp-artifacts.git \
-           --name "webapp-build" --format json | \
-           jq -e ".[] | select(.source_commit | startswith(\"$current_commit\"))" > /dev/null; then
-       
-       echo "Artifact exists for commit $current_commit, downloading..."
-       git_recycle_bin.py download git@artifacts.company.com:webapp-artifacts.git \
-           --name "webapp-build" --output build
+   if git_recycle_bin.py list REPO --name "build" --format json | \
+      jq -e ".[] | select(.source_commit | startswith(\"$current_commit\"))"; then
+       # Download existing
+       git_recycle_bin.py download REPO --name "build" --output build
    else
-       echo "No artifact found for commit $current_commit, building..."
+       # Build and push new
        npm run build
-       git_recycle_bin.py push git@artifacts.company.com:webapp-artifacts.git \
-           --path build --name "webapp-build" --expire "1 month"
+       git_recycle_bin.py push REPO --path build --name "build" --expire "1 month"
    fi
 
 Summary

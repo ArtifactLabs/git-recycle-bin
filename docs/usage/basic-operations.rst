@@ -14,17 +14,32 @@ All git-recycle-bin commands follow this general pattern:
 
 .. code-block:: bash
 
-   git_recycle_bin.py <operation> <repository> [options]
+   git_recycle_bin.py <command> <remote_url> [options]
 
 **Components:**
-- ``<operation>`` - What to do: push, list, download, clean
-- ``<repository>`` - Where artifacts are stored (can be `.` for current directory)
+- ``<command>`` - What to do: push, list, download, clean
+- ``<remote_url>`` - Git remote URL where artifacts are stored
 - ``[options]`` - Operation-specific flags and values
 
 **Common Options:**
 - ``--help`` - Show detailed help for any command
-- ``--verbose`` - Enable detailed output for debugging
-- ``--dry-run`` - Preview what would happen without making changes
+- ``--verbose`` - Enable detailed output for debugging (can be repeated: -vv)
+- ``--quiet`` - Suppress output
+- ``--color`` - Enable colorized output (default: True)
+
+**Environment Variables:**
+You can set defaults using environment variables:
+
+- ``GITRB_USERNAME`` - Default author name for artifact commits
+- ``GITRB_EMAIL`` - Default author email for artifact commits  
+- ``GITRB_SRC_REMOTE`` - Default source remote name (default: origin)
+- ``GITRB_RM_TMP`` - Remove temporary repositories (default: True)
+- ``GITRB_COLOR`` - Enable colorized output (default: True)
+- ``GITRB_PATH`` - Default artifact path
+- ``GITRB_NAME`` - Default artifact name
+- ``GITRB_EXPIRE`` - Default expiry date (default: "in 30 days")
+- ``GITRB_PUSH_TAG`` - Push tags to remote (default: False)
+- ``GITRB_PUSH_NOTE`` - Push notes to source remote (default: False)
 
 Getting Help
 ~~~~~~~~~~~~
@@ -302,30 +317,28 @@ Simple Download Examples
 
 .. code-block:: bash
 
-   # Download latest artifact with default name
-   git_recycle_bin.py download . --name "webapp-build"
+   # First list artifacts to get the SHA
+   git_recycle_bin.py list . --name "webapp-build"
    
-   # Download to specific location
-   git_recycle_bin.py download . --name "webapp-build" --output ./dist
+   # Download using artifact SHA (from list output)
+   git_recycle_bin.py download . abc123def456
    
    # Download from remote repository
-   git_recycle_bin.py download git@artifacts.company.com:myproject.git \
-       --name "webapp-build" --output ./build/webapp
+   git_recycle_bin.py download git@artifacts.company.com:myproject.git abc123def456
    
    # Force overwrite existing files
-   git_recycle_bin.py download . --name "webapp-build" --output ./dist --force
+   git_recycle_bin.py download . abc123def456 --force
 
 Download Specific Versions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-   # Download specific artifact commit
-   git_recycle_bin.py download . --name "webapp-build" \
-       --commit "9f8e7d6c5b4a3e2d1c0b9a8f7e6d5c4b"
+   # Download specific artifact by SHA
+   git_recycle_bin.py download . 9f8e7d6c5b4a3e2d1c0b9a8f7e6d5c4b
    
-   # Get commit SHA from list operation first
-   git_recycle_bin.py list . --name "webapp-build" --format json
+   # Get artifact SHA from list operation first
+   git_recycle_bin.py list . --name "webapp-build"
 
 **Finding Commit SHAs:**
 
@@ -336,9 +349,8 @@ Use the list operation to find available versions:
    # List all versions of an artifact
    git_recycle_bin.py list . --name "webapp-build"
    
-   # Use JSON format for exact commit SHAs
-   git_recycle_bin.py list . --name "webapp-build" --format json | \
-       jq -r '.[] | "\(.name): \(.artifact_commit)"'
+   # Output shows artifact SHAs that can be used for download
+   # Example output: abc123def456 (use this SHA for download)
 
 Understanding Download Output
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -514,11 +526,53 @@ Debugging Commands
    # Enable verbose output
    git_recycle_bin.py --verbose list .
    
-   # Check what would be pushed without doing it
-   git_recycle_bin.py push . --path dist --name "test" --dry-run
+   # Check repository connectivity
+   git_recycle_bin.py list . --verbose
    
    # Verify repository access
    git ls-remote git@artifacts.company.com:myproject.git
+
+Clean Operations
+----------------
+
+The clean command removes expired artifacts from the artifact repository.
+
+Basic Clean Syntax
+~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   git_recycle_bin.py clean <remote_url>
+
+**Components:**
+- ``clean`` - The command to clean expired artifacts
+- ``<remote_url>`` - Git remote URL of artifact repository to clean
+
+Simple Clean Examples
+~~~~~~~~~~~~~~~~~~~~~
+
+.. code-block:: bash
+
+   # Clean expired artifacts from local repository
+   git_recycle_bin.py clean .
+   
+   # Clean expired artifacts from remote repository
+   git_recycle_bin.py clean git@artifacts.company.com:myproject.git
+
+**Expected Output:**
+
+.. code-block:: text
+
+   Cleaning expired artifacts...
+   Removed expired branch: artifact/expire/2024-01-15/project@abc123/build
+   Removed expired branch: artifact/expire/2024-01-16/project@def456/docs
+   Cleaned 2 expired artifacts
+
+**Understanding Clean Behavior:**
+- Only removes artifacts past their expiry date
+- Does not affect artifacts that haven't expired yet
+- Removes both branches and associated metadata
+- Uses Git's native garbage collection
 
 These basic operations form the foundation of working with git-recycle-bin. Once you're comfortable 
 with these patterns, you can explore the advanced features for more complex workflows. 

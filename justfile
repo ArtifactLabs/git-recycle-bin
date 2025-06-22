@@ -49,15 +49,20 @@ lint: lint-shell lint-md lint-rst
 
 ########################
 
+# Internal, prep for assets referenced by raw html
+_docs-pre:
+    @mkdir -p docs/_build/html/_static/
+    @cp -r docs/artwork/ docs/_build/html/_static/
+
 # Build Sphinx documentation
 # Output goes to docs/_build/html
 # Use PYTHONPATH so autodoc can find modules
-docs:
+docs: _docs-pre
     PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src" sphinx-build -b html docs docs/_build/html
 
 # Lint documentation with Sphinx
 # Treat warnings as errors to catch broken references
-docs-lint:
+docs-lint: _docs-pre
     PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src" sphinx-build -E -n -W -b dummy docs docs/_build/dummy
 
 # Clean documentation build artifacts

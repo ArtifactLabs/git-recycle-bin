@@ -1,10 +1,10 @@
 Overview
 ========
 
-What is Git Recycle Bin?
+What is |grb|?
 -------------------------
 
-Git Recycle Bin is a command-line tool (`git_recycle_bin.py`) that extends Git's capabilities to efficiently 
+|grb| is a command-line tool (`git_recycle_bin.py`) that extends Git's capabilities to efficiently 
 manage build artifacts alongside your source code. It provides a Git-native solution for storing, organizing, 
 and retrieving binary artifacts while maintaining full traceability to their source code.
 
@@ -20,7 +20,7 @@ Traditional Artifact Management Issues
 * **Poor Git Integration**: Doesn't leverage existing Git workflows and tooling
 * **Build Inefficiency**: No way to avoid redundant builds when artifacts already exist
 
-Git Recycle Bin Solutions
+|grb| Solutions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 * **Source Traceability**: Every artifact maintains complete metadata linking it to its source commit
@@ -33,7 +33,7 @@ Git Recycle Bin Solutions
 Key Concepts
 -------------
 
-Git Recycle Bin leverages many Git concepts and :git-doc:`plumbing commands
+|grb| leverages many Git concepts and :git-doc:`plumbing commands
 <gitglossary#Documentation/gitglossary.txt-aiddefplumbingaplumbing>`.
 For detailed definitions of Git terminology used below, see the `Git Glossary <https://git-scm.com/docs/gitglossary>`_.
 
@@ -89,7 +89,7 @@ These lightweight references allow efficient queries about available artifacts.
 Git Notes Integration
 ~~~~~~~~~~~~~~~~~~~~~
 
-Git Recycle Bin uses :git-doc:`Git notes <git-notes>` to inform source repositories about available
+|grb| uses :git-doc:`Git notes <git-notes>` to inform source repositories about available
 artifacts. Notes are stored in specialized refspecs like:
 
 .. code-block:: text
@@ -195,10 +195,50 @@ Deployment Artifacts
 * Maintain deployment history with source traceability
 * Enable rollbacks to known-good artifacts
 
+When to Use |grb|
+----------------------------
+
+**Ideal For:**
+
+* Teams already invested in Git workflows who want to extend their existing practices
+* Projects needing direct source-to-artifact traceability for compliance or debugging
+* Environments where build avoidance would yield significant time savings (slow builds, large teams)
+* CI/CD pipelines that would benefit from intelligent artifact caching
+* Development teams wanting artifact management without deploying additional infrastructure
+* Organizations using Git-based authentication and permissions
+
+**Consider Alternatives When:**
+
+* You need to store very large binary files (>100MB) that would benefit from specialized binary storage
+* You require enterprise-grade commercial support and SLA guarantees
+* You need complex artifact approval workflows or fine-grained access controls
+* Your team is already invested in a different artifact management ecosystem
+
+Decision Framework
+~~~~~~~~~~~~~~~~~~
+
+Ask yourself these questions to evaluate if |grb| fits your needs:
+
+1. **Do you need strong source traceability?** If you need to know exactly which source code
+   produced each artifact, |grb| excels here.
+
+2. **Are you using Git-based workflows?** If your team is comfortable with Git, the learning curve is minimal.
+
+3. **Would build avoidance provide significant value?** If your builds are slow or expensive,
+   the automatic build skipping can save substantial time.
+
+4. **Do you want to avoid additional infrastructure?** |grb| works with your existing
+   Git servers without requiring new services.
+
+5. **Are your artifacts typically under 100MB?** Git handles these sizes well, though very
+   large files might benefit from specialized storage.
+
 Next Steps
 ----------
 
+* **Compare Solutions**: See :doc:`comparison` for detailed comparison with alternatives
 * **Installation**: See :doc:`installation` for setup instructions
 * **Quick Start**: Follow :doc:`quickstart` for your first artifact
 * **Concepts**: Learn more in :doc:`concepts` about the underlying principles
-* **Examples**: Explore :doc:`examples/basic-workflow` for common patterns 
+* **Examples**: Explore :doc:`examples/basic-workflow` for common patterns
+* **FAQ**: Check :doc:`faq` for answers to common questions 

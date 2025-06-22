@@ -1,45 +1,53 @@
-Git Recycle Bin Documentation
-==============================
+♻️ git-recycle-bin Documentation
+================================
 
 .. raw:: html
 
    <div class="hero-section">
-      <h1 class="hero-title">🗂️ Git Recycle Bin</h1>
+      <img src="_static/artwork/grb/vector/flat1-color-dark.snug.svg" alt="Logo" style="width: 250px; height: 250px; margin-bottom: 0px; display: block; margin-left: auto; margin-right: auto; background: transparent;">
 
-      <div class="hero-tagline">
-         <strong>🔧 The missing piece in your CI pipeline</strong>
-      </div>
-      <div class="hero-tagline">
-         <strong>🌍 Store artifacts in git, skip rebuilds across teams</strong>
-      </div>
-
-      <div class="hero-tagline">
-         <strong>🤘🏼 Permission-less, decentralized artifact storage</strong>
-      </div>
-
-      <div class="hero-tagline">
-         <strong>👀 See artifacts using git-log+notes</strong>
-      </div>
-      <div class="hero-tagline">
-         <strong>⚡ Efficient artifact management, Git-powered</strong>
-      </div>
-      <div class="hero-tagline">
-         <strong>🔑 Same authentication you already use</strong>
-      </div>
-
-      <div class="hero-tagline">
-         <strong>💾 Use any Git-compatible storage, no vendor lock-in</strong>
-      </div>
-
-      <div class="hero-tagline">
-         <strong>💻 Local developers first, CI second</strong>
-      </div>
-      <div class="hero-tagline">
-         <strong>🍰 Have your cake and eat it too 💃</strong>
-      </div>
+      <table class="hero-taglines-table">
+         <tr>
+            <td class="hero-tagline">
+               <strong>🔧 The missing piece in your CI pipeline</strong>
+            </td>
+            <td class="hero-tagline">
+               <strong>🌍 Store artifacts in git,<br>skip rebuilds across teams</strong>
+            </td>
+         </tr>
+         <tr>
+            <td class="hero-tagline">
+               <strong>🤘🏼 Permission-less, decentralized<br>artifact storage</strong>
+            </td>
+            <td class="hero-tagline">
+               <strong>👀 See artifacts using standard CLI<br><code>git log --notes</code></strong>
+            </td>
+         </tr>
+         <tr>
+            <td class="hero-tagline">
+               <strong>⚡ Efficient artifact management,<br>Git-powered</strong>
+            </td>
+            <td class="hero-tagline">
+               <strong>🔑 Same authentication you already use</strong>
+            </td>
+         </tr>
+         <tr>
+            <td class="hero-tagline">
+               <strong>💾 Use any Git-host storage,<br>no vendor lock-in</strong>
+            </td>
+            <td class="hero-tagline">
+               <strong>💻 Local developers first, CI second</strong>
+            </td>
+         </tr>
+         <tr>
+            <td class="hero-tagline" colspan="2" style="text-align: center;">
+               <strong>🍰 Have your cake and share it too 💃</strong>
+            </td>
+         </tr>
+      </table>
    </div>
 
-Git Recycle Bin is a command-line tool that transforms how you manage build artifacts by treating them as
+|grb| is a command-line tool that transforms how you manage build artifacts by treating them as
 first-class citizens in your Git workflow, enabling automatic expiry, full source traceability, and efficient
 build avoidance through Git-native storage and retrieval mechanisms.
 
@@ -90,7 +98,7 @@ Get up and running in minutes:
    pip install --user git+https://github.com/ArtifactLabs/git-recycle-bin.git@v0.2.6
 
    # Push an artifact with expiry
-   git_recycle_bin.py push --path build/ --name "my-build" --expire "1 week" <remote_url>
+   git_recycle_bin.py push <remote_url> --path build/ --name "my-build" --expire "1 week"
 
    # List available artifacts
    git_recycle_bin.py list <remote_url>
@@ -112,6 +120,8 @@ This will create a new branch in the remote repository and push your build artif
    installation
    quickstart
    concepts
+   comparison
+   faq
 
 .. toctree::
    :maxdepth: 2
@@ -119,6 +129,7 @@ This will create a new branch in the remote repository and push your build artif
    :name: user-guide
 
    usage/basic-operations
+   usage/advanced-features
 
 .. toctree::
    :maxdepth: 2
@@ -127,25 +138,13 @@ This will create a new branch in the remote repository and push your build artif
 
    examples/basic-workflow
 
-.. toctree::
-   :maxdepth: 2
-   :caption: 🔧 Development
-   :name: development
 
-   documentation-outline
-
-.. toctree::
-   :maxdepth: 2
-   :caption: 📋 API Reference
-   :name: api-reference
-
-   modules
 
 🔗 Quick Navigation
 -------------------
 
-.. grid:: 3
-   :gutter: 2
+.. grid:: 2
+   :gutter: 3
 
    .. grid-item-card:: ⚡ Quick Start
       :link: quickstart
@@ -182,12 +181,6 @@ This will create a new branch in the remote repository and push your build artif
 
       Installation instructions for all platforms
 
-   .. grid-item-card:: 🔍 API Docs
-      :link: modules
-      :link-type: doc
-      :class-card: nav-card
-
-      Complete API documentation and reference
 
 🆘 Support and Development
 --------------------------
@@ -200,7 +193,7 @@ This will create a new branch in the remote repository and push your build artif
 .. admonition:: Contributing
    :class: note
 
-   Contributions welcome! Check out our :doc:`development documentation <development>` to get started.
+   Contributions welcome! Check out our :doc:`development documentation <documentation-outline>` to get started.
 
 📊 Project Status
 -----------------

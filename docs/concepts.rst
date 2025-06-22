@@ -59,7 +59,7 @@ Lifecycle States
 Branch and Tag Naming Conventions
 ----------------------------------
 
-Git Recycle Bin uses a sophisticated naming scheme that encodes essential information directly in Git 
+|grb| uses a sophisticated naming scheme that encodes essential information directly in Git 
 references. Understanding Git 
 `branch <https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefbranchbranch>`_ 
 and `tag <https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddeftagtag>`_ concepts is 
@@ -129,7 +129,7 @@ Metadata Structure and Usage
 Commit Message Format
 ~~~~~~~~~~~~~~~~~~~~~
 
-Git Recycle Bin stores rich metadata in :git-doc:`Git commit <git-commit>` messages (see 
+|grb| stores rich metadata in :git-doc:`Git commit <git-commit>` messages (see 
 `commit object <https://git-scm.com/docs/gitglossary#Documentation/gitglossary.txt-aiddefcommitobjectcommitobject>`_ 
 in Git Glossary) using a structured format:
 
@@ -328,7 +328,7 @@ Garbage Collection Process
 
 **Automatic Expiry Detection:**
 
-Git Recycle Bin identifies expired artifacts by:
+|grb| identifies expired artifacts by:
 
 1. **Parsing Branch Names**: Extract expiry dates from branch names
 2. **Time Comparison**: Compare expiry dates to current time
@@ -383,7 +383,7 @@ Advanced Concepts
 Path Normalization
 ~~~~~~~~~~~~~~~~~~
 
-Git Recycle Bin normalizes paths to ensure consistency:
+|grb| normalizes paths to ensure consistency:
 
 .. code-block:: bash
 

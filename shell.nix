@@ -13,6 +13,7 @@ pkgs.mkShell {
     git-recycle-bin
     pkgs.shellcheck
     pkgs.nodePackages.markdownlint-cli
+    pkgs.plantuml
     
     # Python development tools for VS Code integration
     pkgs.python311
@@ -24,6 +25,7 @@ pkgs.mkShell {
     pkgs.python311Packages.sphinx
     pkgs.python311Packages.pydata-sphinx-theme
     pkgs.python311Packages.sphinx-design  # Sphinx extension for design elements and components
+    pkgs.python311Packages.sphinxcontrib-plantuml  # PlantUML extension for Sphinx
     
     # RST linting tools
     pkgs.python311Packages.rstcheck

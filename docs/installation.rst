@@ -1,7 +1,7 @@
 Installation
 ============
 
-Git Recycle Bin can be installed in several ways depending on your environment and preferences.
+|grb| can be installed in several ways depending on your environment and preferences.
 
 Prerequisites
 -------------
@@ -157,7 +157,7 @@ Expected output should show version information and help text without errors.
 Dependencies
 ------------
 
-Git Recycle Bin has minimal runtime dependencies:
+|grb| has minimal runtime dependencies:
 
 **Required Python Packages:**
 
@@ -176,7 +176,7 @@ These are automatically installed when using pip or handled by Nix.
 Configuration
 -------------
 
-Git Recycle Bin uses Git's configuration system. You may want to set up some global defaults using
+|grb| uses Git's configuration system. You may want to set up some global defaults using
 :git-doc:`git config <git-config>`:
 
 .. code-block:: bash
@@ -226,7 +226,7 @@ Some features like advanced :git-doc:`git notes <git-notes>` handling require ne
 
 **Python version issues:**
 
-Git Recycle Bin requires Python 3.8+. Check your version:
+|grb| requires Python 3.8+. Check your version:
 
 .. code-block:: bash
 

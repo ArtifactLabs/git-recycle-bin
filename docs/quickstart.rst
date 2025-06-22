@@ -9,7 +9,7 @@ Prerequisites Check
 
 Before starting, ensure you have:
 
-1. **Git Recycle Bin installed** (see :doc:`installation`)
+1. **|grb| installed** (see :doc:`installation`)
 2. **A Git repository** to work with
 3. **Some files to use as artifacts** (we'll create test files if needed)
 
@@ -134,19 +134,20 @@ Let's simulate needing to download the artifact (maybe for build avoidance):
    rm -rf build
    ls  # Notice build is gone
    
-   # Now download the artifact
-   git_recycle_bin.py download . \
-       --name "my-first-artifact" \
-       --output build
+   # First get the artifact SHA from the list output
+   # Then download using the SHA (from previous list command output)
+   git_recycle_bin.py download . abc123def456
 
    # Check that our files are back
    ls -la build/
+
+**Note:** The actual SHA will be shown in the list command output. Replace `abc123def456` with the real SHA.
 
 **Expected Output:**
 
 .. code-block:: text
 
-   Downloading artifact 'my-first-artifact' to 'build'...
+   Downloading artifact abc123def456...
    Downloaded: build/app.txt
    Downloaded: build/docs.html  
    Downloaded: build/config.json
@@ -157,7 +158,7 @@ Understanding the Output
 Branch and Tag Names
 ~~~~~~~~~~~~~~~~~~~~
 
-Git Recycle Bin creates structured names for branches and tags:
+|grb| creates structured names for branches and tags:
 
 **Artifact Branch:**
 ``artifact/expire/2024-01-15/14.30+0000/git-recycle-test.git@def789.../build``
@@ -251,7 +252,7 @@ Common Gotchas for Beginners
 
 2. **Using Relative Paths**
 
-   Git Recycle Bin handles path normalization, but be consistent:
+   |grb| handles path normalization, but be consistent:
 
    .. code-block:: bash
    
@@ -332,7 +333,7 @@ Now that you've successfully pushed, listed, and downloaded your first artifact,
 
 4. **Command Reference**: Get detailed information about all available options
 
-5. **Understand the Concepts**: Dive deeper into how Git Recycle Bin works in :doc:`concepts`
+5. **Understand the Concepts**: Dive deeper into how |grb| works in :doc:`concepts`
 
 Troubleshooting
 ---------------
