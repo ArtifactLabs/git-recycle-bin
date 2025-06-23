@@ -1,9 +1,14 @@
 { pkgs ? (import (builtins.fetchTarball {
     url = "https://github.com/nixos/nixpkgs/tarball/24.05";
     sha256 = "1lr1h35prqkd1mkmzriwlpvxcb34kmhc9dnr48gkm8hh089hifmx";
-  }) {} ) }:
+  }) {} )
+, pythonVersion ? "python311"
+}:
 
-pkgs.python311Packages.buildPythonApplication rec {
+let
+  pythonPackages = pkgs.${pythonVersion + "Packages"};
+in
+pythonPackages.buildPythonApplication rec {
   pname = "git-recycle-bin";
   version = "0.2.6";
 
@@ -32,7 +37,7 @@ pkgs.python311Packages.buildPythonApplication rec {
 
   propagatedBuildInputs = [ pkgs.git ] ++ pythonPath;
 
-  pythonPath = with pkgs.python311Packages; [
+  pythonPath = with pythonPackages; [
     maya
     colorama
     dateparser
@@ -40,7 +45,7 @@ pkgs.python311Packages.buildPythonApplication rec {
     pytest-cov
   ];
 
-  checkInputs = with pkgs.python311Packages; [ pytest pytest-cov ];
+  checkInputs = with pythonPackages; [ pytest pytest-cov ];
 
   checkPhase = ''
     runHook preCheck
