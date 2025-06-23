@@ -5,6 +5,7 @@ import json
 import shutil
 import subprocess
 from collections import OrderedDict
+from typing import Dict
 
 from rbgit import RbGit
 from printer import printer
@@ -38,7 +39,7 @@ from list import list_command
 from download import download_command
 
 
-def create_artifact_commit(rbgit, artifact_name: str, binpath: str, expire_branch: str, add_ignored: bool, src_remote_name: str) -> dict[str, str]:
+def create_artifact_commit(rbgit, artifact_name: str, binpath: str, expire_branch: str, add_ignored: bool, src_remote_name: str) -> Dict[str, str]:
     """ Create Artifact: A binary commit, with builtin traceability and expiry """
     if not os.path.exists(binpath):
         raise RuntimeError(f"Artifact '{binpath}' does not exist!")

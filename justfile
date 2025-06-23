@@ -68,3 +68,14 @@ docs-lint: _docs-pre
 # Clean documentation build artifacts
 docs-clean:
     -rm -rf docs/_build/
+
+########################
+
+# Run (pytest) across all supported python versions
+python-sweep cmd="pytest":
+    nix-shell test-envs/shell.py38.nix --pure --run 'python --version && {{cmd}}'
+    nix-shell test-envs/shell.py39.nix --pure --run 'python --version && {{cmd}}'
+    nix-shell test-envs/shell.py310.nix --pure --run 'python --version && {{cmd}}'
+    nix-shell test-envs/shell.py311.nix --pure --run 'python --version && {{cmd}}'
+    nix-shell test-envs/shell.py312.nix --pure --run 'python --version && {{cmd}}'
+    nix-shell test-envs/shell.py313.nix --pure --run 'python --version && {{cmd}}'

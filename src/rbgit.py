@@ -104,7 +104,7 @@ class RbGit:
         for line in lines.splitlines():
             cols = line.split()
             sha = cols[0]
-            tag = cols[1].removeprefix('refs/tags/')
+            tag = cols[1][len('refs/tags/'):] if cols[1].startswith('refs/tags/') else cols[1]  # .removeprefix('refs/tags/') is python 3.9+
             if tag == tag_name:
                 return sha
         return None
