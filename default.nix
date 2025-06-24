@@ -23,7 +23,7 @@ pythonPackages.buildPythonApplication rec {
       ./pyproject.toml
 
       # Test files for checkPhase
-      ./tests
+      (pkgs.lib.fileset.fileFilter (file: file.hasExt "py") ./tests)
 
       # Auxiliary scripts needed for postInstall
       ./aux/git_add_ssh_remote.sh
