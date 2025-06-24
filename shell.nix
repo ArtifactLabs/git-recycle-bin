@@ -11,8 +11,10 @@ in pkgs.mkShellNoCC {
   packages = [
     git-recycle-bin
 
-    pkgs.just
     pkgs.nix # for checking across many python versions
+    pkgs.just
+    pkgs.ripgrep
+
     pkgs.shellcheck
     pkgs.nodePackages.markdownlint-cli
     pkgs.plantuml

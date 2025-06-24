@@ -1,7 +1,11 @@
 # Clean generated docs, lint reports, python caches, etc
-clean: docs-clean
+clean: docs-clean python-clean
+
+# Run all linters (practical set)
+lint:  docs-lint shell-lint md-lint rst-lint
 
 ########################
+
 # Run unit tests
 unittest:
     PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src" pytest --cov=src --cov-report=xml
@@ -22,32 +26,37 @@ mod demo-download 'demos/download.justfile'
 ########################
 
 # Lint shell scripts
-lint-shell:
+shell-lint:
     find . -name '*.sh' -print0 | xargs -0 shellcheck
 
+########################
+
 # Lint Markdown files
-lint-md:
+md-lint:
     markdownlint '**/*.md'
 
+########################
+
 # Lint RST files for basic syntax issues (basic check only)
-lint-rst-basic:
+rst-lint-basic:
     find docs -name '*.rst' -print0 | xargs -0 restructuredtext-lint || echo "Note: Some Sphinx-specific errors are expected"
 
 # Check RST files with rstcheck (ignoring Sphinx-specific elements)
-lint-rst-syntax:
+rst-lint-syntax:
     find docs -name '*.rst' -print0 | xargs -0 rstcheck --ignore-directives toctree,automodule,grid --ignore-roles git-doc,git-book,doc,ref || echo "Note: Some Sphinx-specific errors may remain"
 
 # Check RST line lengths (120 char limit)
-lint-rst-length:
+rst-lint-length:
     find docs/ -name '*rst' | while read line; do awk 'length>120{print FILENAME ":" NR, "is too long. It is", length, "characters long"}' "$line"; done
 
 # Run all RST linters (comprehensive but may show expected errors)
-lint-rst: lint-rst-basic lint-rst-syntax lint-rst-length
-
-# Run all linters (practical set)
-lint: lint-shell lint-md lint-rst
+rst-lint: rst-lint-basic rst-lint-syntax rst-lint-length
 
 ########################
+
+# Delete Sphinx-generated documentation
+docs-clean:
+    -rm -rf docs/_build/
 
 # Internal, prep for assets referenced by raw html
 _docs-pre:
@@ -62,14 +71,36 @@ docs: _docs-pre
 
 # Lint documentation with Sphinx
 # Treat warnings as errors to catch broken references
-docs-lint: _docs-pre
+docs-lint-warnings: _docs-pre
     PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src" sphinx-build -E -n -W -b dummy docs docs/_build/dummy
 
-# Clean documentation build artifacts
-docs-clean:
-    -rm -rf docs/_build/
+# Sphinx replacements fail in certain cases, check for our own substitutions
+# Old issue https://github.com/sphinx-doc/sphinx/issues/3151
+docs-lint-failed-substitutions: docs
+    # Any matches are failures
+    ! rg -thtml '\|grb\|' docs/_build/html/
+
+# Lint the Sphinx build
+docs-lint: docs-lint-warnings docs-lint-failed-substitutions
 
 ########################
+
+# Clean python caches
+python-clean:
+    -find . -name '.pytest_cache' -type d -exec rm -rf {} +
+    -find . -name '.venv*' -type d -exec rm -rf {} +
+    -find . -name '.mypy_cache' -type d -exec rm -rf {} +
+    -find . -name '.ruff_cache' -type d -exec rm -rf {} +
+    -find . -name '__pycache__' -type d -exec rm -rf {} +
+    -find . -name 'htmlcov' -type d -exec rm -rf {} +
+    -find . -name '.tox' -type d -exec rm -rf {} +
+    -find . -name 'build' -type d -exec rm -rf {} +
+    -find . -name 'dist' -type d -exec rm -rf {} +
+    -find . -name '*.egg-info' -type d -exec rm -rf {} +
+    -find . -name '*.pyc' -delete
+    -find . -name '*.pyo' -delete
+    -find . -name '*.pyd' -delete
+    -find . -name '.coverage' -delete
 
 # Run (pytest) across all supported python versions
 python-sweep cmd="pytest":
