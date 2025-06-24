@@ -25,25 +25,25 @@ mod demo-download 'demos/download.justfile'
 
 ########################
 
-# Lint shell scripts
+# Lint shell scripts for tracked files, not for submodules
 shell-lint:
-    find . -name '*.sh' -print0 | xargs -0 shellcheck
+    git ls-files -z '*.sh' | xargs -0 shellcheck
 
 ########################
 
-# Lint Markdown files
+# Lint Markdown files for tracked files, not for submodules
 md-lint:
-    markdownlint '**/*.md'
+    git ls-files -z '*.md' | xargs -0 markdownlint
 
 ########################
 
 # Lint RST files for basic syntax issues (basic check only)
 rst-lint-basic:
-    find docs -name '*.rst' -print0 | xargs -0 restructuredtext-lint || echo "Note: Some Sphinx-specific errors are expected"
+    git ls-files -z '*.rst' | xargs -0 restructuredtext-lint || echo "Note: Some Sphinx-specific errors are expected"
 
 # Check RST files with rstcheck (ignoring Sphinx-specific elements)
 rst-lint-syntax:
-    find docs -name '*.rst' -print0 | xargs -0 rstcheck --ignore-directives toctree,automodule,grid --ignore-roles git-doc,git-book,doc,ref || echo "Note: Some Sphinx-specific errors may remain"
+    git ls-files -z '*.rst' | xargs -0 rstcheck --ignore-directives toctree,automodule,grid --ignore-roles git-doc,git-book,doc,ref || echo "Note: Some Sphinx-specific errors may remain"
 
 # Check RST line lengths (120 char limit)
 rst-lint-length:
