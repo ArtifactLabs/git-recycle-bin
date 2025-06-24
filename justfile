@@ -2,7 +2,10 @@
 clean: docs-clean python-clean
 
 # Run all linters (practical set)
-lint:  docs-lint shell-lint md-lint rst-lint mypy pylint
+lint: docs-lint shell-lint md-lint rst-lint mypy pylint
+
+# Run all tests
+test: unittest test_git_add_ssh_remote
 
 ########################
 
