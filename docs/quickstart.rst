@@ -9,7 +9,7 @@ Prerequisites Check
 
 Before starting, ensure you have:
 
-1. **|grb| installed** (see :doc:`installation`)
+1. **git-recycle-bin installed** (see :doc:`installation`)
 2. **A Git repository** to work with
 3. **Some files to use as artifacts** (we'll create test files if needed)
 
