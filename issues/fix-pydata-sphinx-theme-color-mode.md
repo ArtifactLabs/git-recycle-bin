@@ -208,7 +208,7 @@ JavaScript to hijack all theme switching attempts:
 
 ### Build Output
 
-```
+```text
 Running Sphinx v7.3.7
 WARNING: unsupported theme option 'theme_switcher_button' given
 WARNING: unsupported theme option 'color_scheme' given  
@@ -319,7 +319,7 @@ that addresses the root causes while supporting both themes.
 
 **TEMPORARY WORKAROUND ACTIVE:** Documentation uses light theme only.
 
-**NEXT STEPS:** 
+**NEXT STEPS:**
 1. Remove light-theme-only workaround
 2. Implement proper theme switching solution
 3. Test both light and dark themes thoroughly
