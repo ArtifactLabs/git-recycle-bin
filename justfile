@@ -4,14 +4,33 @@ export PYTHONPATH :=       justfile_directory() + \
                      ':' + env_var('PYTHONPATH')
 
 ########################
+
+# Mini test runner
+# Run multiple recipes, continuing on failure but tracking exit codes
+# Only returns success if all recipes succeed
+_just-test *recipes:
+    #!/usr/bin/env bash
+    set -euo pipefail; exit_code=0; failed_recipes=(); passed_recipes=()
+    for recipe in {{recipes}}; do
+        if just "$recipe"; then passed_recipes+=("$recipe");
+        else                    failed_recipes+=("$recipe"); exit_code=1;
+        fi
+    done
+    echo "=== Summary ==="
+    for recipe in "${passed_recipes[@]}"; do echo "✓  just $recipe"; done
+    for recipe in "${failed_recipes[@]}"; do echo "✗  just $recipe"; done
+    exit $exit_code
+
+########################
+
 # Clean generated docs, lint reports, python caches, etc
 clean: docs-clean python-clean
 
 # Run all linters (practical set)
-lint: docs-lint shell-lint md-lint rst-lint mypy pylint
+lint: (_just-test "docs-lint" "shell-lint" "md-lint" "rst-lint" "mypy" "pylint")
 
 # Run all tests
-test: unittest test_git_add_ssh_remote test_integration
+test: (_just-test "unittest" "test_git_add_ssh_remote" "test_integration")
 
 ########################
 
