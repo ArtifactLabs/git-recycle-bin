@@ -1,3 +1,9 @@
+# Export PYTHONPATH for all recipes
+export PYTHONPATH :=       justfile_directory() + \
+                     ':' + justfile_directory() / 'src' + \
+                     ':' + env_var('PYTHONPATH')
+
+########################
 # Clean generated docs, lint reports, python caches, etc
 clean: docs-clean python-clean
 
@@ -11,7 +17,7 @@ test: unittest test_git_add_ssh_remote test_integration
 
 # Run unit tests
 unittest:
-    PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src" pytest --cov=src --cov-report=xml
+    pytest --cov=src --cov-report=xml
 
 # Run end-to-end integration tests
 test_integration:
@@ -34,7 +40,7 @@ mypy:
 
 # Run pylint linting
 pylint:
-    PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src" pylint src tests
+    pylint src tests
 
 ########################
 # for general flags look at push.justfile
@@ -88,12 +94,12 @@ _docs-pre:
 # Output goes to docs/_build/html
 # Use PYTHONPATH so autodoc can find modules
 docs: _docs-pre
-    PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src" sphinx-build -b html docs docs/_build/html
+    sphinx-build -b html docs docs/_build/html
 
 # Lint documentation with Sphinx
 # Treat warnings as errors to catch broken references
 docs-lint-warnings: _docs-pre
-    PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src" sphinx-build -E -n -W -b dummy docs docs/_build/dummy
+    sphinx-build -E -n -W -b dummy docs docs/_build/dummy
 
 # Sphinx replacements fail in certain cases, check for our own substitutions
 # Old issue https://github.com/sphinx-doc/sphinx/issues/3151
