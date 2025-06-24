@@ -5,13 +5,18 @@ clean: docs-clean python-clean
 lint: docs-lint shell-lint md-lint rst-lint mypy pylint
 
 # Run all tests
-test: unittest test_git_add_ssh_remote
+test: unittest test_git_add_ssh_remote test_integration
 
 ########################
 
 # Run unit tests
 unittest:
     PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src" pytest --cov=src --cov-report=xml
+
+# Run end-to-end integration tests
+test_integration:
+    tests/test-end-to-end1.sh
+    tests/test-end-to-end2.sh
 
 # Test of aux/git_add_ssh_remote.sh
 test_git_add_ssh_remote:

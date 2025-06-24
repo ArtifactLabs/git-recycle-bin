@@ -40,6 +40,8 @@ in pkgs.mkShellNoCC {
     # RST linting tools
     pkgs.python311Packages.rstcheck
     pkgs.python311Packages.restructuredtext-lint
+
+    pkgs.gcc
   ];
 
   shellHook = ''
