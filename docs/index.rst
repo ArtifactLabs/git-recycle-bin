@@ -193,7 +193,7 @@ This will create a new branch in the remote repository and push your build artif
 .. admonition:: Contributing
    :class: note
 
-   Contributions welcome! Check out our :doc:`development documentation <documentation-outline>` to get started.
+   Contributions welcome! See the project repository for development guidelines.
 
 📊 Project Status
 -----------------
