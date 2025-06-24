@@ -30,7 +30,7 @@ clean: docs-clean python-clean
 lint: (_just-test "docs-lint" "shell-lint" "md-lint" "rst-lint" "mypy" "pylint")
 
 # Run all tests
-test: (_just-test "unittest" "test_git_add_ssh_remote" "test_integration")
+test: (_just-test "unittest" "test_git_add_ssh_remote" "test_integration" "python-sweep")
 
 ########################
 
