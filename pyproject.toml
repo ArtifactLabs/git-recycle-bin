@@ -5,3 +5,6 @@ testpaths = [
     "tests",
 ]
 
+[tool.pylint.format]
+max-line-length = 120
+
