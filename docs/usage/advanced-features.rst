@@ -119,6 +119,8 @@ Advanced artifact handling:
 Advanced List Options
 ---------------------
 
+The `list` command prints artifact SHAs, one per line. It can be filtered by `name` or `path`.
+
 Filtering and Querying
 ~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -126,17 +128,19 @@ Filter artifacts by path or name:
 
 .. code-block:: bash
 
-   # List artifacts by specific path
+   # List artifact SHAs for a specific path
    git_recycle_bin.py list <remote_url> --path "dist/webapp"
 
-   # List artifacts by name pattern
+   # List artifact SHAs for a specific name
    git_recycle_bin.py list <remote_url> --name "webapp-build"
 
-   # List all artifacts (default)
+   # List all artifact SHAs for the current commit
    git_recycle_bin.py list <remote_url>
 
 Advanced Download Options
 -------------------------
+
+This command has very few options. It takes one or more artifact SHAs as positional arguments.
 
 Force Download
 ~~~~~~~~~~~~~~

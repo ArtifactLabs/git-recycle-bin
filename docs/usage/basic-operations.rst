@@ -190,106 +190,41 @@ List Operations
 Basic List Syntax
 ~~~~~~~~~~~~~~~~~~
 
-The list operation shows available artifacts:
+The `list` operation prints the SHAs of available artifacts for the current source commit (`HEAD`), one SHA per line.
 
 .. code-block:: bash
 
    git_recycle_bin.py list <repository> [options]
 
-**Common Options:**
-- ``--name`` - Filter by artifact name
-- ``--expired`` - Show only expired artifacts  
-- ``--active`` - Show only non-expired artifacts
-- ``--format`` - Output format (table, json, compact)
+**Options:**
+- ``--name <string>`` - Filter artifacts by their given name.
+- ``--path <file|dir>`` - Filter artifacts by their original source path.
 
 Simple List Examples
 ~~~~~~~~~~~~~~~~~~~~
 
 .. code-block:: bash
 
-   # List all artifacts
+   # List all artifact SHAs for the current commit
    git_recycle_bin.py list .
-   
-   # List from remote repository
+
+   # List artifact SHAs from a remote repository
    git_recycle_bin.py list git@artifacts.company.com:myproject.git
-   
-   # List with specific name
+
+   # List SHAs for artifacts with a specific name
    git_recycle_bin.py list . --name "webapp-build"
-   
-   # List only active artifacts
-   git_recycle_bin.py list . --active
 
 Understanding List Output
 ~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Default table format shows:
+The command outputs a list of artifact commit SHAs, one per line. This format is designed to be easily piped into other commands.
 
 .. code-block:: text
 
-   NAME           SOURCE         COMMIT     EXPIRE              SIZE    PATH
-   webapp-build   main           a1b2c3d4   2024-12-25 14:30    2.3MB   dist
-   api-docs       develop        b2c3d4e5   2024-12-20 09:15    890KB   docs/_build
-   user-manual    main           a1b2c3d4   2024-12-31 23:59    1.2MB   docs/manual.pdf
-   
-**Columns:**
-- **NAME**: Artifact name you provided during push
-- **SOURCE**: Git branch when artifact was created
-- **COMMIT**: First 8 characters of source commit SHA
-- **EXPIRE**: When artifact will be cleaned up
-- **SIZE**: Estimated size of artifact
-- **PATH**: Source path of artifact
+   9f8e7d6c5b4a3e2d1c0b9a8f7e6d5c4b
+   a1b2c3d4e5f678901234567890abcdefabcde
 
-Filtering Options
-~~~~~~~~~~~~~~~~~
-
-.. code-block:: bash
-
-   # Show only expired artifacts
-   git_recycle_bin.py list . --expired
-   
-   # Show only active (non-expired) artifacts  
-   git_recycle_bin.py list . --active
-   
-   # Filter by name pattern
-   git_recycle_bin.py list . --name "webapp*"
-   
-   # Combine filters
-   git_recycle_bin.py list . --name "webapp*" --active
-
-Output Formats
-~~~~~~~~~~~~~~
-
-**Compact Format:**
-
-.. code-block:: bash
-
-   git_recycle_bin.py list . --format compact
-
-.. code-block:: text
-
-   webapp-build (main@a1b2c3d4, expires 2024-12-25 14:30, 2.3MB)
-   api-docs (develop@b2c3d4e5, expires 2024-12-20 09:15, 890KB)
-
-**JSON Format:**
-
-.. code-block:: bash
-
-   git_recycle_bin.py list . --format json
-
-.. code-block:: json
-
-   [
-     {
-       "name": "webapp-build",
-       "source_branch": "main",
-       "source_commit": "a1b2c3d4e5f6789...",
-       "artifact_commit": "9f8e7d6c5b4a3e2d...",
-       "expire": "2024-12-25T14:30:00+02:00",
-       "path": "dist",
-       "size_bytes": 2419200,
-       "expired": false
-     }
-   ]
+This output can be used directly with `git_recycle_bin.py download` or other command-line tools like `xargs`, `head`, or `sed`.
 
 Download Operations
 -------------------
@@ -297,78 +232,50 @@ Download Operations
 Basic Download Syntax
 ~~~~~~~~~~~~~~~~~~~~~~
 
-The download operation retrieves artifacts from the repository:
+The download operation retrieves one or more artifacts from the repository.
 
 .. code-block:: bash
 
-   git_recycle_bin.py download <repository> --name <artifact_name> [options]
+   git_recycle_bin.py download <repository> <artifact_sha>...
 
 **Required Parameters:**
-- ``<repository>`` - Source artifact repository
-- ``--name`` - Name of artifact to download
+- ``<repository>`` - The artifact repository URL (or `.` for local).
+- ``<artifact_sha>`` - One or more artifact SHAs to download.
 
 **Common Options:**
-- ``--output`` - Where to save the artifact (default: artifact name)
-- ``--commit`` - Download specific commit instead of latest
-- ``--force`` - Overwrite existing files
+- ``--force`` - Overwrite existing local files.
 
 Simple Download Examples
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. code-block:: bash
-
-   # First list artifacts to get the SHA
-   git_recycle_bin.py list . --name "webapp-build"
-   
-   # Download using artifact SHA (from list output)
-   git_recycle_bin.py download . abc123def456
-   
-   # Download from remote repository
-   git_recycle_bin.py download git@artifacts.company.com:myproject.git abc123def456
-   
-   # Force overwrite existing files
-   git_recycle_bin.py download . abc123def456 --force
-
-Download Specific Versions
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+The typical workflow is to use `list` to find the artifact SHA and then pipe it to `download`.
 
 .. code-block:: bash
 
-   # Download specific artifact by SHA
-   git_recycle_bin.py download . 9f8e7d6c5b4a3e2d1c0b9a8f7e6d5c4b
-   
-   # Get artifact SHA from list operation first
+   # 1. Find the SHA of the artifact you want
    git_recycle_bin.py list . --name "webapp-build"
 
-**Finding Commit SHAs:**
+   # 2. Download it (replace <artifact_sha> with the actual SHA from the output)
+   git_recycle_bin.py download . <artifact_sha>
 
-Use the list operation to find available versions:
+   # Or, more powerfully, pipe the commands together to get the latest artifact
+   git_recycle_bin.py list . --name "webapp-build" | head -n 1 | xargs git_recycle_bin.py download .
 
-.. code-block:: bash
+   # Force the download to overwrite local files
+   git_recycle_bin.py list . --name "webapp-build" | head -n 1 | xargs git_recycle_bin.py download . --force
 
-   # List all versions of an artifact
-   git_recycle_bin.py list . --name "webapp-build"
-   
-   # Output shows artifact SHAs that can be used for download
-   # Example output: abc123def456 (use this SHA for download)
 
 Understanding Download Output
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
+The tool will check out the files from the artifact commit into your current working directory.
+
 .. code-block:: text
 
-   Downloading artifact 'webapp-build'...
-   Source: artifact/latest/myproject.git@main/{dist}
-   Commit: 9f8e7d6c5b4a3e2d1c0b9a8f7e6d5c4b
-   Output: ./webapp-build
-   
-   Downloaded:
-   - index.html (12KB)
-   - assets/app.js (234KB)
-   - assets/style.css (45KB)
-   - images/logo.png (8KB)
-   
-   Total: 299KB in 4 files
+   Downloading artifact '9f8e7d6c5b4a'...
+
+After the command completes, the artifact's files will be present in your local filesystem.
+
 
 Common Patterns
 ---------------
@@ -386,8 +293,9 @@ Development Workflow
    # 2. Push build artifacts
    git_recycle_bin.py push . --path dist --name "webapp-build" --expire "1 week"
    
-   # 3. Later, on another machine or CI
-   git_recycle_bin.py download . --name "webapp-build" --output ./dist
+   # 3. Later, on another machine or CI, get the latest artifact
+   LATEST_SHA=$(git_recycle_bin.py list . --name "webapp-build" | head -n 1)
+   git_recycle_bin.py download . "$LATEST_SHA"
 
 CI/CD Integration
 ~~~~~~~~~~~~~~~~~
@@ -403,16 +311,10 @@ CI/CD Integration
    npm ci
    npm run build
    
-   # Push artifacts with build number
+   # Push artifacts
    git_recycle_bin.py push git@artifacts.company.com:myproject.git \
        --path dist \
        --name "webapp-build-${BUILD_NUMBER}" \
-       --expire "30 days"
-   
-   # Also push with generic name for latest
-   git_recycle_bin.py push git@artifacts.company.com:myproject.git \
-       --path dist \
-       --name "webapp-build" \
        --expire "30 days"
 
 **Deploy stage (download artifacts):**
@@ -422,16 +324,14 @@ CI/CD Integration
    #!/bin/bash
    # ci-deploy.sh
    
-   # Download specific build
-   if [ -n "$BUILD_NUMBER" ]; then
-       git_recycle_bin.py download git@artifacts.company.com:myproject.git \
-           --name "webapp-build-${BUILD_NUMBER}" \
-           --output ./deploy/webapp
+   # Find and download the latest artifact for a specific build number
+   ARTIFACT_SHA=$(git_recycle_bin.py list git@artifacts.company.com:myproject.git --name "webapp-build-${BUILD_NUMBER}" | head -n 1)
+
+   if [ -n "$ARTIFACT_SHA" ]; then
+       git_recycle_bin.py download git@artifacts.company.com:myproject.git "$ARTIFACT_SHA"
    else
-       # Download latest build
-       git_recycle_bin.py download git@artifacts.company.com:myproject.git \
-           --name "webapp-build" \
-           --output ./deploy/webapp
+       echo "Error: Artifact for build ${BUILD_NUMBER} not found!"
+       exit 1
    fi
 
 Cross-Repository Sharing
@@ -445,9 +345,9 @@ Cross-Repository Sharing
    git_recycle_bin.py push git@artifacts.company.com:shared.git \
        --path docs/_build --name "api-docs" --expire "2 weeks"
    
-   # Team B downloads documentation
-   git_recycle_bin.py download git@artifacts.company.com:shared.git \
-       --name "api-docs" --output ./external-docs
+   # Team B finds and downloads the latest documentation artifact
+   API_DOCS_SHA=$(git_recycle_bin.py list git@artifacts.company.com:shared.git --name "api-docs" | head -n 1)
+   git_recycle_bin.py download git@artifacts.company.com:shared.git "$API_DOCS_SHA"
 
 Multi-Environment Artifacts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~

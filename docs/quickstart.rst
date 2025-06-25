@@ -100,33 +100,31 @@ demonstrating the core capabilities of git-recycle-bin.
 Step 4: List Available Artifacts
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Now let's see what artifacts are available:
+Now let's see what artifacts are available for the current commit. The `list` command will output one artifact SHA per line.
 
 .. code-block:: bash
 
-   # List all artifacts in the repository
+   # List all artifact SHAs for the current source commit (HEAD)
    git_recycle_bin.py list .
 
 **Expected Output:**
 
 .. code-block:: text
 
-   my-first-artifact
-   expire: 2024-01-15/14.30+0000
-   commit: abc123def456...
-   path: build
+   <some_artifact_sha>
+
 
 You can also filter by name:
 
 .. code-block:: bash
 
-   # List artifacts matching a specific name
+   # List artifact SHAs matching a specific name
    git_recycle_bin.py list . --name "my-first-artifact"
 
 Step 5: Download an Artifact
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Let's simulate needing to download the artifact (maybe for build avoidance):
+Let's simulate needing to download the artifact. The workflow is to first `list` to find the artifact's SHA, then `download` using that SHA.
 
 .. code-block:: bash
 
@@ -134,23 +132,22 @@ Let's simulate needing to download the artifact (maybe for build avoidance):
    rm -rf build
    ls  # Notice build is gone
    
-   # First get the artifact SHA from the list output
-   # Then download using the SHA (from previous list command output)
-   git_recycle_bin.py download . abc123def456
+   # 1. Find the artifact SHA using the list command and some shell magic
+   ARTIFACT_SHA=$(git_recycle_bin.py list . --name "my-first-artifact" | head -n 1)
+
+   # 2. Download the artifact using the retrieved SHA
+   git_recycle_bin.py download . "$ARTIFACT_SHA"
 
    # Check that our files are back
    ls -la build/
-
-**Note:** The actual SHA will be shown in the list command output. Replace `abc123def456` with the real SHA.
 
 **Expected Output:**
 
 .. code-block:: text
 
-   Downloading artifact abc123def456...
-   Downloaded: build/app.txt
-   Downloaded: build/docs.html  
-   Downloaded: build/config.json
+   Downloading artifact <the_sha_you_found>...
+
+After the command completes, the files from the artifact (`app.txt`, `docs.html`, `config.json`) will be in the `build` directory.
 
 Understanding the Output
 ------------------------
@@ -200,18 +197,17 @@ In practice, you'll typically use a remote repository for artifacts:
        --name "webapp-build" \
        --expire "1 month"
    
-   # List artifacts from the remote
+   # List artifacts from the remote for the current commit
    git_recycle_bin.py list git@artifacts.example.com:myproject.git
    
-   # Download from the remote
-   git_recycle_bin.py download git@artifacts.example.com:myproject.git \
-       --name "webapp-build" \
-       --output ./dist
+   # Download a specific artifact by its SHA from the remote
+   git_recycle_bin.py download git@artifacts.example.com:myproject.git <artifact_sha>
 
 Build Avoidance Example
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-Here's how you might use this in a build script:
+Here's how you might use this in a build script. This pattern works because `list`
+searches for artifacts created from the current source commit (`HEAD`).
 
 .. code-block:: bash
 
@@ -220,15 +216,15 @@ Here's how you might use this in a build script:
    ARTIFACT_REPO="git@artifacts.example.com:myproject.git"
    ARTIFACT_NAME="webapp-build"
    
-   # Check if artifact already exists for current commit
-   if git_recycle_bin.py list "$ARTIFACT_REPO" --name "$ARTIFACT_NAME" | grep -q .; then
+   # Check if an artifact with the desired name already exists for the current commit.
+   ARTIFACT_SHA=$(git_recycle_bin.py list "$ARTIFACT_REPO" --name "$ARTIFACT_NAME" | head -n 1)
+
+   if [ -n "$ARTIFACT_SHA" ]; then
        echo "Artifact found! Downloading instead of building..."
-       git_recycle_bin.py download "$ARTIFACT_REPO" \
-           --name "$ARTIFACT_NAME" \
-           --output ./dist
-       echo "Build skipped - using existing artifact"
+       git_recycle_bin.py download "$ARTIFACT_REPO" "$ARTIFACT_SHA"
+       echo "Build skipped - using existing artifact from commit $ARTIFACT_SHA"
    else
-       echo "No artifact found. Building..."
+       echo "No artifact found for current commit. Building..."
        npm run build  # or your build command
        git_recycle_bin.py push "$ARTIFACT_REPO" \
            --path ./dist \
