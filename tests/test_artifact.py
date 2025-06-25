@@ -45,7 +45,7 @@ def test_relative_date():
     tomorrow_expected = (now_tz + datetime.timedelta(days=1)).strftime(grb.DATE_FMT_EXPIRE)
     three_weeks_expected = (now_tz + datetime.timedelta(days=21)).strftime(grb.DATE_FMT_EXPIRE)
     thirty_days_expected = (now_tz + datetime.timedelta(days=30)).strftime(grb.DATE_FMT_EXPIRE)
-    
+
     assert grb.date_fuzzy2expiryformat("now") == now_expected
     assert grb.date_fuzzy2expiryformat("today") == now_expected
 
@@ -79,39 +79,39 @@ def test_parse_expire_datetime():
     expected_basic = {"date":"2023-07-27", "time":"16.12", "tzoffset":None}
     expected_plus = {"date":"2023-07-27", "time":"16.12", "tzoffset":"+0200"}
     expected_minus = {"date":"2023-07-27", "time":"16.12", "tzoffset":"-0200"}
-    
-    assert grb.parse_expire_date(prefix_discard=p, 
+
+    assert grb.parse_expire_date(prefix_discard=p,
                                 expiry_formatted="artifact/expire/2023-07-27/16.12") == expected_basic
-    assert grb.parse_expire_date(prefix_discard=p, 
+    assert grb.parse_expire_date(prefix_discard=p,
                                 expiry_formatted="artifact/expire/2023-07-27/16.12/") == expected_basic
-    assert grb.parse_expire_date(prefix_discard=p, 
+    assert grb.parse_expire_date(prefix_discard=p,
                                 expiry_formatted="artifact/expire/2023-07-27/16.12/foo") == expected_basic
-    
+
     # Test with nested date paths - should use first date/time
     long_path = "artifact/expire/2023-07-27/16.12/2023-08-17/06.02/foo"
     assert grb.parse_expire_date(prefix_discard=p, expiry_formatted=long_path) == expected_basic
-    
-    assert grb.parse_expire_date(prefix_discard=p, 
+
+    assert grb.parse_expire_date(prefix_discard=p,
                                 expiry_formatted="artifact/expire/2023-07-27/16.12+0200") == expected_plus
-    assert grb.parse_expire_date(prefix_discard=p, 
+    assert grb.parse_expire_date(prefix_discard=p,
                                 expiry_formatted="artifact/expire/2023-07-27/16.12+0200/") == expected_plus
-    assert grb.parse_expire_date(prefix_discard=p, 
+    assert grb.parse_expire_date(prefix_discard=p,
                                 expiry_formatted="artifact/expire/2023-07-27/16.12-0200") == expected_minus
-    
+
     # Invalid timezone offset should result in None
-    assert grb.parse_expire_date(prefix_discard=p, 
+    assert grb.parse_expire_date(prefix_discard=p,
                                 expiry_formatted="artifact/expire/2023-07-27/16.12-03") == expected_basic
-    
+
     # Test without prefix
-    assert grb.parse_expire_date(prefix_discard="", 
+    assert grb.parse_expire_date(prefix_discard="",
                                 expiry_formatted="2023-07-27/16.12") == expected_basic
-    assert grb.parse_expire_date(prefix_discard="", 
+    assert grb.parse_expire_date(prefix_discard="",
                                 expiry_formatted="2023-07-27/16.12/") == expected_basic
 
 def test_parse_expire_datetime_invalid():
     """Test parsing invalid expiry date formats."""
     expected_invalid = {"date":None, "time":None, "tzoffset":None}
-    result = grb.parse_expire_date(prefix_discard="artifact/expire/", 
+    result = grb.parse_expire_date(prefix_discard="artifact/expire/",
                                   expiry_formatted="artifact/expire/30d/")
     assert result == expected_invalid
 

@@ -26,7 +26,7 @@ def test_exec_nostderr(monkeypatch):
     """Test exec_nostderr function that suppresses stderr."""
     called = {}
 
-    def fake_check_output(cmd, **_kwargs):
+    def fake_check_output(_cmd, **_kwargs):
         """Mock subprocess.check_output for testing."""
         called['stderr'] = _kwargs.get('stderr')
         return ''
