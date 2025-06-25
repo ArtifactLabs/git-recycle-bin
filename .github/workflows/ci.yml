@@ -51,6 +51,22 @@ jobs:
       - name: CLI help
         run: git_recycle_bin.py --help
 
+  python-sweep:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v25
+      - name: Test across all Python versions
+        run: nix-shell --pure --run "just python-sweep"
+
+  git-sweep:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v25
+      - name: Test across all Git versions
+        run: nix-shell --pure --run "just git-sweep"
+
   demo_help:
     runs-on: ubuntu-latest
     steps:

@@ -33,6 +33,16 @@ pip_install:
     - PYTHONPATH=$PWD:$PWD/src pytest
     - git_recycle_bin.py --help
 
+python_sweep:
+  stage: test
+  script:
+    - nix-shell --pure --run "just python-sweep"
+
+git_sweep:
+  stage: test
+  script:
+    - nix-shell --pure --run "just git-sweep"
+
 demo_help:
   stage: demos
   script:
