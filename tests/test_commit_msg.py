@@ -1,19 +1,22 @@
-import datetime
-import re
+"""Tests for commit message parsing functionality."""
+
 from commit_msg import extract_gerrit_change_id, parse_commit_msg, emit_commit_msg
 
 
 def test_extract_gerrit_change_id():
+    """Test extraction of Gerrit change ID from commit message."""
     msg = "Change-Id: Iabc\nChange-Id: Idef"
     assert extract_gerrit_change_id(msg) == "Idef"
 
 
 def test_parse_commit_msg():
+    """Test parsing of commit message trailers."""
     msg = "key1: val1\nkey2: val2\nignored"
     assert parse_commit_msg(msg) == {"key1": "val1", "key2": "val2"}
 
 
 def test_emit_commit_msg_redacts_url():
+    """Test commit message generation with URL redaction."""
     d = {
         "artifact_name": "artifact",
         "src_repo": "repo.git",
@@ -38,6 +41,7 @@ def test_emit_commit_msg_redacts_url():
 
 
 def test_emit_commit_msg_truncates_title_and_handles_missing_changeid():
+    """Test commit message generation with title truncation and missing change ID."""
     d = {
         'artifact_name': 'name',
         'src_repo': 'repo.git',

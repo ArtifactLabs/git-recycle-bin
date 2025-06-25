@@ -1,12 +1,15 @@
+"""Tests for list command functionality."""
+
 from types import SimpleNamespace
 import list as list_mod
 
 
 def test_remote_artifacts(monkeypatch):
+    """Test remote artifact listing functionality."""
     # patch util.exec to return known sha
     monkeypatch.setattr(list_mod, 'exec', lambda cmd: 'abcd')
 
-    def fake_cmd(*args, **kwargs):
+    def fake_cmd(*args, **_kwargs):
         if args[:3] == ('ls-remote', '--refs', 'remote'):
             return 'm1 refs/artifact/meta-for-commit/abcd/sha1\nm2 refs/artifact/meta-for-commit/abcd/sha2\n'
         raise AssertionError('unexpected')
@@ -16,16 +19,17 @@ def test_remote_artifacts(monkeypatch):
     assert res == [('m1', 'sha1'), ('m2', 'sha2')]
 
 
-def test_filter_artifacts_by_name_and_path(monkeypatch):
+def test_filter_artifacts_by_name_and_path():
+    """Test artifact filtering by name and path."""
     msgs = {
         'm1': 'artifact-name: foo\nsrc-git-relpath: path1',
         'm2': 'artifact-name: bar\nsrc-git-relpath: path2',
     }
 
-    def fake_fetch(remote, ref):
+    def fake_fetch(_remote, ref):
         return msgs[ref]
 
-    dummy = SimpleNamespace(fetch_cat_pretty=lambda r, ref: fake_fetch(r, ref))
+    dummy = SimpleNamespace(fetch_cat_pretty=fake_fetch)
     artifacts = [('m1', 'sha1'), ('m2', 'sha2')]
 
     filtered = list_mod.filter_artifacts(
