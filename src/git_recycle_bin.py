@@ -1,12 +1,15 @@
 #!/usr/bin/env python3
 """Git Recycle Bin - CLI tool for managing artifacts in Git repositories."""
-import os
-import sys
+import datetime
 import json
+import os
 import shutil
 import subprocess
+import sys
 from collections import OrderedDict
 from typing import Dict
+
+from dateutil.tz import tzlocal
 
 from rbgit import RbGit
 from printer import printer
@@ -28,10 +31,8 @@ from util_date import (
     format_timespan,
     parse_expire_date,
 )
-from dateutil.tz import tzlocal
-import datetime
 from util_sysinfo import get_user, get_hostname
-from util import exec, exec_nostderr
+from util import exec, exec_nostderr  # pylint: disable=redefined-builtin
 from arg_parser import parse_args
 from commit_msg import emit_commit_msg, parse_commit_msg, extract_gerrit_change_id
 
@@ -473,9 +474,11 @@ def remote_delete_expired_branches(rbgit, remote_bin_name):
 
         # Timezone may be absent, but we insist on date and time
         date_time_tz = parse_expire_date(branch)
-        if date_time_tz['date'] == None: continue
-        if date_time_tz['time'] == None: continue
-        if date_time_tz['tzoffset'] == None:
+        if date_time_tz['date'] is None:
+            continue
+        if date_time_tz['time'] is None:
+            continue
+        if date_time_tz['tzoffset'] is None:
             date_time_tz['tzoffset'] = datetime.datetime.strftime(now, "%z")
 
         compliant_expire_string = f"{date_time_tz['date']}/{date_time_tz['time']}{date_time_tz['tzoffset']}"
