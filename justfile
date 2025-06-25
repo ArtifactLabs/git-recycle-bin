@@ -43,6 +43,10 @@ test_integration:
     tests/test-end-to-end1.sh
     tests/test-end-to-end2.sh
 
+# Stress test with concurrent producers/consumers
+test_stress:
+    tests/test-stress-concurrent.sh
+
 # Test of aux/git_add_ssh_remote.sh
 test_git_add_ssh_remote:
     tests/test_git_add_ssh_remote.sh

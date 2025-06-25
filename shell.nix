@@ -42,6 +42,7 @@ in pkgs.mkShellNoCC {
     pkgs.python311Packages.restructuredtext-lint
 
     pkgs.gcc
+    pkgs.moreutils  # for ts
   ];
 
   shellHook = ''
