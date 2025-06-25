@@ -13,6 +13,6 @@ def test_nca_and_rel(tmp_path):
 def test_classify_path(tmp_path):
     f = tmp_path / 'file.txt'
     f.write_text('hi')
-    assert classify_path(str(f)) == ('text/plain', None)
+    assert classify_path(str(f)) == 'text/plain'
     assert classify_path(str(tmp_path)) == 'directory'
     assert classify_path(str(tmp_path / 'missing')) == 'unknown'

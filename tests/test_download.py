@@ -23,5 +23,5 @@ def test_download_force_true():
     rbgit = DummyRbGit()
     args = SimpleNamespace(artifacts=['ok'], force=True)
     ret = download_command(args, rbgit, 'remote')
-    assert ret is None
+    assert ret == 0
     assert rbgit.calls == [('fetch', 'remote', 'ok'), ('checkout', '-f', 'ok')]
