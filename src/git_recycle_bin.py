@@ -369,7 +369,7 @@ def push_branch(args, d, rbgit, remote_bin_name):
     if args.force_branch:
         rbgit.cmd(
             "push", "--force", remote_bin_name, d['bin_branch_name'],
-            capture_output=False
+            capture_output=False, max_retries=5
         )
     else:
         if rbgit.remote_already_has_ref(remote_bin_name, d['bin_branch_name']):
@@ -380,7 +380,7 @@ def push_branch(args, d, rbgit, remote_bin_name):
         else:
             rbgit.cmd(
                 "push", remote_bin_name, d['bin_branch_name'],
-                capture_output=False
+                capture_output=False, max_retries=5
             )
 
     printer.high_level(
@@ -390,7 +390,7 @@ def push_branch(args, d, rbgit, remote_bin_name):
     if args.force_branch:
         rbgit.cmd(
             "push", "--force", remote_bin_name, d['bin_ref_only_metadata'],
-            capture_output=False
+            capture_output=False, max_retries=5
         )
     else:
         if rbgit.remote_already_has_ref(remote_bin_name, d['bin_ref_only_metadata']):
@@ -401,7 +401,7 @@ def push_branch(args, d, rbgit, remote_bin_name):
         else:
             rbgit.cmd(
                 "push", remote_bin_name, d['bin_ref_only_metadata'],
-                capture_output=False
+                capture_output=False, max_retries=5
             )
 
 
@@ -452,7 +452,7 @@ def push_tag(args, d, rbgit, remote_bin_name):
         if commit_time_ours_u > commit_time_theirs_u:
             printer.high_level("Our artifact is newer than theirs. Updating...", file=sys.stderr)
             # Push with force is necessary to update existing tag
-            rbgit.cmd("push", "--force", remote_bin_name, d['bin_tag_name'])
+            rbgit.cmd("push", "--force", remote_bin_name, d['bin_tag_name'], max_retries=5)
         else:
             if not args.force_tag:
                 printer.high_level(
@@ -465,14 +465,14 @@ def push_tag(args, d, rbgit, remote_bin_name):
                     file=sys.stderr
                 )
                 # Push with force is necessary to update existing tag
-                rbgit.cmd("push", "--force", remote_bin_name, d['bin_tag_name'])
+                rbgit.cmd("push", "--force", remote_bin_name, d['bin_tag_name'], max_retries=5)
 
     else:
         printer.high_level(
             f"Bin-remote does not have a tag named {d['bin_tag_name']} -- we'll publish it.",
             file=sys.stderr
         )
-        rbgit.cmd("push", remote_bin_name, d['bin_tag_name'])  # Create new tag; push with force is not necessary
+        rbgit.cmd("push", remote_bin_name, d['bin_tag_name'], max_retries=5)  # Create new tag; push with force is not necessary
 
 
 def remote_delete_expired_branches(rbgit, remote_bin_name):
@@ -507,7 +507,7 @@ def remote_delete_expired_branches(rbgit, remote_bin_name):
             continue
 
         printer.high_level("Expired", delta_formatted, branch)
-        rbgit.cmd("push", remote_bin_name, "--delete", branch)
+        rbgit.cmd("push", remote_bin_name, "--delete", branch, max_retries=3)
 
 def remote_flush_meta_for_commit(rbgit, remote_bin_name):
     """
@@ -531,7 +531,7 @@ def remote_flush_meta_for_commit(rbgit, remote_bin_name):
     commits.difference_update((l[:sha_len] for l in tags))
     branches = ["refs/artifact/meta-for-commit/" + c for c in commits]
     if branches:
-        rbgit.cmd("push", remote_bin_name, "--delete", *branches)
+        rbgit.cmd("push", remote_bin_name, "--delete", *branches, max_retries=3)
 
 
 def note_append_push(args, d):

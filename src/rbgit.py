@@ -3,6 +3,8 @@ import os
 import sys
 import subprocess
 import re
+import time
+import random
 
 class RbGit:
     """Git operations wrapper for separate artifact repository management."""
@@ -20,35 +22,76 @@ class RbGit:
         )
         self.init_idempotent()
 
-    def cmd(self, *args, input=None, capture_output=True) -> str:  # pylint: disable=redefined-builtin
+    def _is_retryable_error(self, stderr_msg: str, command_args: list, capture_output: bool) -> bool:
+        """Check if git error is retryable (due to concurrent operations)."""
+        retryable_patterns = [
+            "cannot lock ref",
+            "reference already exists", 
+            "fetch first",
+            "remote rejected"
+        ]
+        
+        # If stderr captured, check error message patterns
+        if capture_output and stderr_msg and stderr_msg != "No error message":
+            return any(pattern in stderr_msg for pattern in retryable_patterns)
+        
+        # For push operations with capture_output=False, assume retryable on exit code 1
+        # This handles the case where stderr isn't captured but we still want retries
+        if not capture_output and len(command_args) > 0 and command_args[0] == "push":
+            return True
+            
+        return False
+
+    def _exponential_backoff_sleep(self, attempt: int, max_delay: float = 2.0):
+        """Sleep with exponential backoff and jitter."""
+        delay = min(0.1 * (2 ** attempt), max_delay)
+        jitter = random.uniform(0, delay * 0.1)  # Add 10% jitter
+        time.sleep(delay + jitter)
+
+    def cmd(self, *args, input=None, capture_output=True, max_retries=3) -> str:  # pylint: disable=redefined-builtin
         """Execute git command with artifact repository environment.
         
         :param args: Git command arguments
         :param input: Input text for git command
         :param capture_output: Whether to capture command output
+        :param max_retries: Maximum number of retry attempts for retryable errors
         :returns: Command stdout output
         """
-        # Override environment variables
-        envcopy = os.environ.copy()
-        envcopy["GIT_DIR"] = self.rbgit_dir
-        envcopy["GIT_WORK_TREE"] = self.rbgit_work_tree
+        cmd_str = " ".join(["git"] + list(args))
+        
+        for attempt in range(max_retries + 1):
+            # Override environment variables
+            envcopy = os.environ.copy()
+            envcopy["GIT_DIR"] = self.rbgit_dir
+            envcopy["GIT_WORK_TREE"] = self.rbgit_work_tree
 
-        # execute the git command with the modified environment
-        self.printer.debug("Run:", ["rbgit", *args], file=sys.stderr)
-        result = subprocess.run(
-            ["git", *args], input=input, env=envcopy,
-            capture_output=capture_output, text=True, check=False
-        )
-
-        # If the subprocess exited with a non-zero return code, raise an error
-        if result.returncode != 0:
-            raise RuntimeError(
-                f"RbGit command failed with error: {result.stderr}"
+            # execute the git command with the modified environment
+            self.printer.debug("Run:", ["rbgit", *args], file=sys.stderr)
+            result = subprocess.run(
+                ["git", *args], input=input, env=envcopy,
+                capture_output=capture_output, text=True, check=False
             )
 
-        # return the result of the command
-        stdout_str: str = result.stdout
-        return stdout_str
+            # If command succeeded, return result
+            if result.returncode == 0:
+                stdout_str: str = result.stdout
+                return stdout_str
+            
+            # Command failed - check if it's retryable
+            stderr_msg = result.stderr.strip() if result.stderr else "No error message"
+            
+            # If this is the last attempt or error is not retryable, raise exception
+            if attempt == max_retries or not self._is_retryable_error(stderr_msg, args, capture_output):
+                raise RuntimeError(
+                    f"RbGit command failed: '{cmd_str}' (exit code {result.returncode}): {stderr_msg}"
+                )
+            
+            # Log retry attempt and wait before retrying
+            self.printer.debug(f"Retrying command (attempt {attempt + 1}/{max_retries}): {cmd_str}", file=sys.stderr)
+            self._exponential_backoff_sleep(attempt)
+
+        # This should never be reached, but just in case
+        raise RuntimeError(f"RbGit command exceeded max retries: '{cmd_str}'")
 
     def init_idempotent(self):
         """Initialize Git repository idempotently."""
