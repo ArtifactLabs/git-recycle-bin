@@ -1,3 +1,4 @@
+"""String utility functions for text processing and sanitization."""
 import re
 import urllib.parse
 
@@ -18,6 +19,7 @@ def prefix_lines(lines: str, prefix: str) -> str:
     return "\n".join(f"{prefix}{line}" for line in lines.split("\n") if line)
 
 def string_trunc_ellipsis(maxlen: int, longstr: str) -> str:
+    """Truncate string to maximum length, adding ellipsis if needed."""
     if len(longstr) <= maxlen:
         return longstr
 
@@ -28,6 +30,7 @@ def string_trunc_ellipsis(maxlen: int, longstr: str) -> str:
         return shortstr
 
 def sanitize_slashes(name: str) -> str:
+    """Replace forward slashes with underscores for safe filename usage."""
     # replace / with _
     return re.sub(r'/', '_', name)
 

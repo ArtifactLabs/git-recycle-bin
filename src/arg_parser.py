@@ -1,3 +1,4 @@
+"""Command-line argument parsing for Git Recycle Bin."""
 import argparse
 import os
 from printer import printer
@@ -6,6 +7,7 @@ from printer import printer
 __version__ = "0.2.6"
 
 def str2bool(v):
+    """Convert string to boolean value for argument parsing."""
     if isinstance(v, bool):
        return v
     if v.lower() in ('yes', 'true', 't', 'y', '1'):
@@ -16,12 +18,14 @@ def str2bool(v):
         raise argparse.ArgumentTypeError('Boolean value expected.')
 
 def tuple1(key):
+    """Create a function that returns tuple of (key, value) for argument parsing."""
     def f(value):
         return (key, value)
     return f
 
 
 def parse_args():
+    """Parse command-line arguments for Git Recycle Bin."""
     class CustomHelpFormatter(argparse.HelpFormatter):
         def __init__(self, prog):
             super().__init__(prog, indent_increment=2, max_help_position=40)

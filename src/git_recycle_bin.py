@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+"""Git Recycle Bin - CLI tool for managing artifacts in Git repositories."""
 import os
 import sys
 import json
@@ -150,6 +151,7 @@ def create_artifact_commit(rbgit, artifact_name: str, binpath: str, expire_branc
     return d
 
 def main() -> int:
+    """Main entry point for Git Recycle Bin CLI."""
     # TODO: Add --add-submodule to add src-git as a {update=none, shallow, nonrecursive} submodule in artifact-commit.
 
     args = parse_args()
@@ -216,11 +218,13 @@ def main() -> int:
 
 
 def clean_command(rbgit, remote_bin_name):
+    """Execute clean command to remove expired artifacts."""
     remote_delete_expired_branches(rbgit, remote_bin_name)
     remote_flush_meta_for_commit(rbgit, remote_bin_name)
     return 0
 
 def push_command(args, rbgit, remote_bin_name, path):
+    """Execute push command to upload artifact to repository."""
     printer.high_level(f"Making local commit of artifact {path} in artifact-repo at {rbgit.rbgit_dir}", file=sys.stderr)
     d = create_artifact_commit(rbgit, args.name, path, args.expire, args.add_ignored, args.src_remote_name)
     printer.detail(rbgit.cmd("branch", "-vv"))
