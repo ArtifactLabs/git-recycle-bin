@@ -26,8 +26,7 @@ def string_trunc_ellipsis(maxlen: int, longstr: str) -> str:
     shortstr = longstr[:maxlen]
     if len(shortstr) == maxlen:
         return shortstr[:(maxlen-3)] + "..."
-    else:
-        return shortstr
+    return shortstr
 
 def sanitize_slashes(name: str) -> str:
     """Replace forward slashes with underscores for safe filename usage."""

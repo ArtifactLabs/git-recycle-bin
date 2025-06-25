@@ -440,21 +440,38 @@ def push_tag(args, d, rbgit, remote_bin_name):
         commit_time_ours = d['src_time_commit']
         commit_time_theirs_u = date_formatted2unix(commit_time_theirs, DATE_FMT_GIT)
         commit_time_ours_u = date_formatted2unix(commit_time_ours, DATE_FMT_GIT)
-        printer.high_level(f"Our artifact {d['bin_sha_commit'][:8]} has src committer-time:   {commit_time_ours} ({commit_time_theirs_u})", file=sys.stderr)
-        printer.high_level(f"Their artifact {remote_bin_sha_commit[:8]} has src committer-time: {commit_time_theirs} ({commit_time_ours_u})", file=sys.stderr)
+        printer.high_level(
+            f"Our artifact {d['bin_sha_commit'][:8]} has src committer-time:   "
+            f"{commit_time_ours} ({commit_time_theirs_u})", file=sys.stderr
+        )
+        printer.high_level(
+            f"Their artifact {remote_bin_sha_commit[:8]} has src committer-time: "
+            f"{commit_time_theirs} ({commit_time_ours_u})", file=sys.stderr
+        )
 
         if commit_time_ours_u > commit_time_theirs_u:
-            printer.high_level(f"Our artifact is newer than theirs. Updating...", file=sys.stderr)
-            rbgit.cmd("push", "--force", remote_bin_name, d['bin_tag_name'])  # Push with force is necessary to update existing tag
+            printer.high_level("Our artifact is newer than theirs. Updating...", file=sys.stderr)
+            # Push with force is necessary to update existing tag
+            rbgit.cmd("push", "--force", remote_bin_name, d['bin_tag_name'])
         else:
             if not args.force_tag:
-                printer.high_level(f"Our artifact is not newer than theirs. Leaving remote tag as-is.", file=sys.stderr)
+                printer.high_level(
+                    "Our artifact is not newer than theirs. Leaving remote tag as-is.",
+                    file=sys.stderr
+                )
             else:
-                printer.high_level(f"Our artifact is not newer than theirs. Forcing update to remote tag.", file=sys.stderr)
-                rbgit.cmd("push", "--force", remote_bin_name, d['bin_tag_name'])  # Push with force is necessary to update existing tag
+                printer.high_level(
+                    "Our artifact is not newer than theirs. Forcing update to remote tag.",
+                    file=sys.stderr
+                )
+                # Push with force is necessary to update existing tag
+                rbgit.cmd("push", "--force", remote_bin_name, d['bin_tag_name'])
 
     else:
-        printer.high_level(f"Bin-remote does not have a tag named {d['bin_tag_name']} -- we'll publish it.", file=sys.stderr)
+        printer.high_level(
+            f"Bin-remote does not have a tag named {d['bin_tag_name']} -- we'll publish it.",
+            file=sys.stderr
+        )
         rbgit.cmd("push", remote_bin_name, d['bin_tag_name'])  # Create new tag; push with force is not necessary
 
 
@@ -536,8 +553,11 @@ def note_append_push(args, d):
     # - The "notes/artifact/{bin_remote_sane}"-prefix permits fetch of only artifacts published on certain binary remotes,
     #   this reduces git-log spam if some remotes only hold documentation and others hold built images.
     # - The "notes/artifact/{bin_remote_sane}/{name_sane}"-prefix allows scoping to certain artifacts.
-    # - The final bin_sha_commit level detaches us from retention policy; if all is expired we can delete the note-ref.
-    git_notes_ref = sanitize_branch_name(f"refs/notes/artifact/{bin_remote_sane}/{name_sane}/{d['bin_sha_commit']}-{work_state}")
+    # - The final bin_sha_commit level detaches us from retention policy;
+    #   if all is expired we can delete the note-ref.
+    git_notes_ref = sanitize_branch_name(
+        f"refs/notes/artifact/{bin_remote_sane}/{name_sane}/{d['bin_sha_commit']}-{work_state}"
+    )
 
     # git-notes assumes refs/notes/commits by default, which we don't want to interfere with,
     # so we tell git to manipulate our refspec, by the GIT_NOTES_REF environment variable.
@@ -564,7 +584,8 @@ def note_append_push(args, d):
 
         # Fully qualified 'pointer' to artifact on binary remote
         ("remote", args.remote),
-        ("commit", d['bin_sha_commit']),  # we only need the artifact commit SHA, not any (expired) branches that point to it
+        # we only need the artifact commit SHA, not any (expired) branches that point to it
+        ("commit", d['bin_sha_commit']),
     ])
     msg = json.dumps(linedata, separators=(', ', ':'))
 
