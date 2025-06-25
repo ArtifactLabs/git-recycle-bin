@@ -36,43 +36,43 @@ Address critical documentation gaps that prevent users from effectively adopting
 
 ### Medium Priority Documentation (Enhances User Experience)
 
-5. **Metadata Schema Reference** (`reference/metadata-schema.rst`)
+1. **Metadata Schema Reference** (`reference/metadata-schema.rst`)
    - [ ] Complete documentation of commit message metadata format
    - [ ] Field formats, validation rules, and extension points
    - [ ] Versioning and compatibility information
 
-6. **Git Notes Integration Guide** (`reference/git-notes.rst`)
+2. **Git Notes Integration Guide** (`reference/git-notes.rst`)
    - [ ] Git notes refspec structure and content format
    - [ ] Integration with standard Git commands
    - [ ] Performance considerations for large note sets
 
-7. **Configuration Management** (`usage/configuration.rst`)
+3. **Configuration Management** (`usage/configuration.rst`)
    - [ ] Git configuration integration and environment variable precedence
    - [ ] Per-project vs global settings management
    - [ ] Configuration file patterns and best practices
 
-8. **Enhanced API Documentation** (`modules.rst`)
+4. **Enhanced API Documentation** (`modules.rst`)
    - [ ] Usage examples for each module and function
    - [ ] Integration patterns for library usage
    - [ ] Error handling and exception documentation
 
 ### Lower Priority Documentation (Nice to Have)
 
-9. **Architecture Documentation** (`development/architecture.rst`)
+1. **Architecture Documentation** (`development/architecture.rst`)
    - [ ] System architecture overview and component relationships
    - [ ] Key design patterns and extension points
    - [ ] Module relationships and data flow
 
-10. **Tool Comparison** (`appendices/comparison.rst`)
+2. **Tool Comparison** (`appendices/comparison.rst`)
     - [ ] Detailed comparison with Git LFS, Artifactory, Nexus, container registries
     - [ ] Decision framework for choosing |grb| vs alternatives
 
-11. **Migration Guides** (`appendices/migration.rst`)
+3. **Migration Guides** (`appendices/migration.rst`)
     - [ ] Migration from other artifact systems
     - [ ] Version upgrade procedures
     - [ ] Data export/import and backup/restore strategies
 
-12. **Advanced Usage Examples** (`examples/multi-artifact.rst`)
+4. **Advanced Usage Examples** (`examples/multi-artifact.rst`)
     - [ ] Multi-artifact management scenarios
     - [ ] Cross-repository artifact sharing
     - [ ] Complex deployment workflows
