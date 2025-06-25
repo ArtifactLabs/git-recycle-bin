@@ -44,6 +44,8 @@
 
 # Add script directory to PATH and source common messaging functions
 PATH="$(dirname "${BASH_SOURCE[0]}"):${PATH}"
+# Ensure we have git-recycle-bin in PATH
+PATH="$(dirname "$(which git_recycle_bin.py)"):${PATH}"
 source lib_msg.bash
 source lib_export_test_dir.bash
 source lib_create_test_dirs.bash
