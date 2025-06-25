@@ -1,16 +1,33 @@
+"""RbGit class - Git operations wrapper for artifact repository management."""
 import os
 import sys
 import subprocess
 import re
 
 class RbGit:
+    """Git operations wrapper for separate artifact repository management."""
     def __init__(self, printer, rbgit_dir=None, rbgit_work_tree=None):
+        """Initialize RbGit with separate Git environment.
+        
+        :param printer: Printer instance for logging
+        :param rbgit_dir: Git directory path for artifact repository
+        :param rbgit_work_tree: Work tree path for artifact repository
+        """
         self.printer = printer
         self.rbgit_dir = rbgit_dir if rbgit_dir else os.environ["RBGIT_DIR"]
-        self.rbgit_work_tree = rbgit_work_tree if rbgit_work_tree else os.environ["RBGIT_WORK_TREE"]
+        self.rbgit_work_tree = (
+            rbgit_work_tree if rbgit_work_tree else os.environ["RBGIT_WORK_TREE"]
+        )
         self.init_idempotent()
 
-    def cmd(self, *args, input=None, capture_output=True) -> str:
+    def cmd(self, *args, input=None, capture_output=True) -> str:  # pylint: disable=redefined-builtin
+        """Execute git command with artifact repository environment.
+        
+        :param args: Git command arguments
+        :param input: Input text for git command
+        :param capture_output: Whether to capture command output
+        :returns: Command stdout output
+        """
         # Override environment variables
         envcopy = os.environ.copy()
         envcopy["GIT_DIR"] = self.rbgit_dir
@@ -18,17 +35,23 @@ class RbGit:
 
         # execute the git command with the modified environment
         self.printer.debug("Run:", ["rbgit", *args], file=sys.stderr)
-        result = subprocess.run(["git", *args], input=input, env=envcopy, capture_output=capture_output, text=True)
+        result = subprocess.run(
+            ["git", *args], input=input, env=envcopy,
+            capture_output=capture_output, text=True, check=False
+        )
 
         # If the subprocess exited with a non-zero return code, raise an error
         if result.returncode != 0:
-            raise RuntimeError(f"RbGit command failed with error: {result.stderr}")
+            raise RuntimeError(
+                f"RbGit command failed with error: {result.stderr}"
+            )
 
         # return the result of the command
         stdout_str: str = result.stdout
         return stdout_str
 
     def init_idempotent(self):
+        """Initialize Git repository idempotently."""
         try:
             # Check if inside git work tree
             self.cmd("rev-parse", "--is-inside-work-tree")
@@ -39,10 +62,11 @@ class RbGit:
             self.cmd("config", "--local", "gc.auto", "0")
 
         # Exclude .rbgit from version control
-        with open(f"{self.rbgit_dir}/info/exclude", "w") as file:
+        with open(f"{self.rbgit_dir}/info/exclude", "w", encoding="utf-8") as file:
             file.write(".rbgit/\n")
 
     def checkout_orphan_idempotent(self, branch_name: str):
+        """Checkout orphan branch idempotently."""
         try:
             # Try to checkout the branch, if it exists
             self.cmd("show-ref", "--verify", "--quiet", f"refs/heads/{branch_name}")

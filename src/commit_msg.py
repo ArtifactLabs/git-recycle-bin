@@ -1,3 +1,4 @@
+"""Artifact commit message generation and parsing with metadata trailers."""
 import re
 
 from util_string import (
@@ -10,8 +11,16 @@ from util_string import (
 
 
 def extract_gerrit_change_id(commit_message: str) -> str:
+    """Extract Gerrit Change-Id from commit message.
+    
+    :param commit_message: Full commit message text
+    :returns: Change-Id string or empty string if not found
+    """
     # Find the Change-Id line(s)
-    change_id_lines = [line for line in commit_message.split('\n') if line.startswith("Change-Id:")]
+    change_id_lines = [
+        line for line in commit_message.split('\n')
+        if line.startswith("Change-Id:")
+    ]
 
     # Extract the Change ID from the last matching line, if any
     if change_id_lines:
@@ -23,13 +32,20 @@ def extract_gerrit_change_id(commit_message: str) -> str:
     return ""
 
 def parse_commit_msg(commit_msg):
+    """Parse commit message trailers into a dictionary.
+    
+    :param commit_msg: Raw commit message text
+    :returns: Dictionary of trailer key-value pairs
+    """
     # Regex breakdown:
-    #   ^([\w-]+) matches the key made up of word chars and dashes from line-start, captured in group 1
+    #   ^([\w-]+) matches the key made up of word chars and dashes from
+    #             line-start, captured in group 1
     #   :         matches the colon delimiter
     #   (.*)      matches the rest of the line as the value, captured in group 2
     pattern = r'^([\w-]+):(.*)'
 
-    ## NOTE: This does not handle multi-line git trailers correctly, e.g. src-git-status
+    # NOTE: This does not handle multi-line git trailers correctly,
+    # e.g. src-git-status
     ret_dict = {}
     for line in commit_msg.strip().splitlines():
         match = re.match(pattern, line)
@@ -39,6 +55,11 @@ def parse_commit_msg(commit_msg):
     return ret_dict
 
 def emit_commit_msg(d: dict):
+    """Generate structured commit message for artifact with metadata trailers.
+    
+    :param d: Dictionary containing artifact and source repository metadata
+    :returns: Formatted commit message with title, body, and trailers
+    """
     commit_msg_title = f"""
         artifact: {d['src_repo']}@{d['src_sha_short']}: {d['artifact_name']} @({string_trunc_ellipsis(30, d['src_sha_title']).strip()})
     """
