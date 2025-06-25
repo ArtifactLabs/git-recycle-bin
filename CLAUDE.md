@@ -123,6 +123,15 @@ Python packages: `maya`, `colorama`, `dateparser`
 
 Linting must pass before any commits. Run `nix-shell --run 'just lint'` to verify.
 
+## Commit Message Style
+
+- **Format**: Use the [Conventional Commits](https://www.conventionalcommits.org/) specification.
+- **Subject Line**: Use a concise subject line of 50 characters or less.
+  - Example: `docs: Correct CLI usage in documentation`
+- **Body**: Wrap the commit message body at 72 characters.
+- **Content**: Explain the "why" of the change, not just the "what".
+  Provide context for the changes and reference issue numbers if applicable.
+
 ## Development Guidelines
 
 ### Environment Requirements
