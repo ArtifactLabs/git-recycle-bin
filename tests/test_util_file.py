@@ -1,8 +1,9 @@
-import os
+"""Tests for file utility functions."""
 from util_file import nca_path, rel_dir, classify_path
 
 
 def test_nca_and_rel(tmp_path):
+    """Test nearest common ancestor and relative directory functions."""
     a = tmp_path / 'a'
     b = tmp_path / 'a' / 'b'
     b.mkdir(parents=True)
@@ -11,6 +12,7 @@ def test_nca_and_rel(tmp_path):
 
 
 def test_classify_path(tmp_path):
+    """Test file type classification functionality."""
     f = tmp_path / 'file.txt'
     f.write_text('hi')
     assert classify_path(str(f)) == 'text/plain'
