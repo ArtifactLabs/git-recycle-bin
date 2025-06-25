@@ -7,12 +7,9 @@ from printer import printer
 def exec(command, env=None):  # pylint: disable=redefined-builtin
     """Execute command with merged environment and return stripped output.
     
-    Args:
-        command: List of command and arguments to execute
-        env: Additional environment variables to merge
-        
-    Returns:
-        Stripped stdout from command execution
+    :param command: List of command and arguments to execute
+    :param env: Additional environment variables to merge
+    :returns: Stripped stdout from command execution
     """
     if env is None:
         env = {}
@@ -24,12 +21,9 @@ def exec(command, env=None):  # pylint: disable=redefined-builtin
 def exec_nostderr(command, env=None):
     """Execute command with merged environment, suppressing stderr.
     
-    Args:
-        command: List of command and arguments to execute
-        env: Additional environment variables to merge
-        
-    Returns:
-        Stripped stdout from command execution
+    :param command: List of command and arguments to execute
+    :param env: Additional environment variables to merge
+    :returns: Stripped stdout from command execution
     """
     if env is None:
         env = {}

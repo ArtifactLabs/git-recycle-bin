@@ -43,7 +43,16 @@ from download import download_command
 def create_artifact_commit(rbgit, artifact_name: str, binpath: str,
                           expire_branch: str, add_ignored: bool,
                           src_remote_name: str) -> Dict[str, str]:
-    """Create Artifact: A binary commit, with builtin traceability and expiry."""
+    """Create Artifact: A binary commit, with builtin traceability and expiry.
+    
+    :param rbgit: RbGit instance for repository operations
+    :param artifact_name: Name of the artifact
+    :param binpath: Path to the binary/artifact file
+    :param expire_branch: Expiry date specification for the artifact
+    :param add_ignored: Whether to add ignored files
+    :param src_remote_name: Name of the source remote
+    :returns: Dictionary containing artifact metadata
+    """
     if not os.path.exists(binpath):
         raise RuntimeError(f"Artifact '{binpath}' does not exist!")
 

@@ -55,7 +55,7 @@ def filter_artifacts_by_name(artifact, **kwargs):
     remote_bin_name = kwargs['remote_bin_name']
     data = rbgit.fetch_cat_pretty(remote_bin_name, artifact[0])
     return (
-        parse_commit_msg(data)['artifact-name'] == 
+        parse_commit_msg(data)['artifact-name'] ==
         sanitize_branch_name(kwargs['query'])
     )
 
