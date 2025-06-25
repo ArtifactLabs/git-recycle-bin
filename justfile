@@ -73,7 +73,7 @@ mod demo-download 'demos/download.justfile'
 
 # Lint shell scripts for tracked files, not for submodules
 shell-lint:
-    git ls-files -z '*.sh' | xargs -0 shellcheck
+    git ls-files -z '*.sh' | xargs -0 shellcheck -x --source-path=tests
 
 ########################
 
