@@ -158,10 +158,15 @@ python-sweep cmd="pytest":
     nix-shell test-envs/shell.py313.nix --pure --run 'python --version && {{cmd}}'
 
 # Run commands across all supported git versions
-git-sweep cmd="git --version":
-    nix-shell test-envs/shell.git243.nix --pure --run 'git --version && {{cmd}}'
-    nix-shell test-envs/shell.git244.nix --pure --run 'git --version && {{cmd}}'
-    nix-shell test-envs/shell.git245.nix --pure --run 'git --version && {{cmd}}'
-    nix-shell test-envs/shell.git246.nix --pure --run 'git --version && {{cmd}}'
-    nix-shell test-envs/shell.git247.nix --pure --run 'git --version && {{cmd}}'
-    nix-shell test-envs/shell.git249.nix --pure --run 'git --version && {{cmd}}'
+# Not pure so we can inherit whatever version of git_recycle_bin.py and python
+git-sweep cmd="just test_integration":
+    nix-shell test-envs/shell.git225.nix --run 'git --version && {{cmd}}'
+    nix-shell test-envs/shell.git230.nix --run 'git --version && {{cmd}}'
+    nix-shell test-envs/shell.git235.nix --run 'git --version && {{cmd}}'
+    nix-shell test-envs/shell.git238.nix --run 'git --version && {{cmd}}'
+    nix-shell test-envs/shell.git243.nix --run 'git --version && {{cmd}}'
+    nix-shell test-envs/shell.git244.nix --run 'git --version && {{cmd}}'
+    nix-shell test-envs/shell.git245.nix --run 'git --version && {{cmd}}'
+    nix-shell test-envs/shell.git246.nix --run 'git --version && {{cmd}}'
+    nix-shell test-envs/shell.git247.nix --run 'git --version && {{cmd}}'
+    nix-shell test-envs/shell.git249.nix --run 'git --version && {{cmd}}'
