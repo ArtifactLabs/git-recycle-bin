@@ -4,12 +4,19 @@
 
 # Add script directory to PATH and source common messaging functions
 PATH="$(dirname "${BASH_SOURCE[0]}"):${PATH}"
+# shellcheck disable=SC1091
 source lib_msg.bash
+# shellcheck disable=SC1091
 source lib_export_test_dir.bash
+# shellcheck disable=SC1091
 source lib_create_test_dirs.bash
+# shellcheck disable=SC1091
 source lib_repo_setup.bash
+# shellcheck disable=SC1091
 source lib_publisher.bash
+# shellcheck disable=SC1091
 source lib_consumer.bash
+# shellcheck disable=SC1091
 source lib_verify.bash
 
 {

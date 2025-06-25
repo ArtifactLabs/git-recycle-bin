@@ -32,7 +32,7 @@ create_test_repo() {
     local remote_name="${3:-origin}"
 
     mkdir -p "${test_dir}"
-    cd "${test_dir}"
+    cd "${test_dir}" || exit
 
     # Initialize repo
     git init > /dev/null 2>&1
@@ -63,8 +63,10 @@ run_test() {
     local dut_exit_code=$?
 
     if [[ ${dut_exit_code} -eq 0 ]]; then
-        local remote_url=$(cd "${test_dir}" && git remote get-url "${remote}" 2>&1)
-        local remote_ssh_url=$(cd "${test_dir}" && git remote get-url "${remote}_ssh" 2>&1)
+        local remote_url
+        remote_url=$(cd "${test_dir}" && git remote get-url "${remote}" 2>&1)
+        local remote_ssh_url
+        remote_ssh_url=$(cd "${test_dir}" && git remote get-url "${remote}_ssh" 2>&1)
         local get_url_exit=$?
 
         if [[ ${get_url_exit} -eq 0 && "${remote_ssh_url}" == "${expected}" ]]; then
@@ -82,64 +84,70 @@ run_test() {
         echo -e "${RED}FAIL${NC}: ${test_name}: DUT script failed with exit code ${dut_exit_code}"
         return 1
     fi
-
-    echo -e "${RED}FAIL${NC}: ${test_name}"
-    return 1
 }
 
 ################ Individual test functions
 
 test_convert_https_to_ssh() {
-    local test_dir="$(mktemp -d ${TEST_TMP_DIR}/${FUNCNAME[0]}_XXXX)"
+    local test_dir
+    test_dir="$(mktemp -d "${TEST_TMP_DIR}/${FUNCNAME[0]}_XXXX")"
     create_test_repo "${test_dir}" "https://github.com/username/repo.git"
     run_test "${test_dir}" "Convert HTTPS to SSH" "git@github.com:username/repo.git"
 }
 
 test_already_ssh() {
-    local test_dir="$(mktemp -d ${TEST_TMP_DIR}/${FUNCNAME[0]}_XXXX)"
+    local test_dir
+    test_dir="$(mktemp -d "${TEST_TMP_DIR}/${FUNCNAME[0]}_XXXX")"
     create_test_repo "${test_dir}" "git@github.com:username/repo.git"
     run_test "${test_dir}" "Already SSH" "git@github.com:username/repo.git"
 }
 
 test_custom_remote_name() {
-    local test_dir="$(mktemp -d ${TEST_TMP_DIR}/${FUNCNAME[0]}_XXXX)"
+    local test_dir
+    test_dir="$(mktemp -d "${TEST_TMP_DIR}/${FUNCNAME[0]}_XXXX")"
     local remote_name="upstream"
     create_test_repo "${test_dir}" "https://github.com/username/repo.git" "${remote_name}"
     run_test "${test_dir}" "Custom remote name" "git@github.com:username/repo.git" "${remote_name}"
 }
 
 test_https_with_auth_token() {
-    local test_dir="$(mktemp -d ${TEST_TMP_DIR}/${FUNCNAME[0]}_XXXX)"
+    local test_dir
+    test_dir="$(mktemp -d "${TEST_TMP_DIR}/${FUNCNAME[0]}_XXXX")"
     create_test_repo "${test_dir}" "https://token@github.com/username/repo.git"
     run_test "${test_dir}" "HTTPS with auth token" "git@github.com:username/repo.git"
 }
 
 test_git_protocol() {
-    local test_dir="$(mktemp -d ${TEST_TMP_DIR}/${FUNCNAME[0]}_XXXX)"
+    local test_dir
+    test_dir="$(mktemp -d "${TEST_TMP_DIR}/${FUNCNAME[0]}_XXXX")"
     create_test_repo "${test_dir}" "git://github.com/username/repo.git"
     run_test "${test_dir}" "Git protocol" "git://github.com/username/repo.git"  # no change expected
 }
 
 test_ssh_with_protocol() {
-    local test_dir="$(mktemp -d ${TEST_TMP_DIR}/${FUNCNAME[0]}_XXXX)"
+    local test_dir
+    test_dir="$(mktemp -d "${TEST_TMP_DIR}/${FUNCNAME[0]}_XXXX")"
     create_test_repo "${test_dir}" "ssh://git@github.com/username/repo.git"
     run_test "${test_dir}" "SSH with protocol" "ssh://git@github.com/username/repo.git"  # no change expected
 }
 
 test_gerrit_ssh_url() {
-    local test_dir="$(mktemp -d ${TEST_TMP_DIR}/${FUNCNAME[0]}_XXXX)"
+    local test_dir
+    test_dir="$(mktemp -d "${TEST_TMP_DIR}/${FUNCNAME[0]}_XXXX")"
     create_test_repo "${test_dir}" "ssh://username@gerrit.example.com:29418/project/repository.git"
     run_test "${test_dir}" "Gerrit SSH URL with port" "ssh://username@gerrit.example.com:29418/project/repository.git"  # no change expected
 }
 
 test_https_with_credentials() {
-    local test_dir="$(mktemp -d ${TEST_TMP_DIR}/${FUNCNAME[0]}_XXXX)"
+    local test_dir
+    test_dir="$(mktemp -d "${TEST_TMP_DIR}/${FUNCNAME[0]}_XXXX")"
     create_test_repo "${test_dir}" "https://username:password@github.com/username/repo.git"
     run_test "${test_dir}" "HTTPS with username/password" "git@github.com:username/repo.git"
 }
 
 test_subdirectory_path() {
-    local test_dir="$(mktemp -d ${TEST_TMP_DIR}/${FUNCNAME[0]}_XXXX)"
+    local test_dir
+    test_dir="$(mktemp -d "${TEST_TMP_DIR}/${FUNCNAME[0]}_XXXX")"
     create_test_repo "${test_dir}" "https://github.com/org/subgroup/repo.git"
     run_test "${test_dir}" "Repository in subdirectory" "git@github.com:org/subgroup/repo.git"
 }
