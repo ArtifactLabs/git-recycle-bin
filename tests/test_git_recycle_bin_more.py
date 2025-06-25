@@ -1,19 +1,23 @@
-import pytest
+"""Tests for additional git recycle bin functionality."""
 from types import SimpleNamespace
+import pytest
 import git_recycle_bin as grb
 
 
 def test_create_artifact_commit_missing(tmp_path):
+    """Test creating artifact commit with missing file."""
     missing = tmp_path / "nope.bin"
     with pytest.raises(RuntimeError):
         grb.create_artifact_commit(SimpleNamespace(), 'name', str(missing), '1d', False, 'origin')
 
 
 def test_create_artifact_commit_sanitizes_name(tmp_path, monkeypatch):
+    """Test that artifact commit sanitizes artifact names."""
     path = tmp_path / "file.txt"
     path.write_text('data')
 
     def fake_exec(cmd):
+        """Mock exec function for testing."""
         if cmd[:3] == ['git', 'rev-parse', 'HEAD']:
             return 'sha'
         if '--format=%B' in cmd:
@@ -46,15 +50,20 @@ def test_create_artifact_commit_sanitizes_name(tmp_path, monkeypatch):
                                                        debug=lambda *a, **k: None))
 
     class Dummy:
+        """Mock RbGit for testing artifact commit sanitization."""
         def __init__(self):
+            """Initialize mock with call tracking."""
             self.calls = []
             self.rbgit_dir = '/rbgit'
         def checkout_orphan_idempotent(self, b):
+            """Mock checkout orphan operation."""
             self.calls.append(('checkout', b))
         def add(self, p, force):
+            """Mock add operation."""
             self.calls.append(('add', p, force))
             return True
         def cmd(self, *a, input=None, capture_output=True):
+            """Mock command execution."""
             self.calls.append(('cmd', a))
             if a[:2] == ('rev-parse', 'HEAD'):
                 return 'sha'
@@ -62,6 +71,7 @@ def test_create_artifact_commit_sanitizes_name(tmp_path, monkeypatch):
                 return 'hash'
             return 'out'
         def set_tag(self, *, tag_name, tag_val):
+            """Mock tag setting operation."""
             self.calls.append(('set_tag', tag_name, tag_val))
 
     rbgit = Dummy()
@@ -72,9 +82,11 @@ def test_create_artifact_commit_sanitizes_name(tmp_path, monkeypatch):
 
 
 def test_push_command(monkeypatch):
+    """Test push command functionality."""
     calls = []
 
-    def fake_create(r, name, path, expire, add_ignored, src_remote):
+    def fake_create(_r, name, path, expire, add_ignored, src_remote):
+        """Mock artifact creation function."""
         calls.append(('create', name, path, expire, add_ignored, src_remote))
         return {
             'bin_branch_name': 'b',
@@ -94,12 +106,16 @@ def test_push_command(monkeypatch):
     monkeypatch.setattr(grb, 'printer', SimpleNamespace(high_level=lambda *a, **k: None, detail=lambda *a, **k: None))
 
     class DummyRb:
+        """Mock RbGit for testing push command."""
         def __init__(self):
+            """Initialize mock with call tracking."""
             self.calls = []
             self.rbgit_dir = '/r'
         def add_remote_idempotent(self, name, url):
+            """Mock remote addition."""
             calls.append(('add_remote', name, url))
-        def cmd(self, *a, **k):
+        def cmd(self, *a, **_k):
+            """Mock command execution."""
             calls.append(('cmd', a))
             return ''
 
