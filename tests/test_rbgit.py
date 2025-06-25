@@ -161,6 +161,6 @@ def test_fetch_only_tags_and_set_tag():
 
     dummy = D()
     RbGit.fetch_only_tags(dummy, 'origin')
-    RbGit.set_tag(dummy, 'v1', 'sha')
+    RbGit.set_tag(dummy, tag_name='v1', tag_val='sha')
     assert ('fetch', 'origin', 'refs/tags/*:refs/tags/*') in calls
     assert ('tag', '--force', 'v1', 'sha') in calls

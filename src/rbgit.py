@@ -113,7 +113,7 @@ class RbGit:
         """Fetch only tags from remote repository."""
         self.cmd("fetch", remote, 'refs/tags/*:refs/tags/*')
 
-    def set_tag(self, *, tag_name: str, tag_val: str):
+    def set_tag(self, tag_name: str, tag_val: str):
         """Set Git tag to specific commit."""
         self.cmd("tag", "--force", tag_name, tag_val)
 
@@ -132,25 +132,52 @@ class RbGit:
         # - Extract the 4th column (size) from each line
         # - Convert to int
         # - Sum the sizes
-        sizes = [int(re.split(r'\s+', line)[3]) for line in lines.splitlines()]
+        sizes = [
+            int(re.split(r'\s+', line)[3]) for line in lines.splitlines()
+        ]
         return sum(sizes)
 
     def remote_already_has_ref(self, remote: str, ref_name: str):
-        """ `ls-remote` is pretty forgiving, e.g. either {master, refs/heads/master} will be found """
+        """Check if remote repository has the specified reference.
+        
+        `ls-remote` is pretty forgiving, e.g. either {master, refs/heads/master}
+        will be found.
+        
+        :param remote: Remote repository name
+        :param ref_name: Reference name to check
+        :returns: True if reference exists on remote
+        """
         lines = self.cmd("ls-remote", remote, ref_name)
-        return (lines != "")
+        return lines != ""
 
     def fetch_current_tag_value(self, remote: str, tag_name: str):
+        """Fetch current value of tag from remote repository.
+        
+        :param remote: Remote repository name
+        :param tag_name: Tag name to fetch
+        :returns: SHA of tag or None if not found
+        """
         lines = self.cmd("ls-remote", "--tags", remote, tag_name)
         for line in lines.splitlines():
             cols = line.split()
             sha = cols[0]
-            tag = cols[1][len('refs/tags/'):] if cols[1].startswith('refs/tags/') else cols[1]  # .removeprefix('refs/tags/') is python 3.9+
+            # .removeprefix('refs/tags/') is python 3.9+
+            tag = (
+                cols[1][len('refs/tags/'):]
+                if cols[1].startswith('refs/tags/')
+                else cols[1]
+            )
             if tag == tag_name:
                 return sha
         return None
 
     def fetch_cat_pretty(self, remote: str, ref: str) -> str:
+        """Fetch and display content of reference from remote.
+        
+        :param remote: Remote repository name
+        :param ref: Reference to fetch and display
+        :returns: Content of the reference
+        """
         self.cmd("fetch", remote, ref)
         content = self.cmd("cat-file", "-p", "FETCH_HEAD")
         return content
