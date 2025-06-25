@@ -550,7 +550,8 @@ def note_append_push(args, d):
 
     # This note refspec has some design properties:
     # - The "notes/artifact/"-prefix permits scoped {ignore,only} fetch of artifact notes.
-    # - The "notes/artifact/{bin_remote_sane}"-prefix permits fetch of only artifacts published on certain binary remotes,
+    # - The "notes/artifact/{bin_remote_sane}"-prefix permits fetch of only artifacts
+    #   published on certain binary remotes,
     #   this reduces git-log spam if some remotes only hold documentation and others hold built images.
     # - The "notes/artifact/{bin_remote_sane}/{name_sane}"-prefix allows scoping to certain artifacts.
     # - The final bin_sha_commit level detaches us from retention policy;
