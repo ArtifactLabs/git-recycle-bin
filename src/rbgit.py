@@ -76,6 +76,12 @@ class RbGit:
             self.cmd("checkout", "--orphan", branch_name)
 
     def add(self, binpath: str, force: bool = False) -> bool:
+        """Add file to Git staging area.
+        
+        :param binpath: Path to file to add
+        :param force: Whether to force add ignored files
+        :returns: True if changes were staged, False otherwise
+        """
         if not os.path.exists(binpath):
             raise RuntimeError(f"Artifact '{binpath}' does not exist!")
 
@@ -89,12 +95,14 @@ class RbGit:
             # Check if there are any changes staged for the next commit
             self.cmd("diff-index", "--quiet", "--cached", "HEAD")
         except RuntimeError:
-            # If diff-index command failed, it means there are changes staged for the next commit
+            # If diff-index command failed, it means there are changes
+            # staged for the next commit
             changes = True
 
         return changes
 
     def add_remote_idempotent(self, name: str, url: str):
+        """Add Git remote idempotently."""
         try:
             self.cmd("remote", "add", name, url)
         except RuntimeError:
@@ -102,13 +110,21 @@ class RbGit:
             self.cmd("remote", "set-url", name, url)
 
     def fetch_only_tags(self, remote: str):
+        """Fetch only tags from remote repository."""
         self.cmd("fetch", remote, 'refs/tags/*:refs/tags/*')
 
-    def set_tag(self, tag_name: str, tag_val: str):
+    def set_tag(self, *, tag_name: str, tag_val: str):
+        """Set Git tag to specific commit."""
         self.cmd("tag", "--force", tag_name, tag_val)
 
     def tree_size(self, ref: str = "HEAD") -> int:
-        """ Accumulated recursively-walked size of tree. Git stores sparsely and compressed which is not accounted for here """
+        """Calculate accumulated recursively-walked size of tree.
+        
+        Git stores sparsely and compressed which is not accounted for here.
+        
+        :param ref: Git reference to analyze
+        :returns: Total size in bytes
+        """
         lines = self.cmd("ls-tree", "-lr", ref)
 
         # Parse output:
