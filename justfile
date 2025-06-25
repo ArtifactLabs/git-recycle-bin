@@ -156,3 +156,12 @@ python-sweep cmd="pytest":
     nix-shell test-envs/shell.py311.nix --pure --run 'python --version && {{cmd}}'
     nix-shell test-envs/shell.py312.nix --pure --run 'python --version && {{cmd}}'
     nix-shell test-envs/shell.py313.nix --pure --run 'python --version && {{cmd}}'
+
+# Run commands across all supported git versions
+git-sweep cmd="git --version":
+    nix-shell test-envs/shell.git243.nix --pure --run 'git --version && {{cmd}}'
+    nix-shell test-envs/shell.git244.nix --pure --run 'git --version && {{cmd}}'
+    nix-shell test-envs/shell.git245.nix --pure --run 'git --version && {{cmd}}'
+    nix-shell test-envs/shell.git246.nix --pure --run 'git --version && {{cmd}}'
+    nix-shell test-envs/shell.git247.nix --pure --run 'git --version && {{cmd}}'
+    nix-shell test-envs/shell.git249.nix --pure --run 'git --version && {{cmd}}'
