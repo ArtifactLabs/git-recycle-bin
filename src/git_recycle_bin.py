@@ -206,7 +206,7 @@ def main() -> int:
 
     run = commands[args.command]
     rbgit.add_remote_idempotent(name=remote_bin_name, url=args.remote)
-    exitcode = run()
+    exitcode = run() or 0
 
     if args.rm_tmp and os.path.exists(rbgit_dir):
         printer.high_level(f"Deleting local bin repo, {rbgit_dir}, to free-up disk-space.", file=sys.stderr)
@@ -218,6 +218,7 @@ def main() -> int:
 def clean_command(rbgit, remote_bin_name):
     remote_delete_expired_branches(rbgit, remote_bin_name)
     remote_flush_meta_for_commit(rbgit, remote_bin_name)
+    return 0
 
 def push_command(args, rbgit, remote_bin_name, path):
     printer.high_level(f"Making local commit of artifact {path} in artifact-repo at {rbgit.rbgit_dir}", file=sys.stderr)
@@ -235,6 +236,7 @@ def push_command(args, rbgit, remote_bin_name, path):
         remote_delete_expired_branches(rbgit, remote_bin_name)
     if args.flush_meta:
         remote_flush_meta_for_commit(rbgit, remote_bin_name)
+    return 0
 
 def push_branch(args, d, rbgit, remote_bin_name):
     """

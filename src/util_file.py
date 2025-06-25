@@ -27,7 +27,9 @@ def rel_dir(pfrom, pto):
 
 def classify_path(binpath: str) -> str:
     """ Determine what the path is, a file or directory. If file, what file """
-    if os.path.isfile(binpath): return mimetypes.guess_type(binpath)
+    if os.path.isfile(binpath): 
+        mimetype, _ = mimetypes.guess_type(binpath)
+        return mimetype or "unknown"
     elif os.path.isdir(binpath): return "directory"
     elif os.path.islink(binpath): return "link"
     elif os.path.ismount(binpath): return "mount"

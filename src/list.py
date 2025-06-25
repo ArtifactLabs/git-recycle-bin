@@ -12,6 +12,7 @@ def list_command(args, rbgit, remote_bin_name):
     artifacts = filter_artifacts(rbgit, remote_bin_name, args.query[1], artifacts, func)
     for artifact in artifacts:
         print(artifact[1])
+    return 0
 
 
 def remote_artifacts(rbgit, remote_bin_name):

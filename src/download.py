@@ -13,3 +13,4 @@ def download_command(args, rbgit, remote_bin_name):
                 printer.error(e)
                 printer.error("Use --force to overwrite local files.")
                 return 1
+    return 0

@@ -3,7 +3,7 @@ import datetime
 import dateutil.relativedelta
 from dateutil.tz import tzlocal
 import maya
-import dateparser
+import dateparser  # type: ignore
 
 # Don't change the date formats! This will break parsing
 DATE_FMT_GIT = "%a, %d %b %Y %H:%M:%S %z"  # E.g. "Thu, 27 Jul 2023 13:15:26 +0200". Git commit times, human readable
@@ -46,8 +46,10 @@ def parse_fuzzy_time(fuzzy_time: str) -> datetime.datetime:
     # For everything else, fall back to maya
     dt = maya.when(fuzzy_time)
     if dt.timezone == 'UTC':
-        dt = dt.datetime().astimezone(tzlocal())
-    return dt.datetime() if hasattr(dt, 'datetime') else dt
+        maya_dt: datetime.datetime = dt.datetime().astimezone(tzlocal())
+        return maya_dt
+    maya_dt = dt.datetime()
+    return maya_dt
 
 def parse_expire_date(expiry_formatted: str, prefix_discard: str = "") -> dict:
     """ Parse a string formatted as `DATE_FMT_EXPIRE` with an optional prefix to discard """

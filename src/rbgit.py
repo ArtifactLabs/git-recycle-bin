@@ -10,7 +10,7 @@ class RbGit:
         self.rbgit_work_tree = rbgit_work_tree if rbgit_work_tree else os.environ["RBGIT_WORK_TREE"]
         self.init_idempotent()
 
-    def cmd(self, *args, input=None, capture_output=True):
+    def cmd(self, *args, input=None, capture_output=True) -> str:
         # Override environment variables
         envcopy = os.environ.copy()
         envcopy["GIT_DIR"] = self.rbgit_dir
@@ -25,7 +25,8 @@ class RbGit:
             raise RuntimeError(f"RbGit command failed with error: {result.stderr}")
 
         # return the result of the command
-        return result.stdout
+        stdout_str: str = result.stdout
+        return stdout_str
 
     def init_idempotent(self):
         try:
