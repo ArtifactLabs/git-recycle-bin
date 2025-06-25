@@ -1,14 +1,17 @@
+"""Tests for utility functions."""
 import subprocess
-from util import exec, exec_nostderr
+from util import exec, exec_nostderr  # pylint: disable=redefined-builtin
 
 
 def test_exec_env(monkeypatch):
+    """Test exec function with environment variables."""
     called = {}
 
-    def fake_check_output(cmd, env=None, text=None, stderr=None):
+    def fake_check_output(cmd, env=None, **_kwargs):
+        """Mock subprocess.check_output for testing."""
         called['cmd'] = cmd
         called['env'] = env
-        called['stderr'] = stderr
+        called['stderr'] = _kwargs.get('stderr')
         return 'out'
 
     monkeypatch.setattr(subprocess, 'check_output', fake_check_output)
@@ -20,10 +23,12 @@ def test_exec_env(monkeypatch):
 
 
 def test_exec_nostderr(monkeypatch):
+    """Test exec_nostderr function that suppresses stderr."""
     called = {}
 
-    def fake_check_output(cmd, env=None, text=None, stderr=None):
-        called['stderr'] = stderr
+    def fake_check_output(cmd, **_kwargs):
+        """Mock subprocess.check_output for testing."""
+        called['stderr'] = _kwargs.get('stderr')
         return ''
 
     monkeypatch.setattr(subprocess, 'check_output', fake_check_output)

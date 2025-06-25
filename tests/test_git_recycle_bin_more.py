@@ -16,7 +16,7 @@ def test_create_artifact_commit_sanitizes_name(tmp_path, monkeypatch):
     path = tmp_path / "file.txt"
     path.write_text('data')
 
-    def fake_exec(cmd):
+    def fake_exec(cmd):  # pylint: disable=too-many-return-statements
         """Mock exec function for testing."""
         if cmd[:3] == ['git', 'rev-parse', 'HEAD']:
             return 'sha'
@@ -62,7 +62,7 @@ def test_create_artifact_commit_sanitizes_name(tmp_path, monkeypatch):
             """Mock add operation."""
             self.calls.append(('add', p, force))
             return True
-        def cmd(self, *a, input=None, capture_output=True):
+        def cmd(self, *a, input=None, capture_output=True):  # pylint: disable=redefined-builtin,unused-argument
             """Mock command execution."""
             self.calls.append(('cmd', a))
             if a[:2] == ('rev-parse', 'HEAD'):
