@@ -22,25 +22,36 @@ class RbGit:
         )
         self.init_idempotent()
 
-    def _is_retryable_error(self, stderr_msg: str, command_args: list, capture_output: bool) -> bool:
-        """Check if git error is retryable (due to concurrent operations)."""
-        retryable_patterns = [
-            "cannot lock ref",
-            "reference already exists", 
-            "fetch first",
-            "remote rejected"
-        ]
-        
-        # If stderr captured, check error message patterns
-        if capture_output and stderr_msg and stderr_msg != "No error message":
-            return any(pattern in stderr_msg for pattern in retryable_patterns)
-        
-        # For push operations with capture_output=False, assume retryable on exit code 1
-        # This handles the case where stderr isn't captured but we still want retries
-        if not capture_output and len(command_args) > 0 and command_args[0] == "push":
-            return True
+    def _remote_has_branch(self, remote_name: str, branch_name: str) -> bool:
+        """Check if remote repository has the specified branch."""
+        try:
+            # Use ls-remote to check if branch exists without downloading
+            # Need to use git environment for this check too
+            envcopy = os.environ.copy()
+            envcopy["GIT_DIR"] = self.rbgit_dir
+            envcopy["GIT_WORK_TREE"] = self.rbgit_work_tree
             
-        return False
+            result = subprocess.run(
+                ["git", "ls-remote", "--heads", remote_name, f"refs/heads/{branch_name}"],
+                env=envcopy, capture_output=True, text=True, check=False
+            )
+            
+            # Check if we got a successful response with the branch
+            has_branch = result.returncode == 0 and len(result.stdout.strip()) > 0
+            self.printer.debug(f"Remote branch check: {branch_name} exists={has_branch}", file=sys.stderr)
+            return has_branch
+            
+        except Exception as e:
+            self.printer.debug(f"Remote branch check failed: {e}", file=sys.stderr)
+            return False  # If we can't check, assume it doesn't exist
+
+    def _is_retryable_error(self, max_retries: int) -> bool:
+        """Check if error should be retried based on retry configuration.
+        
+        Simple approach: if caller wants retries (max_retries > 1), retry all failures.
+        If caller doesn't want retries, they set max_retries=1.
+        """
+        return max_retries > 1
 
     def _exponential_backoff_sleep(self, attempt: int, max_delay: float = 2.0):
         """Sleep with exponential backoff and jitter."""
@@ -80,8 +91,34 @@ class RbGit:
             # Command failed - check if it's retryable
             stderr_msg = result.stderr.strip() if result.stderr else "No error message"
             
+            # Special handling for push collisions
+            if len(args) > 0 and args[0] == "push" and result.returncode == 1:
+                # This could be a push collision - check if it's a git conflict
+                # When capture_output=False, stderr is not captured, so check differently
+                is_git_conflict = (
+                    "fetch first" in stderr_msg or 
+                    "remote rejected" in stderr_msg or
+                    stderr_msg == "No error message"  # capture_output=False case
+                )
+                
+                if is_git_conflict and len(args) >= 3:  # push remote branch_name
+                    branch_name = args[2]
+                    remote_name = args[1]
+                    
+                    self.printer.debug(f"Checking for push collision on {branch_name}", file=sys.stderr)
+                    
+                    # Check if remote already has this branch (collision confirmation)
+                    if self._remote_has_branch(remote_name, branch_name):
+                        self.printer.high_level(
+                            f"Collision resolved: Remote already has {branch_name}, claiming success",
+                            file=sys.stderr
+                        )
+                        return ""  # Return success - someone else already pushed equivalent artifact
+                
+                # If we can't resolve the collision, continue with retry logic
+            
             # If this is the last attempt or error is not retryable, raise exception
-            if attempt == max_retries or not self._is_retryable_error(stderr_msg, args, capture_output):
+            if attempt == max_retries or not self._is_retryable_error(max_retries):
                 raise RuntimeError(
                     f"RbGit command failed: '{cmd_str}' (exit code {result.returncode}): {stderr_msg}"
                 )
