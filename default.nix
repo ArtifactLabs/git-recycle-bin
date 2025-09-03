@@ -4,4 +4,44 @@
   }) {} )
 }:
 
-pkgs.python3Packages.callPackage ./derivation.nix {}
+let
+  pyproject = builtins.fromTOML (builtins.readFile ./pyproject.toml);
+  project = pyproject.project;
+in
+pkgs.python311Packages.buildPythonPackage rec {
+  pname = project.name;
+  inherit (project) version;
+
+  src = ./.;
+
+  format = "pyproject";
+
+  # we use git in tests
+  nativeBuildInputs = [ pkgs.git ];
+
+  nativeCheckInputs = with pkgs.python311Packages; [
+    setuptools
+
+    pytest
+    pytest-cov
+
+    pkgs.git
+  ];
+
+  propagatedBuildInputs = with pkgs.python311Packages; [
+    pkgs.git
+    maya
+    colorama
+    dateparser
+  ];
+
+  checkPhase = ''
+     runHook preCheck
+     pytest
+     runHook postCheck
+  '';
+
+  postInstall = ''
+    install -Dm755 ${./aux/git_add_ssh_remote.sh} $out/bin/git_add_ssh_remote.sh
+  '';
+}

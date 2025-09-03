@@ -1,7 +1,7 @@
 """Tests for printer module functionality."""
 
 from io import StringIO
-from printer import Printer
+from git_recycle_bin.printer import Printer
 
 
 def test_printer_levels():

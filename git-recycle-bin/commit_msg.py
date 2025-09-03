@@ -1,7 +1,7 @@
 """Artifact commit message generation and parsing with metadata trailers."""
 import re
 
-from util_string import (
+from .utils.string import (
     prefix_lines,
     remove_empty_lines,
     string_trunc_ellipsis,

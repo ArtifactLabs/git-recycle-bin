@@ -2,7 +2,8 @@
 import sys
 import os
 import subprocess
-from printer import printer
+
+from git_recycle_bin.printer import printer
 
 def exec(command, env=None):  # pylint: disable=redefined-builtin
     """Execute command with merged environment and return stripped output.

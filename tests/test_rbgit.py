@@ -1,6 +1,6 @@
 """Tests for RbGit class functionality."""
 
-from rbgit import RbGit
+from git_recycle_bin.rbgit import RbGit
 
 class DummyRbGit:
     """Mock RbGit class for testing tree operations."""

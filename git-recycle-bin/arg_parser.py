@@ -1,7 +1,8 @@
 """Command-line argument parsing for Git Recycle Bin."""
 import argparse
 import os
-from printer import printer
+
+from .printer import printer
 
 # Version information
 __version__ = "0.2.6"

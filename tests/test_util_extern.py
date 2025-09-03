@@ -1,17 +1,14 @@
-"""Tests for utility functions."""
 import subprocess
-from util import exec, exec_nostderr  # pylint: disable=redefined-builtin
+from git_recycle_bin.utils.extern import exec, exec_nostderr
 
 
 def test_exec_env(monkeypatch):
-    """Test exec function with environment variables."""
     called = {}
 
-    def fake_check_output(cmd, env=None, **_kwargs):
-        """Mock subprocess.check_output for testing."""
+    def fake_check_output(cmd, env=None, text=None, stderr=None):
         called['cmd'] = cmd
         called['env'] = env
-        called['stderr'] = _kwargs.get('stderr')
+        called['stderr'] = stderr
         return 'out'
 
     monkeypatch.setattr(subprocess, 'check_output', fake_check_output)
@@ -23,12 +20,10 @@ def test_exec_env(monkeypatch):
 
 
 def test_exec_nostderr(monkeypatch):
-    """Test exec_nostderr function that suppresses stderr."""
     called = {}
 
-    def fake_check_output(_cmd, **_kwargs):
-        """Mock subprocess.check_output for testing."""
-        called['stderr'] = _kwargs.get('stderr')
+    def fake_check_output(cmd, env=None, text=None, stderr=None):
+        called['stderr'] = stderr
         return ''
 
     monkeypatch.setattr(subprocess, 'check_output', fake_check_output)

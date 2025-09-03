@@ -1,27 +1,22 @@
-"""List command implementation for querying artifacts."""
-from printer import printer
-from util import exec  # pylint: disable=redefined-builtin
-from util_string import sanitize_branch_name
-from commit_msg import parse_commit_msg
+from git_recycle_bin.printer import printer
+from git_recycle_bin.utils.extern import exec
+from git_recycle_bin.utils.string import sanitize_branch_name
+from git_recycle_bin.commit_msg import parse_commit_msg
 
 
-def list_command(args, rbgit, remote_bin_name):
-    """Execute list command to query and display artifacts."""
-    artifacts = remote_artifacts(rbgit, remote_bin_name)
-    # query is a tuple of (flag, value) default is ("all", None)
-    func = filter_funcs[args.query[0]]
-    if args.query[0] != "all":
-        printer.debug(f"Filtering artifacts by {args.query[0]}={args.query[1]}")
-    artifacts = filter_artifacts(
-        rbgit, remote_bin_name, args.query[1], artifacts, func
-    )
+def show_remote_artifacts(args, rbgit, remote_bin_name):
+    artifacts = remote_artifacts(args, rbgit, remote_bin_name)
     for artifact in artifacts:
         print(artifact[1])
-    return 0
 
+def remote_artifacts(args, rbgit, remote_bin_name):
+    artifacts = remote_artifacts_unfiltered(rbgit, remote_bin_name)
+    func = filter_funcs[args.query[0]] # query is a tuple of (flag, value) default is ("all", None)
+    if args.query[0] != "all":
+        printer.debug(f"Filtering artifacts by {args.query[0]}={args.query[1]}")
+    return filter_artifacts(rbgit, remote_bin_name, args.query[1], artifacts, func)
 
-def remote_artifacts(rbgit, remote_bin_name):
-    """Fetch all artifacts for the current commit from remote repository."""
+def remote_artifacts_unfiltered(rbgit, remote_bin_name):
     # Fetch all artifacts based on refs/artifact/meta-for-commit/{src_sha}/* refspec.
     # This schema makes it easy to query which artifact are available for the given commit.
     # This allows us to drastically reduce the meta-data to search through, which
@@ -39,29 +34,21 @@ def remote_artifacts(rbgit, remote_bin_name):
 
 
 def filter_artifacts(rbgit, remote_bin_name, query, artifacts, filter_func):
-    """Filter artifacts based on query and filter function."""
     return [
         artifact
         for artifact in artifacts
-        if filter_func(
-            artifact, rbgit=rbgit, remote_bin_name=remote_bin_name, query=query
-        )
+        if filter_func(artifact, rbgit=rbgit, remote_bin_name=remote_bin_name, query=query)
     ]
 
 
 def filter_artifacts_by_name(artifact, **kwargs):
-    """Filter artifacts by name matching."""
     rbgit = kwargs['rbgit']
     remote_bin_name = kwargs['remote_bin_name']
     data = rbgit.fetch_cat_pretty(remote_bin_name, artifact[0])
-    return (
-        parse_commit_msg(data)['artifact-name'] ==
-        sanitize_branch_name(kwargs['query'])
-    )
+    return parse_commit_msg(data)['artifact-name'] == sanitize_branch_name(kwargs['query'])
 
 
 def filter_artifacts_by_path(artifact, **kwargs):
-    """Filter artifacts by source path matching."""
     rbgit = kwargs['rbgit']
     remote_bin_name = kwargs['remote_bin_name']
     data = rbgit.fetch_cat_pretty(remote_bin_name, artifact[0])
