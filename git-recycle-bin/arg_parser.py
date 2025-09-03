@@ -36,6 +36,8 @@ def parse_args(args=None):
     g = top_parser.add_argument_group('niche options')
     g.add_argument(               "--user-name",       metavar='fullname', required=False, type=str, default=os.getenv('GITRB_USERNAME'), help="Author of artifact commit. Defaults to yourself.")
     g.add_argument(               "--user-email",      metavar='address',  required=False, type=str, default=os.getenv('GITRB_EMAIL'),    help="Author's email of artifact commit. Defaults to your own.")
+    dv = 'False';  g.add_argument("--rm-expired",      metavar='bool', type=str2bool, nargs='?', const=True, default=os.getenv('GITRB_RM_EXPIRED', dv), help=f"Delete expired artifact branches. Default {dv}.")
+    dv = 'False';  g.add_argument("--flush-meta",      metavar='bool', type=str2bool, nargs='?', const=True, default=os.getenv('GITRB_RM_FLUSH_META', dv), help=f"Delete expired meta-for-commit refs. Default {dv}.")
     dv = 'origin'; g.add_argument("--src-remote-name", metavar='name',     required=False, type=str, default=os.getenv('GITRB_SRC_REMOTE', dv), help=f"Name of src repo's remote. Defaults {dv}.")
     dv = 'True' ;  g.add_argument("--rm-tmp",          metavar='bool', type=str2bool, nargs='?', const=True, default=os.getenv('GITRB_RM_TMP', dv), help=f"Remove local bin-repo. Default {dv}.")
 
@@ -57,8 +59,6 @@ def parse_args(args=None):
     dv = 'False';      g.add_argument("--tag",  dest='push_tag',  metavar='bool', type=str2bool, nargs='?', const=True, default=os.getenv('GITRB_PUSH_TAG', dv), help=f"Push tag to artifact to remote. Default {dv}.")
     dv = 'False';      g.add_argument("--note", dest='push_note', metavar='bool', type=str2bool, nargs='?', const=True, default=os.getenv('GITRB_PUSH_NOTE', dv),     help=f"Push note to src remote. Default {dv}.")
     dv = 'False';      g.add_argument("--add-ignored",            metavar='bool', type=str2bool, nargs='?', const=True, default=os.getenv('GITRB_ADD_IGNORED', dv), help=f"Add despite gitignore. Default {dv}.")
-    dv = 'False';      g.add_argument("--rm-expired",             metavar='bool', type=str2bool, nargs='?', const=True, default=os.getenv('GITRB_RM_EXPIRED', dv), help=f"Delete expired artifact branches. Default {dv}.")
-    dv = 'False';      g.add_argument("--flush-meta",             metavar='bool', type=str2bool, nargs='?', const=True, default=os.getenv('GITRB_RM_FLUSH_META', dv), help=f"Delete expired meta-for-commit refs. Default {dv}.")
     dv = 'False';      g.add_argument("--force-branch",           metavar='bool', type=str2bool, nargs='?', const=True, default=os.getenv('GITRB_FORCE_BRANCH', dv), help=f"Force push of branch. Default {dv}.")
     dv = 'False';      g.add_argument("--force-tag",              metavar='bool', type=str2bool, nargs='?', const=True, default=os.getenv('GITRB_FORCE_TAG', dv), help=f"Force push of tag. Default {dv}.")
 

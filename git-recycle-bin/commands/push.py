@@ -29,10 +29,6 @@ def push(args, rbgit, remote_bin_name, path) -> dict[str, str]:
         push_tag(args, d, rbgit, remote_bin_name)
     if args.push_note:
         note_append_push(args, d)
-    if args.rm_expired:
-        remote_delete_expired_branches(rbgit, remote_bin_name)
-    if args.flush_meta:
-        remote_flush_meta_for_commit(rbgit, remote_bin_name)
     return d
 
 

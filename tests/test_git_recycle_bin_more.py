@@ -113,5 +113,5 @@ def test_push_command(monkeypatch):
     grb.push(args, DummyRb(), 'bin', '/p')
 
     assert ('add_remote', 'bin', 'r') in calls
-    for op in ['push_branch', 'push_tag', 'note', 'rm_expired', 'flush_meta']:
+    for op in ['push_branch', 'push_tag', 'note']:
         assert op in calls
