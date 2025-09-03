@@ -11,6 +11,8 @@ from . import (
     show_remote_artifacts,
     push,
     clean,
+    remote_delete_expired_branches,
+    remote_flush_meta_for_commit,
     download
 )
 
@@ -62,7 +64,13 @@ def main() -> int:
         }
 
         run = commands[args.command]
+
         exitcode = run()
+
+        if args.rm_expired:
+            remote_delete_expired_branches(rbgit, remote_bin_name)
+        if args.flush_meta:
+            remote_flush_meta_for_commit(rbgit, remote_bin_name)
 
     return exitcode
 

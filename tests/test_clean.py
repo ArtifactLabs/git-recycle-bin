@@ -1,6 +1,10 @@
 from typing import Set
 from git_recycle_bin.rbgit import RbGit, create_rbgit
 from git_recycle_bin import push as push_cmd
+from git_recycle_bin import (
+    remote_flush_meta_for_commit,
+    remote_delete_expired_branches
+)
 from git_recycle_bin.arg_parser import parse_args
 from managers import git_user_info, change_dir
 
@@ -22,9 +26,6 @@ def test_flush_meta_for_commit(temp_git_setup):
     _dead = _args + ["--expire", "2 hours ago"]
     dead = parse_args(_dead)
     longlived = parse_args(_args + ["--expire", "in 30 days"])
-    dead_flush = parse_args(_dead + ["--flush-meta"])
-    dead_rm_flush = parse_args(_dead + ["--rm-expired", "--flush-meta"])
-    dead_rm = parse_args(_dead + ["--rm-expired"])
 
     rbgit=create_rbgit(local, dead.path, clean=True)
     rb_remote="rbgit"
@@ -37,22 +38,28 @@ def test_flush_meta_for_commit(temp_git_setup):
         assert contains_metas(rbgit, rb_remote, {bin_commit})
 
         # without --remove-expired the refs should still exist
-        bin_commit2 = push(dead_flush)
+        bin_commit2 = push(dead)
+        remote_flush_meta_for_commit(rbgit, rb_remote)
         assert contains_metas(rbgit, rb_remote, {bin_commit, bin_commit2})
 
         # with --remove-expired the refs should be removed
-        push(dead_rm_flush)
+        push(dead)
+        remote_delete_expired_branches(rbgit, rb_remote)
+        remote_flush_meta_for_commit(rbgit, rb_remote)
         assert contains_metas(rbgit, rb_remote, set())
 
         # with only --remove-expired the refs should not be removed
-        bin_commit = push(dead_rm)
+        bin_commit = push(dead)
+        remote_delete_expired_branches(rbgit, rb_remote)
         assert contains_metas(rbgit, rb_remote, {bin_commit})
 
         # with --flush-meta the new artifact should not be removed but the old one should
-        bin_commit = push(dead_flush)
+        bin_commit = push(dead)
+        remote_flush_meta_for_commit(rbgit, rb_remote)
         assert contains_metas(rbgit, rb_remote, {bin_commit})
 
         # only the longlived artifact should be present
         bin_commit = push(longlived)
-        push(dead_rm_flush)
+        remote_delete_expired_branches(rbgit, rb_remote)
+        remote_flush_meta_for_commit(rbgit, rb_remote)
         assert contains_metas(rbgit, rb_remote, {bin_commit})

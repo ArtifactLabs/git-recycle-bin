@@ -21,7 +21,7 @@ from git_recycle_bin.utils.string import sanitize_branch_name, sanitize_slashes
 from .clean import remote_delete_expired_branches, remote_flush_meta_for_commit
 
 
-def push(args, rbgit, remote_bin_name, path) -> dict[str, str]:
+def push(args, rbgit, remote_bin_name, path) -> ArtifactCommitInfo:
     printer.high_level(f"Making local commit of artifact {path} in artifact-repo at {rbgit.rbgit_dir}", file=sys.stderr)
     commit_info = create_artifact_commit(rbgit,
                                          args.name,
@@ -39,10 +39,6 @@ def push(args, rbgit, remote_bin_name, path) -> dict[str, str]:
         push_tag(args, commit_info, rbgit, remote_bin_name)
     if args.push_note:
         note_append_push(args, commit_info)
-    if args.rm_expired:
-        remote_delete_expired_branches(rbgit, remote_bin_name)
-    if args.flush_meta:
-        remote_flush_meta_for_commit(rbgit, remote_bin_name)
     return commit_info
 
 def _push_commit(rbgit: RbGit, remote_bin_name: str, commit: str, force: bool):
@@ -56,7 +52,6 @@ def _push_if_not_exists(rbgit, remote_bin_name, commit):
         printer.always(f"Remote artifact-repo already has {commit} -- and we won't force push.")
     else:
         rbgit.cmd("push", remote_bin_name, commit, capture_output=False)
->>>>>>> 6e76ac3 (refactor artifact commit info (dict -> dataclass)):git-recycle-bin/commands/push.py
 
 
 def push_branch(args, commit_info: ArtifactCommitInfo, rbgit, remote_bin_name):

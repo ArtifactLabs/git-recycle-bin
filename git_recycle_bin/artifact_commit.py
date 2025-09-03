@@ -61,10 +61,13 @@ def create_artifact_commit(rbgit,
                            expire_branch: str,
                            add_ignored: bool,
                            src_remote_name: str,
-                           custom_trailers: dict[str, str] = {}) -> ArtifactCommitInfo:
+                           custom_trailers: dict[str, str] = None) -> ArtifactCommitInfo:
     """ Create Artifact: A binary commit, with builtin traceability and expiry """
     if not os.path.exists(binpath):
         raise RuntimeError(f"Artifact '{binpath}' does not exist!")
+
+    if custom_trailers is None:
+        custom_trailers = {}
 
     artifact_name_sane = sanitize_branch_name(artifact_name)
     if artifact_name != artifact_name_sane:
