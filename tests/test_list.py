@@ -1,5 +1,5 @@
 from types import SimpleNamespace
-import list as list_mod
+import git_recycle_bin.commands.list as list_mod
 
 
 def test_remote_artifacts(monkeypatch):
@@ -12,7 +12,7 @@ def test_remote_artifacts(monkeypatch):
         raise AssertionError('unexpected')
 
     dummy = SimpleNamespace(cmd=fake_cmd)
-    res = list_mod.remote_artifacts(dummy, 'remote')
+    res = list_mod.remote_artifacts_unfiltered(dummy, 'remote')
     assert res == [('m1', 'sha1'), ('m2', 'sha2')]
 
 

@@ -1,12 +1,13 @@
 import pytest
 from types import SimpleNamespace
 import git_recycle_bin as grb
+from git_recycle_bin.artifact_commit import create_artifact_commit
 
 
 def test_create_artifact_commit_missing(tmp_path):
     missing = tmp_path / "nope.bin"
     with pytest.raises(RuntimeError):
-        grb.create_artifact_commit(SimpleNamespace(), 'name', str(missing), '1d', False, 'origin')
+        create_artifact_commit(SimpleNamespace(), 'name', str(missing), '1d', False, 'origin')
 
 
 def test_create_artifact_commit_sanitizes_name(tmp_path, monkeypatch):
@@ -34,13 +35,14 @@ def test_create_artifact_commit_sanitizes_name(tmp_path, monkeypatch):
             return '0'
         return ''
 
-    monkeypatch.setattr(grb, 'exec', fake_exec)
-    monkeypatch.setattr(grb, 'classify_path', lambda p: 'file')
-    monkeypatch.setattr(grb, 'nca_path', lambda a, b: '/nca')
-    monkeypatch.setattr(grb, 'rel_dir', lambda **k: 'rel')
-    monkeypatch.setattr(grb, 'date_fuzzy2expiryformat', lambda x: '2024-01-01/00.00+0000')
-    monkeypatch.setattr(grb, 'emit_commit_msg', lambda d: 'commit msg')
-    monkeypatch.setattr(grb, 'printer', SimpleNamespace(always=lambda *a, **k: None,
+    ns = grb.artifact_commit
+    monkeypatch.setattr(ns, 'exec', fake_exec)
+    monkeypatch.setattr(ns, 'classify_path', lambda p: 'file')
+    monkeypatch.setattr(ns, 'nca_path', lambda a, b: '/nca')
+    monkeypatch.setattr(ns, 'rel_dir', lambda **k: 'rel')
+    monkeypatch.setattr(ns, 'date_fuzzy2expiryformat', lambda x: '2024-01-01/00.00+0000')
+    monkeypatch.setattr(ns, 'emit_commit_msg', lambda d: 'commit msg')
+    monkeypatch.setattr(ns, 'printer', SimpleNamespace(always=lambda *a, **k: None,
                                                        high_level=lambda *a, **k: None,
                                                        detail=lambda *a, **k: None,
                                                        debug=lambda *a, **k: None))
@@ -65,7 +67,7 @@ def test_create_artifact_commit_sanitizes_name(tmp_path, monkeypatch):
             self.calls.append(('set_tag', tag_name, tag_val))
 
     rbgit = Dummy()
-    d = grb.create_artifact_commit(rbgit, 'bad name?', str(path), 'tomorrow', False, 'origin')
+    d = ns.create_artifact_commit(rbgit, 'bad name?', str(path), 'tomorrow', False, 'origin')
 
     assert d['artifact_name'] == 'bad_name_'
     assert any(c[0] == 'set_tag' for c in rbgit.calls)
@@ -85,13 +87,14 @@ def test_push_command(monkeypatch):
             'src_time_commit': 'time',
         }
 
-    monkeypatch.setattr(grb, 'create_artifact_commit', fake_create)
-    monkeypatch.setattr(grb, 'push_branch', lambda a, b, c, d: calls.append('push_branch'))
-    monkeypatch.setattr(grb, 'push_tag', lambda a, b, c, d: calls.append('push_tag'))
-    monkeypatch.setattr(grb, 'note_append_push', lambda a, b: calls.append('note'))
-    monkeypatch.setattr(grb, 'remote_delete_expired_branches', lambda c, d: calls.append('rm_expired'))
-    monkeypatch.setattr(grb, 'remote_flush_meta_for_commit', lambda c, d: calls.append('flush_meta'))
-    monkeypatch.setattr(grb, 'printer', SimpleNamespace(high_level=lambda *a, **k: None, detail=lambda *a, **k: None))
+    ns = grb.commands.push
+    monkeypatch.setattr(ns, 'create_artifact_commit', fake_create)
+    monkeypatch.setattr(ns, 'push_branch', lambda a, b, c, d: calls.append('push_branch'))
+    monkeypatch.setattr(ns, 'push_tag', lambda a, b, c, d: calls.append('push_tag'))
+    monkeypatch.setattr(ns, 'note_append_push', lambda a, b: calls.append('note'))
+    monkeypatch.setattr(ns, 'remote_delete_expired_branches', lambda c, d: calls.append('rm_expired'))
+    monkeypatch.setattr(ns, 'remote_flush_meta_for_commit', lambda c, d: calls.append('flush_meta'))
+    monkeypatch.setattr(ns, 'printer', SimpleNamespace(high_level=lambda *a, **k: None, detail=lambda *a, **k: None))
 
     class DummyRb:
         def __init__(self):
@@ -107,7 +110,7 @@ def test_push_command(monkeypatch):
                            push_tag=True, push_note=True, rm_expired=True, flush_meta=True,
                            remote='r')
 
-    grb.push_command(args, DummyRb(), 'bin', '/p')
+    grb.push(args, DummyRb(), 'bin', '/p')
 
     assert ('add_remote', 'bin', 'r') in calls
     for op in ['push_branch', 'push_tag', 'note', 'rm_expired', 'flush_meta']:

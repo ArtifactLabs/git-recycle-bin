@@ -4,8 +4,8 @@ import subprocess
 import re
 import shutil
 
-from util_file import nca_path
-from printer import printer
+from .utils.file import nca_path
+from .printer import printer
 
 
 Path = str

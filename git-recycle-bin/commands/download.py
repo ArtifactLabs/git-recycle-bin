@@ -1,6 +1,6 @@
-from printer import printer
+from git_recycle_bin.printer import printer
 
-def download_command(args, rbgit, remote_bin_name):
+def download(args, rbgit, remote_bin_name):
     for artifact in args.artifacts:
         rbgit.cmd("fetch", remote_bin_name, artifact)
         if args.force:

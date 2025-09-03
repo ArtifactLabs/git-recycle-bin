@@ -1,6 +1,6 @@
 import pytest
 
-from rbgit import RbGit
+from git_recycle_bin.rbgit import RbGit
 
 class DummyRbGit:
     def cmd(self, *args, **kwargs):

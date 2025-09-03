@@ -3,33 +3,38 @@
     sha256 = "1lr1h35prqkd1mkmzriwlpvxcb34kmhc9dnr48gkm8hh089hifmx";
   }) {} ) }:
 
-pkgs.python311Packages.buildPythonApplication rec {
-  pname = "git-recycle-bin";
-  version = "0.2.5";
+let
+  pyproject = builtins.fromTOML (builtins.readFile ./pyproject.toml);
+  project = pyproject.project;
+in
+pkgs.python311Packages.buildPythonPackage rec {
+  pname = project.name;
+  inherit (project) version;
 
   src = ./.;
-  format = "setuptools";
 
-  # we use git in tests
-  nativeBuildInputs = [ pkgs.git ];
+  format = "pyproject";
 
-  propagatedBuildInputs = [ pkgs.git ] ++ pythonPath;
+  nativeCheckInputs = with pkgs.python311Packages; [
+    setuptools
 
-  pythonPath = with pkgs.python311Packages; [
+    pytest
+    pytest-cov
+
+    pkgs.git
+  ];
+
+  propagatedBuildInputs = with pkgs.python311Packages; [
+    pkgs.git
     maya
     colorama
     dateparser
-    pytest
-    pytest-cov
   ];
 
-  checkInputs = with pkgs.python311Packages; [ pytest pytest-cov ];
-
   checkPhase = ''
-    runHook preCheck
-    export PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src"
-    python -m pytest -vv
-    runHook postCheck
+     runHook preCheck
+     pytest
+     runHook postCheck
   '';
 
   postInstall = ''

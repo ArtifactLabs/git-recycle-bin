@@ -1,7 +1,8 @@
 import sys
 import os
 import subprocess
-from printer import printer
+
+from git_recycle_bin.printer import printer
 
 def exec(command, env={}):
     printer.debug("Run:", command, file=sys.stderr)

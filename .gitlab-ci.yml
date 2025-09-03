@@ -13,7 +13,7 @@ default:
 usage:
   stage: test
   script:
-    - nix-shell --pure --run "git_recycle_bin.py --help"
+    - nix-shell --pure --run "git-recycle-bin --help"
     - nix-shell --pure --run "just --list"
 
 unittest:
@@ -30,8 +30,8 @@ pip_install:
   script:
     - pip install .
     - pip install pytest
-    - PYTHONPATH=$PWD:$PWD/src pytest
-    - git_recycle_bin.py --help
+    - pytest
+    - git-recycle-bin --help
 
 demo_help:
   stage: demos

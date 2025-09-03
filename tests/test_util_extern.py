@@ -1,5 +1,5 @@
 import subprocess
-from util import exec, exec_nostderr
+from git_recycle_bin.utils.extern import exec, exec_nostderr
 
 
 def test_exec_env(monkeypatch):

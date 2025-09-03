@@ -1,5 +1,5 @@
 import os
-from util_file import nca_path, rel_dir, classify_path
+from git_recycle_bin.utils.file import nca_path, rel_dir, classify_path
 
 
 def test_nca_and_rel(tmp_path):

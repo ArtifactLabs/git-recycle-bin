@@ -1,6 +1,7 @@
 import argparse
 import os
-from printer import printer
+
+from .printer import printer
 
 def str2bool(v):
     if isinstance(v, bool):

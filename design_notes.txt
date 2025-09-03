@@ -96,7 +96,7 @@ Implementing download.
     We sit in SRC_REPO on a SRC_SHA commit.
     To discover available artifacts, we can:
         a) Run from within SRC_REPO:
-           $ git_recycle_bin --list blah --bin-remote $BIN_REMOTE --src-sha $SRC_SHA   # ask server-side bin repo
+           $ git-recycle-bin --list blah --bin-remote $BIN_REMOTE --src-sha $SRC_SHA   # ask server-side bin repo
 
            OK, but this requires us to know the URI of the bin remote.
            It is likely that different kinds of artifacts may be pushed to different remotes. E.g. HTML vs ELF.

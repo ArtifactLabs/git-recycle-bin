@@ -1,7 +1,8 @@
 import sys
 import argparse
 import pytest
-import arg_parser
+
+from git_recycle_bin import arg_parser
 
 
 def run_parse_args(argv):

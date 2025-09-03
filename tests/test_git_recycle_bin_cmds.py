@@ -1,6 +1,11 @@
 import datetime
 from types import SimpleNamespace
+
 import git_recycle_bin as grb
+from git_recycle_bin.utils.string import (
+    sanitize_branch_name,
+    sanitize_slashes,
+)
 
 
 def test_push_branch_force(monkeypatch):
@@ -140,10 +145,10 @@ def test_note_append_push(monkeypatch):
         calls.append(("exec_nostderr", cmd, env))
         return ''
 
-    monkeypatch.setattr(grb, 'exec', fake_exec)
-    monkeypatch.setattr(grb, 'exec_nostderr', fake_exec_nostderr)
-    monkeypatch.setattr(grb, 'get_user', lambda: 'u')
-    monkeypatch.setattr(grb, 'get_hostname', lambda: 'h')
+    monkeypatch.setattr(grb.commands.push, 'exec', fake_exec)
+    monkeypatch.setattr(grb.commands.push, 'exec_nostderr', fake_exec_nostderr)
+    monkeypatch.setattr(grb.commands.push, 'get_user', lambda: 'u')
+    monkeypatch.setattr(grb.commands.push, 'get_hostname', lambda: 'h')
 
     args = SimpleNamespace(
         remote='https://remote',
@@ -162,8 +167,8 @@ def test_note_append_push(monkeypatch):
     grb.note_append_push(args, d)
 
     gitenv = calls[0][2]
-    expected_ref = grb.sanitize_branch_name(
-        f"refs/notes/artifact/{grb.sanitize_slashes(args.remote)}/{grb.sanitize_slashes(args.name)}/{d['bin_sha_commit']}-clean"
+    expected_ref = sanitize_branch_name(
+        f"refs/notes/artifact/{sanitize_slashes(args.remote)}/{sanitize_slashes(args.name)}/{d['bin_sha_commit']}-clean"
     )
     assert gitenv['GIT_NOTES_REF'] == expected_ref
     assert gitenv['GIT_AUTHOR_NAME'] == 'me'

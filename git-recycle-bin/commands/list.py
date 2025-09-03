@@ -1,20 +1,22 @@
-from printer import printer
-from util import exec
-from util_string import sanitize_branch_name
-from commit_msg import parse_commit_msg
+from git_recycle_bin.printer import printer
+from git_recycle_bin.utils.extern import exec
+from git_recycle_bin.utils.string import sanitize_branch_name
+from git_recycle_bin.commit_msg import parse_commit_msg
 
 
-def list_command(args, rbgit, remote_bin_name):
-    artifacts = remote_artifacts(rbgit, remote_bin_name)
-    func = filter_funcs[args.query[0]] # query is a tuple of (flag, value) default is ("all", None)
-    if args.query[0] != "all":
-        printer.debug(f"Filtering artifacts by {args.query[0]}={args.query[1]}")
-    artifacts = filter_artifacts(rbgit, remote_bin_name, args.query[1], artifacts, func)
+def show_remote_artifacts(args, rbgit, remote_bin_name):
+    artifacts = remote_artifacts(args, rbgit, remote_bin_name)
     for artifact in artifacts:
         print(artifact[1])
 
+def remote_artifacts(args, rbgit, remote_bin_name):
+    artifacts = remote_artifacts_unfiltered(rbgit, remote_bin_name)
+    func = filter_funcs[args.query[0]] # query is a tuple of (flag, value) default is ("all", None)
+    if args.query[0] != "all":
+        printer.debug(f"Filtering artifacts by {args.query[0]}={args.query[1]}")
+    return filter_artifacts(rbgit, remote_bin_name, args.query[1], artifacts, func)
 
-def remote_artifacts(rbgit, remote_bin_name):
+def remote_artifacts_unfiltered(rbgit, remote_bin_name):
     # Fetch all artifacts based on refs/artifact/meta-for-commit/{src_sha}/* refspec.
     # This schema makes it easy to query which artifact are available for the given commit.
     # This allows us to drastically reduce the meta-data to search through, which
