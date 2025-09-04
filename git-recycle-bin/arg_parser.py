@@ -24,6 +24,13 @@ def parse_args(args=None):
         def __init__(self, prog):
             super().__init__(prog, indent_increment=2, max_help_position=40)
 
+    class keyvalue(argparse.Action):
+        def __call__(self, parser, namespace, values, option_string=None):
+            my_dict = getattr(namespace, self.dest) or {}
+            key, value = values
+            my_dict[key] = value
+            setattr(namespace, self.dest, my_dict)
+
     def ignore_attr_except(func, *args, **kwargs):
         # useful in case args should be patched
         try:
@@ -61,6 +68,7 @@ def parse_args(args=None):
     dv = 'False';      g.add_argument("--add-ignored",            metavar='bool', type=str2bool, nargs='?', const=True, default=os.getenv('GITRB_ADD_IGNORED', dv), help=f"Add despite gitignore. Default {dv}.")
     dv = 'False';      g.add_argument("--force-branch",           metavar='bool', type=str2bool, nargs='?', const=True, default=os.getenv('GITRB_FORCE_BRANCH', dv), help=f"Force push of branch. Default {dv}.")
     dv = 'False';      g.add_argument("--force-tag",              metavar='bool', type=str2bool, nargs='?', const=True, default=os.getenv('GITRB_FORCE_TAG', dv), help=f"Force push of tag. Default {dv}.")
+    g.add_argument("--trailer", nargs=2, metavar=('key', 'value'), dest='trailers', action=keyvalue, default={}, help="Add trailer to commit. Can be specified multiple times.")
 
     g = commands.add_parser("clean", parents=[top_parser], add_help=False, help="clean expired artifacts")
     g.add_argument("remote", metavar='URL', type=str, help="Git remote URL")

@@ -67,7 +67,7 @@ def test_create_artifact_commit_sanitizes_name(tmp_path, monkeypatch):
             self.calls.append(('set_tag', tag_name, tag_val))
 
     rbgit = Dummy()
-    commit_info = ns.create_artifact_commit(rbgit, 'bad name?', str(path), 'tomorrow', False, 'origin')
+    commit_info = ns.create_artifact_commit(rbgit, 'bad name?', str(path), 'tomorrow', False, 'origin', {})
 
     assert commit_info.artifact_name == 'bad_name_'
     assert any(c[0] == 'set_tag' for c in rbgit.calls)
@@ -76,15 +76,15 @@ def test_create_artifact_commit_sanitizes_name(tmp_path, monkeypatch):
 def test_push_command(monkeypatch):
     calls = []
 
-    def fake_create(r, name, path, expire, add_ignored, src_remote):
-        calls.append(('create', name, path, expire, add_ignored, src_remote))
+    def fake_create(r, name, path, expire, add_ignored, src_remote, custom_trailers={}):
+        calls.append(('create', name, path, expire, add_ignored, src_remote, custom_trailers))
         return SimpleNamespace(
             bin_branch_name='b',
-            bin_ref_only_metadata= 'm',
+            bin_ref_only_metadata='m',
             bin_tag_name='t',
             src_commits_ahead='',
             bin_sha_commit='sha',
-            src_time_commit= 'time',
+            src_time_commit='time',
         )
 
     ns = grb.commands.push
@@ -108,7 +108,7 @@ def test_push_command(monkeypatch):
 
     args = SimpleNamespace(name='n', expire='e', add_ignored=False, src_remote_name='origin',
                            push_tag=True, push_note=True, rm_expired=True, flush_meta=True,
-                           remote='r')
+                           remote='r', trailers={})
 
     grb.push(args, DummyRb(), 'bin', '/p')
 

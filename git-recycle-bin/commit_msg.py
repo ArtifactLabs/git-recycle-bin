@@ -47,6 +47,9 @@ def emit_commit_msg(d: dict):
         This artifact was published by git-recycle-bin - it may expire!
         See https://github.com/ArtifactLabs/git-recycle-bin
     """
+    user_trailers = '\n'.join(
+        [f"{key}: {val}" for key, val in d.get('custom_trailers', {}).items()]
+    )
 
     commit_msg_trailers = f"""
         artifact-schema-version: 1
@@ -65,6 +68,7 @@ def emit_commit_msg(d: dict):
         src-git-commits-ahead: {d['src_commits_ahead'] if d['src_commits_ahead'] != "" else "?"}
         src-git-commits-behind: {d['src_commits_behind'] if d['src_commits_behind'] != "" else "?"}
         {prefix_lines(prefix="src-git-status: ", lines=trim_all_lines(d['src_status'] if d['src_status'] != "" else "clean"))}
+        {user_trailers}
     """
 
     commit_msg = f"""

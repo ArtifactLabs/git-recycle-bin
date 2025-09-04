@@ -1,6 +1,6 @@
 import os
 import sys
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from .utils.string import sanitize_branch_name
 from .utils.date import (
@@ -49,12 +49,19 @@ class ArtifactCommitInfo:
     bin_time_commit: str
     bin_sha_only_metadata: str
     bin_ref_only_metadata: str
+    custom_trailers: dict[str, str] = field(default_factory=dict)
 
     @classmethod
     def from_dict(cls, d: dict[str, str]) -> "ArtifactCommitInfo":
         return cls(**d)
 
-def create_artifact_commit(rbgit, artifact_name: str, binpath: str, expire_branch: str, add_ignored: bool, src_remote_name: str) -> ArtifactCommitInfo:
+def create_artifact_commit(rbgit,
+                           artifact_name: str,
+                           binpath: str,
+                           expire_branch: str,
+                           add_ignored: bool,
+                           src_remote_name: str,
+                           custom_trailers: dict[str, str] = {}) -> ArtifactCommitInfo:
     """ Create Artifact: A binary commit, with builtin traceability and expiry """
     if not os.path.exists(binpath):
         raise RuntimeError(f"Artifact '{binpath}' does not exist!")
@@ -116,6 +123,8 @@ def create_artifact_commit(rbgit, artifact_name: str, binpath: str, expire_branc
     # 'latest' tag ref will not expire but is overwritten to point to newer SHA.
     # E.g.: 'artifact/latest/project.git@main/{obj/doc/html}'
     d['bin_tag_name']    = f"artifact/latest/{d['src_repo']}@{d['src_branch']}/{{{d['artifact_relpath_nca']}}}" if d['src_branch'] != "HEAD" else None
+
+    d['custom_trailers'] = custom_trailers
 
     d['bin_commit_msg'] = emit_commit_msg(d)
 
