@@ -46,6 +46,7 @@ def main() -> int:
 
 
     remote_bin_name = "recyclebin"
+    commit_info = None
 
     with create_rbgit(src_tree_root, path, clean=args.rm_tmp) as rbgit:
 
@@ -61,7 +62,7 @@ def main() -> int:
 
         # main command
         if args.command == "push":
-            push(args, rbgit, remote_bin_name, path)
+            commit_info = push(args, rbgit, remote_bin_name, path)
         if args.command == "clean":
             clean(rbgit, remote_bin_name)
         if args.command == "list":
@@ -80,6 +81,10 @@ def main() -> int:
             remote_delete_expired_branches(rbgit, remote_bin_name)
         if args.flush_meta:
             remote_flush_meta_for_commit(rbgit, remote_bin_name)
+
+    # if we have pushed and we want to print the commit do it last
+    if args.command == "push" and not args.no_print_commit:
+        print(commit_info.bin_sha_commit)
 
     return 0
 

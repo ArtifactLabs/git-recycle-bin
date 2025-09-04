@@ -30,8 +30,8 @@ def push(args, rbgit, remote_bin_name, path) -> dict[str, str]:
                                          args.add_ignored,
                                          args.src_remote_name,
                                          custom_trailers=args.trailers)
-    printer.detail(rbgit.cmd("branch", "-vv"))
-    printer.detail(rbgit.cmd("log", "-1", commit_info.bin_branch_name))
+    printer.detail(rbgit.cmd("branch", "-vv"), file=sys.stderr)
+    printer.detail(rbgit.cmd("log", "-1", commit_info.bin_branch_name), file=sys.stderr)
 
     rbgit.add_remote_idempotent(name=remote_bin_name, url=args.remote)
     push_branch(args, commit_info, rbgit, remote_bin_name)

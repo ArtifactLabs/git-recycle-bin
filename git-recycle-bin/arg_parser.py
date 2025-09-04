@@ -68,6 +68,7 @@ def parse_args(args=None):
     dv = 'False';      g.add_argument("--add-ignored",            metavar='bool', type=str2bool, nargs='?', const=True, default=os.getenv('GITRB_ADD_IGNORED', dv), help=f"Add despite gitignore. Default {dv}.")
     dv = 'False';      g.add_argument("--force-branch",           metavar='bool', type=str2bool, nargs='?', const=True, default=os.getenv('GITRB_FORCE_BRANCH', dv), help=f"Force push of branch. Default {dv}.")
     dv = 'False';      g.add_argument("--force-tag",              metavar='bool', type=str2bool, nargs='?', const=True, default=os.getenv('GITRB_FORCE_TAG', dv), help=f"Force push of tag. Default {dv}.")
+    dv = 'False';       g.add_argument("--no-print-commit",       metavar='bool', type=str2bool, nargs='?', const=True, default=os.getenv('GITRB_NO_PRINT_COMMIT', dv), help=f"Do not print commit sha at the end.")
     g.add_argument("--trailer", nargs=2, metavar=('key', 'value'), dest='trailers', action=keyvalue, default={}, help="Add trailer to commit. Can be specified multiple times.")
 
     g = commands.add_parser("clean", parents=[top_parser], add_help=False, help="clean expired artifacts")
