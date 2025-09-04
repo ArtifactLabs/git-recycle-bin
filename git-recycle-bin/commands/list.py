@@ -1,6 +1,8 @@
+import json
+
 from git_recycle_bin.rbgit import RbGit
 from git_recycle_bin.printer import printer
-from git_recycle_bin.utils.extern import exec
+from git_recycle_bin.utils.extern import exec, jq
 from git_recycle_bin.utils.string import sanitize_branch_name
 from git_recycle_bin.commit_msg import parse_commit_msg
 from git_recycle_bin.utils.string import sanitize_branch_name
@@ -26,12 +28,13 @@ def remote_artifacts(rbgit: RbGit,
     filters = {
         'name': filter_artifacts_by_name,
         'path': filter_artifacts_by_path,
+        'jq'  : jq_filter,
         'none': lambda _meta_data, _query: True,
     }
     filter_func = filters[query_type]
 
     if query_type != "none":
-        printer.debug(f"Filtering artifacts by {query_type}={query_str}")
+        printer.debug(f"Filtering artifacts by {query_type} with {{ {query_str} }}")
 
     return filter_artifacts(rbgit, remote_bin_name, query_str, artifacts, filter_func)
 
@@ -82,6 +85,13 @@ def filter_artifacts_by_name(meta_data, query: str):
 
 def filter_artifacts_by_path(meta_data, query: str):
     return meta_data['src-git-relpath'] == query
+
+def jq_filter(meta_data, query):
+    meta_data_json = json.dumps(meta_data)
+    jq_res = jq([query], input=meta_data_json)
+    printer.debug(f"jq result: {jq_res}")
+    json_value = js.loads(meta_data_json)
+    return bool(json_value)
 
 
 def meta_data(rbgit, remote_bin_name, meta_data_commit):

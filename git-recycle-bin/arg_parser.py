@@ -79,6 +79,7 @@ def parse_args(args=None):
     query = g.add_mutually_exclusive_group()
     opt="path"; query.add_argument(f"--{opt}", dest='query', metavar='file|dir', required=False, type=tuple1(opt), default=os.getenv('GITRB_PATH'), help="Path to artifact in src-repo. Directory or file.")
     opt="name"; query.add_argument(f"--{opt}", dest='query', metavar='string',   required=False, type=tuple1(opt), default=os.getenv('GITRB_NAME'), help="Name of artifact, as specified in the meta-data. Will be sanitized.")
+    opt="jq";   query.add_argument(f"--{opt}", dest='query', metavar='string', required=False, type=tuple1(opt), default=os.getenv('GITRB_FILTER'), help="Filter to apply to meta-data. Uses jq")
 
     g = commands.add_parser("download", parents=[top_parser], add_help=False, help="download artifact")
     g.add_argument("remote", metavar='URL', type=str, help="Git remote URL")
