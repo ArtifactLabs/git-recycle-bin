@@ -24,6 +24,15 @@ def tuple1(key):
     return f
 
 
+class keyvalue(argparse.Action):
+    """Action for parsing key-value pairs and storing them in a dictionary."""
+    def __call__(self, parser, namespace, values, option_string=None):
+        if not hasattr(namespace, self.dest) or getattr(namespace, self.dest) is None:
+            setattr(namespace, self.dest, {})
+        key, value = values
+        getattr(namespace, self.dest)[key] = value
+
+
 def parse_args(args=None):
     """Parse command-line arguments for Git Recycle Bin."""
     class CustomHelpFormatter(argparse.HelpFormatter):
@@ -164,6 +173,11 @@ def parse_args(args=None):
         "--print-commit", metavar='bool', type=str2bool,
         nargs='?', const=True, default=os.getenv('GITRB_PRINT_COMMIT', dv),
         help=f"Print commit SHA to stdout. Default {dv}."
+    )
+    g.add_argument(
+        "--trailer", nargs=2, metavar=('key', 'value'), dest='trailers',
+        action=keyvalue, default={},
+        help="Add trailer to commit. Can be specified multiple times."
     )
 
     g = commands.add_parser(

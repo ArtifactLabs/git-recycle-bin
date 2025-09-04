@@ -23,7 +23,13 @@ from .clean import remote_delete_expired_branches, remote_flush_meta_for_commit
 
 def push(args, rbgit, remote_bin_name, path) -> dict[str, str]:
     printer.high_level(f"Making local commit of artifact {path} in artifact-repo at {rbgit.rbgit_dir}", file=sys.stderr)
-    commit_info = create_artifact_commit(rbgit, args.name, path, args.expire, args.add_ignored, args.src_remote_name)
+    commit_info = create_artifact_commit(rbgit,
+                                         args.name,
+                                         path,
+                                         args.expire,
+                                         args.add_ignored,
+                                         args.src_remote_name,
+                                         custom_trailers=args.trailers)
     printer.detail(rbgit.cmd("branch", "-vv"))
     printer.detail(rbgit.cmd("log", "-1", commit_info.bin_branch_name))
 

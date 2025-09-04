@@ -105,3 +105,14 @@ demo6_note:
         --expire "in 10 seconds" \
         --user-name "foo" --user-email "a@b"
     git log -1 --notes="notes/artifact/*" | nl -ba
+
+# Demonstrate adding trailers
+demo7_trailer:
+    git_recycle_bin.py push . \
+        --rm-expired \
+        --path . \
+        --name "demo 7 trailers" \
+        --expire "in 10 seconds" \
+        --user-name "foo" --user-email "a@b" \
+        --trailer Demo-Trailer "This is a demo trailer" \
+        --trailer Another-Trailer "This is another demo trailer"
