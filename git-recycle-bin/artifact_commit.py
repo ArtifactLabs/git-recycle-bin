@@ -1,5 +1,6 @@
 import os
 import sys
+from dataclasses import dataclass
 
 from .utils.string import sanitize_branch_name
 from .utils.date import (
@@ -16,7 +17,44 @@ from .utils.extern import exec
 from .printer import printer
 from .commit_msg import emit_commit_msg
 
-def create_artifact_commit(rbgit, artifact_name: str, binpath: str, expire_branch: str, add_ignored: bool, src_remote_name: str) -> dict[str, str]:
+@dataclass
+class ArtifactCommitInfo:
+    """ Class storing information about an artifact commit. """
+    artifact_name: str
+    binpath: str
+    bin_branch_expire: str
+    artifact_mime: str
+    src_remote_name: str
+    src_sha: str
+    src_sha_short: str
+    src_sha_msg: str
+    src_sha_title: str
+    src_time_author: str
+    src_time_commit: str
+    src_branch: str
+    src_repo_url: str
+    src_repo: str
+    src_tree_root: str
+    src_status: str
+    src_branch_upstream: str
+    src_commits_ahead: str
+    src_commits_behind: str
+    nca_dir: str
+    artifact_relpath_nca: str
+    artifact_relpath_src: str
+    bin_branch_name: str
+    bin_tag_name: str | None
+    bin_commit_msg: str
+    bin_sha_commit: str
+    bin_time_commit: str
+    bin_sha_only_metadata: str
+    bin_ref_only_metadata: str
+
+    @classmethod
+    def from_dict(cls, d: dict[str, str]) -> "ArtifactCommitInfo":
+        return cls(**d)
+
+def create_artifact_commit(rbgit, artifact_name: str, binpath: str, expire_branch: str, add_ignored: bool, src_remote_name: str) -> ArtifactCommitInfo:
     """ Create Artifact: A binary commit, with builtin traceability and expiry """
     if not os.path.exists(binpath):
         raise RuntimeError(f"Artifact '{binpath}' does not exist!")
@@ -85,7 +123,7 @@ def create_artifact_commit(rbgit, artifact_name: str, binpath: str, expire_branc
 
     printer.high_level(f"Adding '{binpath}' as '{d['artifact_relpath_nca']}' ...", file=sys.stderr)
     changes = rbgit.add(binpath, force=add_ignored)
-    if changes == True:
+    if changes:
         # Set {author,committer}-dates: Make our new commit reproducible by copying from the source; do not sample the current time.
         # Sampling the current time would lead to new commit SHA every time, thus not idempotent.
         os.environ['GIT_AUTHOR_DATE'] = d['src_time_author']
@@ -116,4 +154,4 @@ def create_artifact_commit(rbgit, artifact_name: str, binpath: str, expire_branc
     printer.high_level(f"Artifact [meta data]-only ref: {d['bin_ref_only_metadata']}", file=sys.stderr)
     printer.high_level(f"Artifact [meta data]-only obj: {d['bin_sha_only_metadata']}", file=sys.stderr)
 
-    return d
+    return ArtifactCommitInfo.from_dict(d)

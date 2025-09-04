@@ -67,9 +67,9 @@ def test_create_artifact_commit_sanitizes_name(tmp_path, monkeypatch):
             self.calls.append(('set_tag', tag_name, tag_val))
 
     rbgit = Dummy()
-    d = ns.create_artifact_commit(rbgit, 'bad name?', str(path), 'tomorrow', False, 'origin')
+    commit_info = ns.create_artifact_commit(rbgit, 'bad name?', str(path), 'tomorrow', False, 'origin')
 
-    assert d['artifact_name'] == 'bad_name_'
+    assert commit_info.artifact_name == 'bad_name_'
     assert any(c[0] == 'set_tag' for c in rbgit.calls)
 
 
@@ -78,14 +78,14 @@ def test_push_command(monkeypatch):
 
     def fake_create(r, name, path, expire, add_ignored, src_remote):
         calls.append(('create', name, path, expire, add_ignored, src_remote))
-        return {
-            'bin_branch_name': 'b',
-            'bin_ref_only_metadata': 'm',
-            'bin_tag_name': 't',
-            'src_commits_ahead': '',
-            'bin_sha_commit': 'sha',
-            'src_time_commit': 'time',
-        }
+        return SimpleNamespace(
+            bin_branch_name='b',
+            bin_ref_only_metadata= 'm',
+            bin_tag_name='t',
+            src_commits_ahead='',
+            bin_sha_commit='sha',
+            src_time_commit= 'time',
+        )
 
     ns = grb.commands.push
     monkeypatch.setattr(ns, 'create_artifact_commit', fake_create)

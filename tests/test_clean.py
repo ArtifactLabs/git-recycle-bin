@@ -31,7 +31,7 @@ def test_flush_meta_for_commit(temp_git_setup):
     rb_remote="rbgit"
 
     def push(args):
-        return push_cmd(args, rbgit, rb_remote, artifact_name)['bin_sha_commit']
+        return push_cmd(args, rbgit, rb_remote, artifact_name).bin_sha_commit
 
     with change_dir(local), git_user_info():
         bin_commit = push(dead)

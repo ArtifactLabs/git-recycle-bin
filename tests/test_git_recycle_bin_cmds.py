@@ -14,8 +14,11 @@ def test_push_branch_force(monkeypatch):
         cmd=lambda *a, **k: calls.append(a)
     )
     args = SimpleNamespace(force_branch=True)
-    d = {'bin_branch_name': 'b', 'bin_ref_only_metadata': 'm'}
-    grb.push_branch(args, d, dummy, 'remote')
+    commit_info = SimpleNamespace(
+        bin_branch_name='b',
+        bin_ref_only_metadata='m'
+    )
+    grb.push_branch(args, commit_info, dummy, 'remote')
     assert ('push', '--force', 'remote', 'b') in calls
     assert ('push', '--force', 'remote', 'm') in calls
 
@@ -33,8 +36,11 @@ def test_push_branch_skip_existing(monkeypatch):
 
     dummy = Dummy()
     args = SimpleNamespace(force_branch=False)
-    d = {'bin_branch_name': 'b', 'bin_ref_only_metadata': 'm'}
-    grb.push_branch(args, d, dummy, 'remote')
+    commit_info = SimpleNamespace(
+        bin_branch_name='b',
+        bin_ref_only_metadata='m'
+    )
+    grb.push_branch(args, commit_info, dummy, 'remote')
     assert ('push', 'remote', 'm') in calls
     assert ('push', 'remote', 'b') not in calls
 
@@ -52,13 +58,13 @@ def test_push_tag_new(monkeypatch):
 
     dummy = Dummy()
     args = SimpleNamespace(force_tag=False)
-    d = {
-        'bin_tag_name': 'tag',
-        'src_commits_ahead': '',
-        'bin_sha_commit': 'sha',
-        'src_time_commit': 'Wed, 21 Jun 2023 12:00:00 +0000',
-    }
-    grb.push_tag(args, d, dummy, 'remote')
+    commit_info = SimpleNamespace(
+        bin_tag_name='tag',
+        src_commits_ahead='',
+        bin_sha_commit='sha',
+        src_time_commit='Wed, 21 Jun 2023 12:00:00 +0000',
+    )
+    grb.push_tag(args, commit_info, dummy, 'remote')
     assert ('push', 'remote', 'tag') in calls
 
 
@@ -78,14 +84,14 @@ def test_push_tag_force_when_newer(monkeypatch):
 
     dummy = Dummy()
     args = SimpleNamespace(force_tag=False)
-    d = {
-        'bin_tag_name': 'tag',
-        'src_commits_ahead': '',
-        'bin_sha_commit': 'ours',
-        'bin_ref_only_metadata': 'unused',
-        'src_time_commit': 'Wed, 21 Jun 2023 12:00:00 +0000',
-    }
-    grb.push_tag(args, d, dummy, 'remote')
+    commit_info = SimpleNamespace(
+        bin_tag_name='tag',
+        src_commits_ahead='',
+        bin_sha_commit='ours',
+        bin_ref_only_metadata='unused',
+        src_time_commit='Wed, 21 Jun 2023 12:00:00 +0000',
+    )
+    grb.push_tag(args, commit_info, dummy, 'remote')
     assert ('push', '--force', 'remote', 'tag') in calls
 
 
@@ -157,18 +163,18 @@ def test_note_append_push(monkeypatch):
         user_name='me',
         user_email='me@example.com',
     )
-    d = {
-        'src_status': '',
-        'bin_time_commit': 't',
-        'bin_branch_expire': 'exp',
-        'bin_sha_commit': 'sha',
-    }
+    commit_info = SimpleNamespace(
+        src_status='',
+        bin_time_commit='t',
+        bin_branch_expire='exp',
+        bin_sha_commit='sha',
+    )
 
-    grb.note_append_push(args, d)
+    grb.note_append_push(args, commit_info)
 
     gitenv = calls[0][2]
     expected_ref = sanitize_branch_name(
-        f"refs/notes/artifact/{sanitize_slashes(args.remote)}/{sanitize_slashes(args.name)}/{d['bin_sha_commit']}-clean"
+        f"refs/notes/artifact/{sanitize_slashes(args.remote)}/{sanitize_slashes(args.name)}/{commit_info.bin_sha_commit}-clean"
     )
     assert gitenv['GIT_NOTES_REF'] == expected_ref
     assert gitenv['GIT_AUTHOR_NAME'] == 'me'
