@@ -86,6 +86,10 @@ def parse_args(args=None):
     g.add_argument("artifacts", metavar='artifact', nargs='+', type=str, help="Artifact SHA(s) to download")
     g.add_argument("--force", "-f", action='store_true', help="Force download, even if local files ")
 
+    g = commands.add_parser("cat-meta", parents=[top_parser], add_help=False, help="cat meta-data for artifact")
+    g.add_argument("remote", metavar='URL', type=str, help="Git remote URL")
+    g.add_argument("commits", metavar='commit', nargs='+', type=str, help="Commit SHA of file to cat")
+
     args = parser.parse_args(args)
 
     def patch_query(args):

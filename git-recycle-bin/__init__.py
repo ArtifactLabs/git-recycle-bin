@@ -15,4 +15,6 @@ from .commands.list import (
 )
 from .commands.download import download
 
+from .commands.cat_meta import cat_metas, metas_for_commits
+
 from .rbgit import RbGit, create_rbgit

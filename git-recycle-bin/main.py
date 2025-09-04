@@ -13,7 +13,8 @@ from . import (
     clean,
     remote_delete_expired_branches,
     remote_flush_meta_for_commit,
-    download
+    download,
+    cat_metas
 )
 
 
@@ -24,9 +25,9 @@ def main() -> int:
     if args is None:
         return 1
 
-    printer.debug("Arguments:")
+    printer.debug("Arguments:", file=sys.stderr)
     for arg in vars(args):
-        printer.debug(f"  '{arg}': '{getattr(args, arg)}'")
+        printer.debug(f"  '{arg}': '{getattr(args, arg)}'", file=sys.stderr)
 
     if args.remote == ".":
         src_git_dir = exec(["git", "rev-parse", "--absolute-git-dir"])
@@ -71,6 +72,8 @@ def main() -> int:
                 print(artifact_sha)
         if args.command == "download":
             download(args, rbgit, remote_bin_name)
+        if args.command == "cat-meta":
+            cat_metas(rbgit, remote_bin_name, args.commits)
 
         # garbage collection
         if args.rm_expired:
