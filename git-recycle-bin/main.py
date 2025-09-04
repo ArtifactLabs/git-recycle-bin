@@ -34,21 +34,17 @@ def main() -> int:
         printer.high_level(f"Will push artifact to local src-git, {src_git_dir}. Mostly used for testing.", file=sys.stderr)
         args.remote = src_git_dir
 
-    # Source git's root, fully qualified path.
-    # --show-toplevel: "Show the (by default, absolute) path of the top-level directory of the working tree."
-    src_tree_root = exec(["git", "rev-parse", "--show-toplevel"])
-
     # only some commands require path. All other cases, the git root suffices.
     try:
-        path = args.path if args.path else src_tree_root
+        path = args.path
     except AttributeError:
-        path = src_tree_root
+        path = None
 
 
     remote_bin_name = "recyclebin"
     commit_info = None
 
-    with create_rbgit(src_tree_root, path, clean=args.rm_tmp) as rbgit:
+    with create_rbgit(artifact_path=path, clean=args.rm_tmp) as rbgit:
 
         # setup
         if args.user_name:
@@ -72,7 +68,7 @@ def main() -> int:
                                                     ):
                 print(artifact_sha)
         if args.command == "download":
-            download(args, rbgit, remote_bin_name)
+            download(rbgit, remote_bin_name, args.artifacts, args)
         if args.command == "cat-meta":
             cat_metas(rbgit, remote_bin_name, args.commits)
 

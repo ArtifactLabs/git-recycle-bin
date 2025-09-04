@@ -3,16 +3,28 @@ import sys
 import subprocess
 import re
 import shutil
+from typing import Optional
 
 from .utils.file import nca_path
 from .printer import printer
+from .utils.extern import exec
 
 
 Path = str
-def create_rbgit(src_tree_root: Path, artifact_path: Path, clean: bool = True) -> "RbGit":
+def create_rbgit(src_tree_root: Optional[Path] = None,
+                 artifact_path: Optional[Path] = None,
+                 clean: bool = True) -> "RbGit":
     """ Create an RbGit instance from a source tree root and artifact path """
-    # Artifact may reside within or outside source git's root. E.g. under $GITROOT/obj/ or $GITROOT/../obj/
-    nca_dir = nca_path(src_tree_root, artifact_path)
+
+    if src_tree_root is None:
+        # --show-toplevel: "Show the (by default, absolute) path of the top-level directory of the working tree."
+        src_tree_root = exec(["git", "rev-parse", "--show-toplevel"])
+
+    if artifact_path is None:
+        nca_dir = src_tree_root
+    else:
+        # Artifact may reside within or outside source git's root. E.g. under $GITROOT/obj/ or $GITROOT/../obj/
+        nca_dir = nca_path(src_tree_root, artifact_path)
 
     # Place recyclebin-git's root at a stable location, where both source git and artifact can be seen.
     # Placing artifacts here allows for potential merging of artifact commits as paths are fully qualified.
