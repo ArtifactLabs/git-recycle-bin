@@ -190,6 +190,7 @@ def parse_args(args=None):
         "list", parents=[top_parser], add_help=False, help="list artifacts"
     )
     g.add_argument("remote", metavar='URL', type=str, help="Git remote URL")
+    g.add_argument("--all", action='store_true', dest='list_all_shas', default=False, help="List all artifacts, regardless of HEAD sha")
     query = g.add_mutually_exclusive_group()
     opt = "path"
     query.add_argument(
@@ -220,11 +221,11 @@ def parse_args(args=None):
 
     args = parser.parse_args(args)
 
-    def check_query(args):
+    def patch_query(args):
         if args.query is None:
-            args.query = ("all", None)
+            args.query = ("none", None)
 
-    ignore_attr_except(check_query, args)
+    ignore_attr_except(patch_query, args)
 
     printer.verbosity = args.verbosity
     printer.colorize = args.color
