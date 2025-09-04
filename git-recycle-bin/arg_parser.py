@@ -75,6 +75,7 @@ def parse_args(args=None):
 
     g = commands.add_parser("list", parents=[top_parser], add_help=False, help="list artifacts")
     g.add_argument("remote", metavar='URL', type=str, help="Git remote URL")
+    g.add_argument("--all", action='store_true', dest='list_all_shas', default=False, help="List all artifacts, regardless of HEAD sha")
     query = g.add_mutually_exclusive_group()
     opt="path"; query.add_argument(f"--{opt}", dest='query', metavar='file|dir', required=False, type=tuple1(opt), default=os.getenv('GITRB_PATH'), help="Path to artifact in src-repo. Directory or file.")
     opt="name"; query.add_argument(f"--{opt}", dest='query', metavar='string',   required=False, type=tuple1(opt), default=os.getenv('GITRB_NAME'), help="Name of artifact, as specified in the meta-data. Will be sanitized.")
@@ -86,11 +87,11 @@ def parse_args(args=None):
 
     args = parser.parse_args(args)
 
-    def chech_query(args):
+    def patch_query(args):
         if args.query is None:
-            args.query = ("all", None)
+            args.query = ("none", None)
 
-    ignore_attr_except(chech_query, args)
+    ignore_attr_except(patch_query, args)
 
     printer.verbosity = args.verbosity
     printer.colorize = args.color

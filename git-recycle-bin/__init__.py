@@ -12,7 +12,6 @@ from .commands.clean import (
 from .commands.list import (
     remote_artifacts,
     remote_artifacts_unfiltered,
-    show_remote_artifacts,
 )
 from .commands.download import download
 

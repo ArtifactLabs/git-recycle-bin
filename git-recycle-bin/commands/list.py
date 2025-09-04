@@ -1,62 +1,89 @@
+from git_recycle_bin.rbgit import RbGit
 from git_recycle_bin.printer import printer
 from git_recycle_bin.utils.extern import exec
 from git_recycle_bin.utils.string import sanitize_branch_name
 from git_recycle_bin.commit_msg import parse_commit_msg
+from git_recycle_bin.utils.string import sanitize_branch_name
 
 
-def show_remote_artifacts(args, rbgit, remote_bin_name):
-    artifacts = remote_artifacts(args, rbgit, remote_bin_name)
-    for artifact in artifacts:
-        print(artifact[1])
+# Queries is a type -> querystring product
+Query = tuple[str, str]
 
-def remote_artifacts(args, rbgit, remote_bin_name):
+# query
+def remote_artifacts(rbgit: RbGit,
+                     remote_bin_name: str,
+                     query: Query,
+                     all_shas: bool = False) -> list[str, str]:
+    """
+    Returns a list of all of pairs of (metadata sha, artifact sha) for which
+    query is valid
+    """
+    query_type = query[0]
+    query_str  = query[1]
+
     artifacts = remote_artifacts_unfiltered(rbgit, remote_bin_name)
-    func = filter_funcs[args.query[0]] # query is a tuple of (flag, value) default is ("all", None)
-    if args.query[0] != "all":
-        printer.debug(f"Filtering artifacts by {args.query[0]}={args.query[1]}")
-    return filter_artifacts(rbgit, remote_bin_name, args.query[1], artifacts, func)
 
-def remote_artifacts_unfiltered(rbgit, remote_bin_name):
-    # Fetch all artifacts based on refs/artifact/meta-for-commit/{src_sha}/* refspec.
-    # This schema makes it easy to query which artifact are available for the given commit.
-    # This allows us to drastically reduce the meta-data to search through, which
-    # can then further be queried.
-    src_sha = exec(["git", "rev-parse", "HEAD"])
-    search_path = f"refs/artifact/meta-for-commit/{src_sha}/"
-    lines = rbgit.cmd("ls-remote", "--refs", remote_bin_name, f"{search_path}*").splitlines()
+    filters = {
+        'name': filter_artifacts_by_name,
+        'path': filter_artifacts_by_path,
+        'none': lambda _meta_data, _query: True,
+    }
+    filter_func = filters[query_type]
+
+    if query_type != "none":
+        printer.debug(f"Filtering artifacts by {query_type}={query_str}")
+
+    return filter_artifacts(rbgit, remote_bin_name, query_str, artifacts, filter_func)
+
+def remote_artifacts_unfiltered(rbgit: RbGit,
+                                remote_bin_name: str,
+                                all_shas: bool = False
+                                ) -> list[str, str]:
+    """
+    Fetch all artifacts from the remote repository.
+    artifacts is a pair of the meta_data_sha and the artifact sha it references
+    """
+    if all_shas:
+        refs = refs_path_all()
+    else:
+        # Fetch all artifacts based on refs/artifact/meta-for-commit/{src_sha}/* refspec.
+        # This schema makes it easy to query which artifact are available for the given commit.
+        # This allows us to drastically reduce the meta-data to search through, which
+        # can then further be queried.
+        src_sha = exec(["git", "rev-parse", "HEAD"])
+        refs = refs_path(src_sha)
+    lines = rbgit.cmd("ls-remote", "--refs", remote_bin_name, f"{refs}*").splitlines()
+    printer.debug(f"{lines}")
     artifacts = []
     for line in lines:
         cols = line.split()
         meta_sha_blob = cols[0]
-        artifact_sha_commit = cols[1].strip()[len(search_path):]
+        artifact_sha_commit = cols[1].strip()[len(refs):]
         artifacts.append((meta_sha_blob, artifact_sha_commit))
     return artifacts
 
+def refs_path_all():
+    return "refs/artifact/meta-for-commit/"
+
+def refs_path(sha):
+    return f"refs/artifact/meta-for-commit/{sha}/"
 
 def filter_artifacts(rbgit, remote_bin_name, query, artifacts, filter_func):
     return [
         artifact
         for artifact in artifacts
-        if filter_func(artifact, rbgit=rbgit, remote_bin_name=remote_bin_name, query=query)
+        if filter_func(meta_data(rbgit, remote_bin_name, artifact[0]), query)
     ]
 
 
-def filter_artifacts_by_name(artifact, **kwargs):
-    rbgit = kwargs['rbgit']
-    remote_bin_name = kwargs['remote_bin_name']
-    data = rbgit.fetch_cat_pretty(remote_bin_name, artifact[0])
-    return parse_commit_msg(data)['artifact-name'] == sanitize_branch_name(kwargs['query'])
+def filter_artifacts_by_name(meta_data, query: str):
+    return meta_data['artifact-name'] == sanitize_branch_name(query)
 
 
-def filter_artifacts_by_path(artifact, **kwargs):
-    rbgit = kwargs['rbgit']
-    remote_bin_name = kwargs['remote_bin_name']
-    data = rbgit.fetch_cat_pretty(remote_bin_name, artifact[0])
-    return parse_commit_msg(data)['src-git-relpath'] == kwargs['query']
+def filter_artifacts_by_path(meta_data, query: str):
+    return meta_data['src-git-relpath'] == query
 
 
-filter_funcs = {
-    'name': filter_artifacts_by_name,
-    'path': filter_artifacts_by_path,
-    'all': lambda artifact, **kwargs: True,
-}
+def meta_data(rbgit, remote_bin_name, meta_data_commit):
+    data = rbgit.fetch_cat_pretty(remote_bin_name, meta_data_commit)
+    return parse_commit_msg(data)

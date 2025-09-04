@@ -8,7 +8,7 @@ from .rbgit import create_rbgit
 
 # commands
 from . import (
-    show_remote_artifacts,
+    remote_artifacts,
     push,
     clean,
     remote_delete_expired_branches,
@@ -47,6 +47,8 @@ def main() -> int:
     remote_bin_name = "recyclebin"
 
     with create_rbgit(src_tree_root, path, clean=args.rm_tmp) as rbgit:
+
+        # setup
         if args.user_name:
             rbgit.cmd("config", "--local", "user.name", args.user_name)
         if args.user_email:
@@ -56,23 +58,27 @@ def main() -> int:
             rbgit.add_remote_idempotent(name=remote_bin_name, url=args.remote)
 
 
-        commands = {
-            "push": lambda: push(args, rbgit, remote_bin_name, path),
-            "clean": lambda: clean(rbgit, remote_bin_name),
-            "list": lambda: show_remote_artifacts(args, rbgit, remote_bin_name),
-            "download": lambda: download(args, rbgit, remote_bin_name),
-        }
+        # main command
+        if args.command == "push":
+            push(args, rbgit, remote_bin_name, path)
+        if args.command == "clean":
+            clean(rbgit, remote_bin_name)
+        if args.command == "list":
+            for _, artifact_sha in remote_artifacts(rbgit, remote_bin_name,
+                                                    args.query,
+                                                    args.list_all_shas
+                                                    ):
+                print(artifact_sha)
+        if args.command == "download":
+            download(args, rbgit, remote_bin_name)
 
-        run = commands[args.command]
-
-        exitcode = run()
-
+        # garbage collection
         if args.rm_expired:
             remote_delete_expired_branches(rbgit, remote_bin_name)
         if args.flush_meta:
             remote_flush_meta_for_commit(rbgit, remote_bin_name)
 
-    return exitcode
+    return 0
 
 
 if __name__ == "__main__":
