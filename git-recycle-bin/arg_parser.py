@@ -1,23 +1,10 @@
 import argparse
 import os
 
+from .query import NameQuery, PathQuery, RelPathQuery, JqQuery, AndQuery
+from git_recycle_bin.utils.string import str2bool
+
 from .printer import printer
-
-def str2bool(v):
-    if isinstance(v, bool):
-       return v
-    if v.lower() in ('yes', 'true', 't', 'y', '1'):
-        return True
-    elif v.lower() in ('no', 'false', 'f', 'n', '0'):
-        return False
-    else:
-        raise argparse.ArgumentTypeError('Boolean value expected.')
-
-def tuple1(key):
-    def f(value):
-        return (key, value)
-    return f
-
 
 def parse_args(args=None):
     class CustomHelpFormatter(argparse.HelpFormatter):
@@ -37,6 +24,9 @@ def parse_args(args=None):
             return func(*args, **kwargs)
         except AttributeError:
             pass
+
+    def add_remote_arg(parser):
+        parser.add_argument("remote", metavar='URL', type=str, help="Git remote URL")
     # top parser describes the options which should be available for all commands
     top_parser = argparse.ArgumentParser(description="Generic", add_help=False, formatter_class=CustomHelpFormatter)
 
@@ -47,6 +37,7 @@ def parse_args(args=None):
     dv = 'False';  g.add_argument("--flush-meta",      metavar='bool', type=str2bool, nargs='?', const=True, default=os.getenv('GITRB_RM_FLUSH_META', dv), help=f"Delete expired meta-for-commit refs. Default {dv}.")
     dv = 'origin'; g.add_argument("--src-remote-name", metavar='name',     required=False, type=str, default=os.getenv('GITRB_SRC_REMOTE', dv), help=f"Name of src repo's remote. Defaults {dv}.")
     dv = 'True' ;  g.add_argument("--rm-tmp",          metavar='bool', type=str2bool, nargs='?', const=True, default=os.getenv('GITRB_RM_TMP', dv), help=f"Remove local bin-repo. Default {dv}.")
+
 
     g = top_parser.add_argument_group('terminal output style')
     g.add_argument("-h", "--help", action="help", default=argparse.SUPPRESS, help="Show this help message and exit.")
@@ -59,7 +50,7 @@ def parse_args(args=None):
     commands = parser.add_subparsers(dest='command')
     commands.required = True
     g = commands.add_parser("push", parents=[top_parser], add_help=False, help="push artifact")
-    g.add_argument(                   "remote",                   metavar='URL', type=str, help="Git remote URL")
+    add_remote_arg(g)
     g.add_argument(                   "--path",                   metavar='file|dir', required=True,  type=str, default=os.getenv('GITRB_PATH'),       help="Path to artifact in src-repo. Directory or file.")
     g.add_argument(                   "--name",                   metavar='string',   required=True,  type=str, default=os.getenv('GITRB_NAME'),       help="Name to assign to the artifact. Will be sanitized.")
     dv = 'in 30 days'; g.add_argument("--expire",                 metavar='fuzz',     required=False, type=str, default=os.getenv('GITRB_EXPIRE', dv), help=f"Expiry of artifact's branch. Fuzzy date. Default '{dv}'.")
@@ -72,30 +63,49 @@ def parse_args(args=None):
     g.add_argument("--trailer", nargs=2, metavar=('key', 'value'), dest='trailers', action=keyvalue, default={}, help="Add trailer to commit. Can be specified multiple times.")
 
     g = commands.add_parser("clean", parents=[top_parser], add_help=False, help="clean expired artifacts")
-    g.add_argument("remote", metavar='URL', type=str, help="Git remote URL")
+    add_remote_arg(g)
 
     g = commands.add_parser("list", parents=[top_parser], add_help=False, help="list artifacts")
-    g.add_argument("remote", metavar='URL', type=str, help="Git remote URL")
+    add_remote_arg(g)
+
     g.add_argument("--all", action='store_true', dest='list_all_shas', default=False, help="List all artifacts, regardless of HEAD sha")
-    query = g.add_mutually_exclusive_group()
-    opt="path"; query.add_argument(f"--{opt}", dest='query', metavar='file|dir', required=False, type=tuple1(opt), default=os.getenv('GITRB_PATH'), help="Path to artifact in src-repo. Directory or file.")
-    opt="name"; query.add_argument(f"--{opt}", dest='query', metavar='string',   required=False, type=tuple1(opt), default=os.getenv('GITRB_NAME'), help="Name of artifact, as specified in the meta-data. Will be sanitized.")
-    opt="jq";   query.add_argument(f"--{opt}", dest='query', metavar='string', required=False, type=tuple1(opt), default=os.getenv('GITRB_FILTER'), help="Filter to apply to meta-data. Uses jq")
+    g = g.add_argument_group('query options (multiple allowed, combined with AND)')
+    JqQuery.add_parser(g)
+    NameQuery.add_parser(g)
+    PathQuery.add_parser(g)
+    RelPathQuery.add_parser(g)
 
     g = commands.add_parser("download", parents=[top_parser], add_help=False, help="download artifact")
-    g.add_argument("remote", metavar='URL', type=str, help="Git remote URL")
+    add_remote_arg(g)
     g.add_argument("artifacts", metavar='artifact', nargs='+', type=str, help="Artifact SHA(s) to download")
     g.add_argument("--force", "-f", action='store_true', help="Force download, even if local files ")
 
     g = commands.add_parser("cat-meta", parents=[top_parser], add_help=False, help="cat meta-data for artifact")
-    g.add_argument("remote", metavar='URL', type=str, help="Git remote URL")
+    add_remote_arg(g)
     g.add_argument("commits", metavar='commit', nargs='+', type=str, help="Commit SHA of file to cat")
 
     args = parser.parse_args(args)
 
     def patch_query(args):
-        if args.query is None:
-            args.query = ("none", None)
+        if args.command != "list":
+            return
+        queries = []
+
+        if hasattr(args, 'jq') and args.jq:
+            queries.append(JqQuery(args.jq))
+        if hasattr(args, 'name') and args.name:
+            queries.append(NameQuery(args.name))
+        if hasattr(args, 'path') and args.path:
+            queries.append(PathQuery(args.path))
+        if hasattr(args, 'relpath') and args.relpath:
+            queries.append(RelPathQuery(args.relpath))
+
+        if len(queries) > 1:
+            args.query = AndQuery(queries)
+        else:
+            args.query = queries[0] if queries else None
+
+
 
     ignore_attr_except(patch_query, args)
 

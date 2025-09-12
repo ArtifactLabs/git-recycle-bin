@@ -3,6 +3,7 @@ import argparse
 import pytest
 
 from git_recycle_bin import arg_parser
+from git_recycle_bin.query import NameQuery, RelPathQuery, AndQuery, PathQuery
 
 
 def run_parse_args(argv):
@@ -12,18 +13,6 @@ def run_parse_args(argv):
         return arg_parser.parse_args()
     finally:
         sys.argv = old
-
-
-def test_str2bool():
-    assert arg_parser.str2bool('yes') is True
-    assert arg_parser.str2bool('no') is False
-    with pytest.raises(argparse.ArgumentTypeError):
-        arg_parser.str2bool('maybe')
-
-
-def test_tuple1():
-    f = arg_parser.tuple1('key')
-    assert f('val') == ('key', 'val')
 
 
 def test_parse_args_push():
@@ -42,7 +31,24 @@ def test_parse_args_force_tag_requires_force_branch():
 def test_parse_args_list_name():
     args = run_parse_args(['list', 'https://example.com', '--name', 'foo'])
     assert args.command == 'list'
-    assert args.query == ('name', 'foo')
+    assert args.query == NameQuery('foo')
+
+def test_parse_args_list_multiple_queries():
+    args = run_parse_args(['list', 'https://example.com',
+                           '--name', 'foo',
+                           '--relpath', 'bar',
+                           '--path', 'baz'])
+    assert args.command == 'list'
+    assert args.query == AndQuery(
+        NameQuery('foo'),
+        RelPathQuery('bar'),
+        PathQuery('baz')
+    )
+
+def test_parse_args_list_no_query():
+    args = run_parse_args(['list', 'https://example.com'])
+    assert args.command == 'list'
+    assert args.query is None
 
 
 def test_parse_args_missing_remote():

@@ -1,3 +1,4 @@
+import pytest
 from git_recycle_bin.utils.string import (
     remove_empty_lines,
     sanitize_slashes,
@@ -6,7 +7,13 @@ from git_recycle_bin.utils.string import (
     prefix_lines,
     string_trunc_ellipsis,
     url_redact,
+    str2bool,
 )
+def test_str2bool():
+    assert str2bool('yes') is True
+    assert str2bool('no') is False
+    with pytest.raises(ValueError):
+        str2bool('maybe')
 
 def test_remove_empty_lines():
     s = 'a\n\n b\n'
