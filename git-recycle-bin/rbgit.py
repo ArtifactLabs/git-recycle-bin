@@ -6,15 +6,17 @@ import shutil
 from typing import Optional
 
 from .utils.file import nca_path
-from .printer import printer
+from .printer import printer as default_printer
 from .utils.extern import exec
 
 
 Path = str
 def create_rbgit(src_tree_root: Optional[Path] = None,
                  artifact_path: Optional[Path] = None,
-                 clean: bool = True) -> "RbGit":
-    """ Create an RbGit instance from a source tree root and artifact path """
+                 rbgit_name: Optional[str] = ".rbgit",
+                 clean: bool = True,
+                 printer = default_printer) -> "RbGit":
+    """ Create an RbGit instance from a source tree root and artifact path."""
 
     if src_tree_root is None:
         # --show-toplevel: "Show the (by default, absolute) path of the top-level directory of the working tree."
@@ -28,11 +30,15 @@ def create_rbgit(src_tree_root: Optional[Path] = None,
 
     # Place recyclebin-git's root at a stable location, where both source git and artifact can be seen.
     # Placing artifacts here allows for potential merging of artifact commits as paths are fully qualified.
-    rbgit_dir = os.path.join(nca_dir, ".rbgit")
+    rbgit_dir = os.path.join(nca_dir, rbgit_name)
 
     return RbGit(printer, rbgit_dir=rbgit_dir, rbgit_work_tree=nca_dir, clean=clean)
 
 class RbGit:
+    """
+    Initialize and manage a git repository for storing binary artifacts.
+    """
+
     def __init__(self, printer, rbgit_dir=None, rbgit_work_tree=None, clean: bool = True):
         self.printer = printer
         self.rbgit_dir = rbgit_dir if rbgit_dir else os.environ["RBGIT_DIR"]
@@ -43,10 +49,17 @@ class RbGit:
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        if exc_type is None and self.clean and os.path.exists(self.rbgit_dir):
-            printer.high_level(f"Deleting local bin repo, {self.rbgit_dir}, to free-up disk-space.", file=sys.stderr)
+    def cleanup(self):
+        self.clean = True
+        self._destroy()
+
+    def _destroy(self):
+        if self.clean and os.path.exists(self.rbgit_dir):
+            self.printer.high_level(f"Deleting local bin repo, {self.rbgit_dir}, to free-up disk-space.", file=sys.stderr)
             shutil.rmtree(self.rbgit_dir, ignore_errors=True)
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self._destroy()
 
     def cmd(self, *args, input=None, capture_output=True):
         # Override environment variables
@@ -67,7 +80,7 @@ class RbGit:
 
     def init_idempotent(self):
         if self.clean and os.path.exists(self.rbgit_dir):
-            printer.high_level(f"Deleting local bin repo, {self.rbgit_dir}, to start from clean-slate.", file=sys.stderr)
+            self.printer.high_level(f"Deleting local bin repo, {self.rbgit_dir}, to start from clean-slate.", file=sys.stderr)
             shutil.rmtree(self.rbgit_dir)
 
         try:
@@ -124,6 +137,10 @@ class RbGit:
     def set_tag(self, tag_name: str, tag_val: str):
         self.cmd("tag", "--force", tag_name, tag_val)
 
+    def get_remote_url(self, remote: str) -> str:
+        url = self.cmd("remote", "get-url", remote).strip()
+        return url
+
     def tree_size(self, ref: str = "HEAD") -> int:
         """ Accumulated recursively-walked size of tree. Git stores sparsely and compressed which is not accounted for here """
         lines = self.cmd("ls-tree", "-lr", ref)
@@ -153,8 +170,12 @@ class RbGit:
 
     def fetch_cat_pretty(self, remote: str, ref: str) -> str:
         self.cmd("fetch", remote, ref)
-        content = self.cmd("cat-file", "-p", "FETCH_HEAD")
+        content = self.cmd("cat-file", "-p", ref)
         return content
+
+    def hash_object(self, path: str) -> str:
+        sha = self.cmd("hash-object", path).strip()
+        return sha
 
     def meta_for_commit_refs(self, remote: str):
         lines = self.cmd("ls-remote", "--refs", remote, "refs/artifact/meta-for-commit/*")
