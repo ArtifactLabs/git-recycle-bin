@@ -58,7 +58,7 @@ def main() -> int:
 
         # main command
         if args.command == "push":
-            commit_info = push(args, rbgit, remote_bin_name, path)
+            commit_info = push(rbgit, remote_bin_name, path, args)
         if args.command == "clean":
             clean(rbgit, remote_bin_name)
         if args.command == "list":

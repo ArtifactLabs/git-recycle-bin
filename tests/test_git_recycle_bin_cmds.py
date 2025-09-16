@@ -13,12 +13,11 @@ def test_push_branch_force(monkeypatch):
     dummy = SimpleNamespace(
         cmd=lambda *a, **k: calls.append(a)
     )
-    args = SimpleNamespace(force_branch=True)
     commit_info = SimpleNamespace(
         bin_branch_name='b',
         bin_ref_only_metadata='m'
     )
-    grb.push_branch(args, commit_info, dummy, 'remote')
+    grb.push_branch(dummy, 'remote', commit_info, force=True)
     assert ('push', '--force', 'remote', 'b') in calls
     assert ('push', '--force', 'remote', 'm') in calls
 
@@ -35,12 +34,11 @@ def test_push_branch_skip_existing(monkeypatch):
             return ref == 'b'
 
     dummy = Dummy()
-    args = SimpleNamespace(force_branch=False)
     commit_info = SimpleNamespace(
         bin_branch_name='b',
         bin_ref_only_metadata='m'
     )
-    grb.push_branch(args, commit_info, dummy, 'remote')
+    grb.push_branch(dummy, 'remote', commit_info)
     assert ('push', 'remote', 'm') in calls
     assert ('push', 'remote', 'b') not in calls
 
@@ -57,14 +55,13 @@ def test_push_tag_new(monkeypatch):
             return ''
 
     dummy = Dummy()
-    args = SimpleNamespace(force_tag=False)
     commit_info = SimpleNamespace(
         bin_tag_name='tag',
         src_commits_ahead='',
         bin_sha_commit='sha',
         src_time_commit='Wed, 21 Jun 2023 12:00:00 +0000',
     )
-    grb.push_tag(args, commit_info, dummy, 'remote')
+    grb.push_tag(dummy, 'remote', commit_info)
     assert ('push', 'remote', 'tag') in calls
 
 
@@ -83,7 +80,6 @@ def test_push_tag_force_when_newer(monkeypatch):
             return ''
 
     dummy = Dummy()
-    args = SimpleNamespace(force_tag=False)
     commit_info = SimpleNamespace(
         bin_tag_name='tag',
         src_commits_ahead='',
@@ -91,7 +87,7 @@ def test_push_tag_force_when_newer(monkeypatch):
         bin_ref_only_metadata='unused',
         src_time_commit='Wed, 21 Jun 2023 12:00:00 +0000',
     )
-    grb.push_tag(args, commit_info, dummy, 'remote')
+    grb.push_tag(dummy, 'remote', commit_info, force=False)
     assert ('push', '--force', 'remote', 'tag') in calls
 
 

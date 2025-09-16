@@ -89,8 +89,8 @@ def test_push_command(monkeypatch):
 
     ns = grb.commands.push
     monkeypatch.setattr(ns, 'create_artifact_commit', fake_create)
-    monkeypatch.setattr(ns, 'push_branch', lambda a, b, c, d: calls.append('push_branch'))
-    monkeypatch.setattr(ns, 'push_tag', lambda a, b, c, d: calls.append('push_tag'))
+    monkeypatch.setattr(ns, 'push_branch', lambda a, b, c, force: calls.append('push_branch'))
+    monkeypatch.setattr(ns, 'push_tag', lambda a, b, c, force: calls.append('push_tag'))
     monkeypatch.setattr(ns, 'note_append_push', lambda a, b: calls.append('note'))
     monkeypatch.setattr(ns, 'remote_delete_expired_branches', lambda c, d: calls.append('rm_expired'))
     monkeypatch.setattr(ns, 'remote_flush_meta_for_commit', lambda c, d: calls.append('flush_meta'))
@@ -108,9 +108,10 @@ def test_push_command(monkeypatch):
 
     args = SimpleNamespace(name='n', expire='e', add_ignored=False, src_remote_name='origin',
                            push_tag=True, push_note=True, rm_expired=True, flush_meta=True,
+                           force_branch=False, force_tag=False,
                            remote='r', trailers={})
 
-    grb.push(args, DummyRb(), 'bin', '/p')
+    grb.push(DummyRb(), 'bin', '/p', args)
 
     assert ('add_remote', 'bin', 'r') in calls
     for op in ['push_branch', 'push_tag', 'note']:

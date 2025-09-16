@@ -21,3 +21,5 @@ from .commands.cat_meta import cat_metas, metas_for_commits
 from .rbgit import RbGit, create_rbgit
 
 from .query import Query, AndQuery, PathQuery, NameQuery, JqQuery
+
+from .artifact_commit import ArtifactCommitInfo, create_artifact_commit

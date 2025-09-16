@@ -21,7 +21,7 @@ from git_recycle_bin.utils.string import sanitize_branch_name, sanitize_slashes
 from git_recycle_bin.commands.clean import remote_delete_expired_branches, remote_flush_meta_for_commit
 
 
-def push(args, rbgit, remote_bin_name, path) -> dict[str, str]:
+def push(rbgit, remote_bin_name, path, args) -> ArtifactCommitInfo:
     printer.high_level(f"Making local commit of artifact {path} in artifact-repo at {rbgit.rbgit_dir}", file=sys.stderr)
     commit_info = create_artifact_commit(rbgit,
                                          args.name,
@@ -34,9 +34,9 @@ def push(args, rbgit, remote_bin_name, path) -> dict[str, str]:
     printer.detail(rbgit.cmd("log", "-1", commit_info.bin_branch_name), file=sys.stderr)
 
     rbgit.add_remote_idempotent(name=remote_bin_name, url=args.remote)
-    push_branch(args, commit_info, rbgit, remote_bin_name)
+    push_branch(rbgit, remote_bin_name, commit_info, args.force_branch)
     if args.push_tag:
-        push_tag(args, commit_info, rbgit, remote_bin_name)
+        push_tag(rbgit, remote_bin_name, commit_info, args.force_tag)
     if args.push_note:
         note_append_push(args, commit_info)
     return commit_info
@@ -53,8 +53,7 @@ def _push_if_not_exists(rbgit, remote_bin_name, commit):
     else:
         rbgit.cmd("push", remote_bin_name, commit, capture_output=False)
 
-
-def push_branch(args, commit_info: ArtifactCommitInfo, rbgit, remote_bin_name):
+def push_branch(rbgit, remote_bin_name, commit_info: ArtifactCommitInfo, force: bool = False):
     """
         Push branch to binary remote.
 
@@ -62,17 +61,13 @@ def push_branch(args, commit_info: ArtifactCommitInfo, rbgit, remote_bin_name):
         Branch might exist already upstream.
         Pushing may take long, so always show stdout and stderr without capture.
     """
-    branch = commit_info.bin_branch_name
-    meta_data = commit_info.bin_ref_only_metadata
+    printer.high_level(f"Pushing to remote artifact-repo: Artifact data on branch {commit_info.bin_branch_name}", file=sys.stderr)
+    _push_commit(rbgit, remote_bin_name, commit_info.bin_branch_name, force)
 
-    printer.high_level(f"Pushing to remote artifact-repo: Artifact data on branch {branch}", file=sys.stderr)
-    _push_commit(rbgit, remote_bin_name, branch, args.force_branch)
+    printer.high_level(f"Pushing to remote artifact-repo: Artifact meta-data {commit_info.bin_ref_only_metadata}", file=sys.stderr)
+    _push_commit(rbgit, remote_bin_name, commit_info.bin_ref_only_metadata, force)
 
-    printer.high_level(f"Pushing to remote artifact-repo: Artifact meta-data {meta_data}", file=sys.stderr)
-    _push_commit(rbgit, remote_bin_name, meta_data, args.force_branch)
-
-
-def push_tag(args, commit_info: ArtifactCommitInfo, rbgit, remote_bin_name):
+def push_tag(rbgit, remote_bin_name, commit_info: ArtifactCommitInfo, force: bool = False):
     """
         Push tag to binary remote.
     """
@@ -106,7 +101,7 @@ def push_tag(args, commit_info: ArtifactCommitInfo, rbgit, remote_bin_name):
         printer.high_level(f"Our artifact is newer than theirs. Updating...", file=sys.stderr)
         rbgit.cmd("push", "--force", remote_bin_name, tag)  # Push with force is necessary to update existing tag
     else:
-        if not args.force_tag:
+        if not force:
             printer.high_level(f"Our artifact is not newer than theirs. Leaving remote tag as-is.", file=sys.stderr)
         else:
             printer.high_level(f"Our artifact is not newer than theirs. Forcing update to remote tag.", file=sys.stderr)
