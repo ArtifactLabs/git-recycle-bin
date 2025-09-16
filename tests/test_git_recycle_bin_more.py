@@ -14,7 +14,7 @@ def test_create_artifact_commit_sanitizes_name(tmp_path, monkeypatch):
     path = tmp_path / "file.txt"
     path.write_text('data')
 
-    def fake_exec(cmd):
+    def fake_exec(cmd, **kwargs):
         if cmd[:3] == ['git', 'rev-parse', 'HEAD']:
             return 'sha'
         if '--format=%B' in cmd:

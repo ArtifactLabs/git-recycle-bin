@@ -5,7 +5,7 @@ from git_recycle_bin.utils.extern import exec, exec_nostderr
 def test_exec_env(monkeypatch):
     called = {}
 
-    def fake_check_output(cmd, env=None, text=None, stderr=None):
+    def fake_check_output(cmd, env=None, text=None, stderr=None, cwd=None):
         called['cmd'] = cmd
         called['env'] = env
         called['stderr'] = stderr
@@ -22,7 +22,7 @@ def test_exec_env(monkeypatch):
 def test_exec_nostderr(monkeypatch):
     called = {}
 
-    def fake_check_output(cmd, env=None, text=None, stderr=None):
+    def fake_check_output(cmd, env=None, text=None, stderr=None, cwd=None):
         called['stderr'] = stderr
         return ''
 

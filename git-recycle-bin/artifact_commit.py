@@ -57,7 +57,7 @@ def create_artifact_commit(rbgit,
                            expire_branch: str = "In 30 days",
                            add_ignored: bool = False,
                            src_remote_name: str = "origin",
-                           src_tree_root: str | None = None,
+                           cwd: str | None = None,
                            custom_trailers: dict[str, str] = {}
                            ) -> ArtifactCommitInfo:
     """ Create Artifact: A binary commit, with builtin traceability and expiry """
@@ -72,23 +72,22 @@ def create_artifact_commit(rbgit,
     bin_branch_expire = date_fuzzy2expiryformat(expire_branch)
 
     artifact_mime = classify_path(binpath)
-    src_sha = exec(["git", "rev-parse", "HEAD"])  # Sample the full SHA once
-    src_sha_msg = exec(["git", "show", "--no-patch", "--format=%B", src_sha])
+    src_sha = exec(["git", "rev-parse", "HEAD"], cwd=cwd)  # Sample the full SHA once
+    src_sha_msg = exec(["git", "show", "--no-patch", "--format=%B", src_sha], cwd=cwd)
     src_sha_title = src_sha_msg.split('\n')[0]  # title is first line of commit-msg
 
     src_repo_url = exec(["git", "config", "--get", f"remote.{src_remote_name}.url"])
     src_repo = os.path.basename(src_repo_url)
 
     # Source of artifact relative to source and NCA dir
-    if src_tree_root is None:
-        src_tree_root = exec(["git", "rev-parse", "--show-toplevel"])
+    src_tree_root = exec(["git", "rev-parse", "--show-toplevel"], cwd=cwd)
     nca_dir = nca_path(src_tree_root, binpath)                        # Longest shared path between gitroot and artifact. Is either {gitroot, something outside gitroot}
     artifact_relpath_nca = rel_dir(pto=binpath, pfrom=nca_dir)        # Artifact is always within nca_dir
     artifact_relpath_src = rel_dir(pto=binpath, pfrom=src_tree_root)  # Relative path to artifact from src-git-root. Artifact might be outside of source git.
 
-    src_branch, src_status, src_ahead, src_behind = src_branch_status()
+    src_branch, src_status, src_ahead, src_behind = src_branch_status(cwd)
 
-    src_time_author, src_time_commit = src_time_info(src_sha)
+    src_time_author, src_time_commit = src_time_info(src_sha, cwd)
 
     # Commit Message
     commmit_info = {
@@ -187,37 +186,37 @@ def create_artifact_commit(rbgit,
         custom_trailers=custom_trailers
     )
 
-def src_branch_status():
-    src_status = exec(["git", "status", "--porcelain=1", "--untracked-files=no"])
+def src_branch_status(cwd):
+    src_status = exec(["git", "status", "--porcelain=1", "--untracked-files=no"], cwd=cwd)
     if src_status == "":
         src_status = "clean"
     else:
         src_status = trim_all_lines(src_status)
-    src_branch = exec(["git", "rev-parse", "--abbrev-ref", "HEAD"])
+    src_branch = exec(["git", "rev-parse", "--abbrev-ref", "HEAD"], cwd=cwd)
     if src_branch == "HEAD":
         # We are in detached HEAD and thus can't determine the upstream tracking branch
         src_commits_ahead   = ""
         src_commits_behind  = ""
     else:
-        src_branch_upstream = exec(["git", "for-each-ref", "--format=%(upstream:short)", f"refs/heads/{src_branch}"])
+        src_branch_upstream = exec(["git", "for-each-ref", "--format=%(upstream:short)", f"refs/heads/{src_branch}"], cwd=cwd)
         if src_branch_upstream == "":
             src_commits_ahead = ""
             src_commits_behind = ""
         else:
-            src_commits_ahead = exec(["git", "rev-list", "--count", f"{src_branch_upstream}..{src_branch}"])
-            src_commits_behind = exec(["git", "rev-list", "--count", f"{src_branch}..{src_branch_upstream}"])
+            src_commits_ahead = exec(["git", "rev-list", "--count", f"{src_branch_upstream}..{src_branch}"], cwd=cwd)
+            src_commits_behind = exec(["git", "rev-list", "--count", f"{src_branch}..{src_branch_upstream}"], cwd=cwd)
     src_commits_ahead = src_commits_ahead if src_commits_ahead != "" else "?"
     src_commits_behind = src_commits_behind if src_commits_behind != "" else "?"
     return src_branch, src_status, src_commits_ahead, src_commits_behind
 
-def src_time_info(src_sha):
+def src_time_info(src_sha, cwd):
     # Author time is when the commit was first committed.
     # Author time is easily set with `git commit --date`.
-    src_time_author = exec(["git", "show", "-s", "--format=%ad", f"--date=format:{DATE_FMT_GIT}", src_sha])
+    src_time_author = exec(["git", "show", "-s", "--format=%ad", f"--date=format:{DATE_FMT_GIT}", src_sha], cwd=cwd)
 
     # Committer time changes every time the commit-SHA changes, for example {rebasing, amending, ...}.
     # Committer time can be set with $GIT_COMMITTER_DATE or `git rebase --committer-date-is-author-date`.
     # Committer time is monotonically increasing but sampled locally, so graph could still be non-monotonic if a collaborator has a very wrong clock.
-    src_time_commit = exec(["git", "show", "-s", "--format=%cd", f"--date=format:{DATE_FMT_GIT}", src_sha])
+    src_time_commit = exec(["git", "show", "-s", "--format=%cd", f"--date=format:{DATE_FMT_GIT}", src_sha], cwd=cwd)
 
     return src_time_author, src_time_commit

@@ -4,13 +4,14 @@ import subprocess
 
 from git_recycle_bin.printer import printer
 
-def exec(command, env={}):
+def exec(command, env={}, cwd=None):
     printer.debug("Run:", command, file=sys.stderr)
-    return subprocess.check_output(command, env=os.environ|env, text=True).strip()
+    return subprocess.check_output(command, env=os.environ|env, text=True, cwd=cwd).strip()
 
-def exec_nostderr(command, env={}):
+def exec_nostderr(command, env={}, cwd=None):
     printer.debug("Run:", command, file=sys.stderr)
-    return subprocess.check_output(command, env=os.environ|env, text=True, stderr=subprocess.DEVNULL).strip()
+    return subprocess.check_output(command, env=os.environ|env, text=True, cwd=cwd,
+                                   stderr=subprocess.DEVNULL).strip()
 
 def jq_unsafe(command, input, env=None):
     """
