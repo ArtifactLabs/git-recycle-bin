@@ -14,7 +14,7 @@ from .commands.list import (
     remote_artifacts_unfiltered,
     filter_artifacts,
 )
-from .commands.download import download
+from .commands.download import download, download_refs, download_single
 
 from .commands.cat_meta import cat_metas, metas_for_commits
 
