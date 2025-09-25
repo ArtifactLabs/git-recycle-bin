@@ -14,6 +14,12 @@ from printer import printer
 Path = str
 def create_rbgit(src_tree_root: Path, artifact_path: Path, clean: bool = True) -> "RbGit":
     """ Create an RbGit instance from a source tree root and artifact path """
+    # Validate inputs
+    if not src_tree_root or not os.path.isdir(src_tree_root):
+        raise ValueError(f"Invalid src_tree_root: {src_tree_root}")
+    if not artifact_path:
+        raise ValueError(f"Invalid artifact_path: {artifact_path}")
+
     # Artifact may reside within or outside source git's root. E.g. under $GITROOT/obj/ or $GITROOT/../obj/
     nca_dir = nca_path(src_tree_root, artifact_path)
 
