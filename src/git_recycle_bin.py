@@ -331,8 +331,11 @@ def clean_command(rbgit, remote_bin_name):
     return 0
 
 def push_command(args, rbgit, remote_bin_name, path):
-    """like push but discard the result"""
-    push(args, rbgit, remote_bin_name, path)
+    """Execute push command to upload artifact to repository."""
+    commit_info = push(args, rbgit, remote_bin_name, path)
+    if args.print_commit and commit_info:
+        print(commit_info['bin_sha_commit'])
+    return 0
 
 def push(args, rbgit, remote_bin_name, path) -> dict[str, str]:
     printer.high_level(f"Making local commit of artifact {path} in artifact-repo at {rbgit.rbgit_dir}", file=sys.stderr)

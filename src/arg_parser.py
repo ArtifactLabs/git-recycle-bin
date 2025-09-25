@@ -158,6 +158,12 @@ def parse_args(args=None):
         nargs='?', const=True, default=os.getenv('GITRB_FORCE_TAG', dv),
         help=f"Force push of tag. Default {dv}."
     )
+    dv = 'True'
+    g.add_argument(
+        "--print-commit", metavar='bool', type=str2bool,
+        nargs='?', const=True, default=os.getenv('GITRB_PRINT_COMMIT', dv),
+        help=f"Print commit SHA to stdout. Default {dv}."
+    )
 
     g = commands.add_parser(
         "clean", parents=[top_parser], add_help=False,
