@@ -11,7 +11,7 @@ from typing import Dict
 
 from dateutil.tz import tzlocal
 
-from rbgit import RbGit
+from rbgit import RbGit, create_rbgit
 from printer import printer
 from util_string import (
     prefix_lines,

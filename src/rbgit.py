@@ -5,10 +5,27 @@ import subprocess
 import re
 import time
 import random
+import shutil
+
+from util_file import nca_path
+from printer import printer
+
+
+Path = str
+def create_rbgit(src_tree_root: Path, artifact_path: Path, clean: bool = True) -> "RbGit":
+    """ Create an RbGit instance from a source tree root and artifact path """
+    # Artifact may reside within or outside source git's root. E.g. under $GITROOT/obj/ or $GITROOT/../obj/
+    nca_dir = nca_path(src_tree_root, artifact_path)
+
+    # Place recyclebin-git's root at a stable location, where both source git and artifact can be seen.
+    # Placing artifacts here allows for potential merging of artifact commits as paths are fully qualified.
+    rbgit_dir = os.path.join(nca_dir, ".rbgit")
+
+    return RbGit(printer, rbgit_dir=rbgit_dir, rbgit_work_tree=nca_dir, clean=clean)
 
 class RbGit:
     """Git operations wrapper for separate artifact repository management."""
-    def __init__(self, printer, rbgit_dir=None, rbgit_work_tree=None):
+    def __init__(self, printer, rbgit_dir=None, rbgit_work_tree=None, clean: bool = True):
         """Initialize RbGit with separate Git environment.
         
         :param printer: Printer instance for logging

@@ -20,6 +20,9 @@ buildPythonPackage rec {
 
   format = "pyproject";
 
+  # we use git in tests
+  nativeBuildInputs = [ git ];
+
   nativeCheckInputs = [
     setuptools
 
