@@ -67,10 +67,19 @@ def main() -> int:
 
         exitcode = run()
 
-        if args.rm_expired:
-            remote_delete_expired_branches(rbgit, remote_bin_name)
-        if args.flush_meta:
-            remote_flush_meta_for_commit(rbgit, remote_bin_name)
+        # Post-command cleanup - only run if not already executed by clean command
+        cleanup_failed = False
+        try:
+            if args.rm_expired and args.command != "clean":
+                remote_delete_expired_branches(rbgit, remote_bin_name)
+            if args.flush_meta and args.command != "clean":
+                remote_flush_meta_for_commit(rbgit, remote_bin_name)
+        except Exception as e:
+            printer.error(f"Post-command cleanup failed: {e}", file=sys.stderr)
+            cleanup_failed = True
+
+        if cleanup_failed:
+            return 1
 
     return exitcode
 
