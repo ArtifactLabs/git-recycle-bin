@@ -333,8 +333,12 @@ def clean_command(rbgit, remote_bin_name):
 def push_command(args, rbgit, remote_bin_name, path):
     """Execute push command to upload artifact to repository."""
     commit_info = push(args, rbgit, remote_bin_name, path)
-    if args.print_commit and commit_info:
-        print(commit_info['bin_sha_commit'])
+    if args.print_commit and commit_info is not None:
+        if 'bin_sha_commit' in commit_info:
+            print(commit_info['bin_sha_commit'])
+        else:
+            printer.error("Failed to retrieve commit SHA from push result")
+            return 1
     return 0
 
 def push(args, rbgit, remote_bin_name, path) -> dict[str, str]:
