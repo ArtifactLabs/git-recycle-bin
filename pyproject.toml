@@ -1,7 +1,41 @@
-[tool.pytest.ini_options]
-minversion = "6.0"
-addopts = "-ra -q"
-testpaths = [
-    "tests",
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "git-recycle-bin"
+version = "0.3.0"
+description = "Create and push artifacts in git - with expiry and traceability"
+readme = "readme.md"
+license = { text = "Apache-2.0" }
+authors = [
+    { name = "Mark Ruvald Pedersen" },
+    { name = "ArtifactLabs", email = "contact@artifactlabs.com" },
 ]
 
+requires-python = ">=3.11"
+dependencies = [
+    "maya",
+    "colorama",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=6.0",
+    "pytest-cov",
+]
+dev = [
+    "pytest>=6.0",
+    "pytest-cov",
+]
+
+[project.scripts]
+git-recycle-bin = "git_recycle_bin.main:main"
+
+[tool.setuptools.package-dir]
+git_recycle_bin = "git-recycle-bin"
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-ra -q --cov=git-recycle-bin --cov-report=xml"
+testpaths = ["tests"]

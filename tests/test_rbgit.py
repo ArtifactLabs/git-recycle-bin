@@ -1,9 +1,11 @@
-import pytest
+"""Tests for RbGit class functionality."""
 
-from rbgit import RbGit
+from git_recycle_bin.rbgit import RbGit
 
 class DummyRbGit:
-    def cmd(self, *args, **kwargs):
+    """Mock RbGit class for testing tree operations."""
+    def cmd(self, *args, **_kwargs):
+        """Mock command execution for tree operations."""
         if args[:2] == ("ls-tree", "-lr"):
             return (
                 "100644 blob aaaaaa 123\tfile1\n"
@@ -12,14 +14,18 @@ class DummyRbGit:
         raise RuntimeError("Unexpected command")
 
 def test_tree_size_sum():
+    """Test tree size calculation by summing file sizes."""
     dummy = DummyRbGit()
     size = RbGit.tree_size(dummy, "HEAD")
     assert size == 579
 
 
 def test_remote_already_has_ref():
+    """Test checking if remote repository already has a reference."""
     class D:
+        """Mock RbGit for testing remote ref checking."""
         def cmd(self, *args):
+            """Mock command execution for remote ref operations."""
             if args[0] == 'ls-remote':
                 return 'sha\tref' if args[-1] == 'ref' else ''
             raise RuntimeError('bad')
@@ -30,8 +36,11 @@ def test_remote_already_has_ref():
 
 
 def test_fetch_current_tag_value():
+    """Test fetching current value of a specific tag."""
     class D:
+        """Mock RbGit for testing tag value fetching."""
         def cmd(self, *args):
+            """Mock command execution for tag operations."""
             if args[:3] == ('ls-remote', '--tags', 'origin'):
                 return 'a1\trefs/tags/v1\nb2\trefs/tags/v2'
             raise RuntimeError('bad')
@@ -41,10 +50,13 @@ def test_fetch_current_tag_value():
 
 
 def test_fetch_cat_pretty():
+    """Test fetching and pretty-printing object content."""
     calls = []
 
     class D:
-        def cmd(self, *args, **kwargs):
+        """Mock RbGit for testing fetch and cat operations."""
+        def cmd(self, *args, **_kwargs):
+            """Mock command execution for fetch and cat operations."""
             calls.append(args)
             if args[0] == 'fetch':
                 return ''
@@ -59,13 +71,16 @@ def test_fetch_cat_pretty():
 
 
 def test_add_no_changes(tmp_path):
+    """Test adding file with no changes to git index."""
     path = tmp_path / 'file'
     path.write_text('data')
 
     calls = []
 
     class D:
-        def cmd(self, *args, **kwargs):
+        """Mock RbGit for testing add with no changes."""
+        def cmd(self, *args, **_kwargs):
+            """Mock command execution for add operations."""
             calls.append(args)
             if args[0] == 'diff-index':
                 return ''
@@ -78,13 +93,16 @@ def test_add_no_changes(tmp_path):
 
 
 def test_add_changes_force(tmp_path):
+    """Test adding file with changes using force flag."""
     path = tmp_path / 'file'
     path.write_text('data')
 
     calls = []
 
     class D:
-        def cmd(self, *args, **kwargs):
+        """Mock RbGit for testing add with force."""
+        def cmd(self, *args, **_kwargs):
+            """Mock command execution for forced add operations."""
             calls.append(args)
             if args[0] == 'diff-index':
                 raise RuntimeError('changed')
@@ -97,10 +115,13 @@ def test_add_changes_force(tmp_path):
 
 
 def test_add_remote_idempotent_adds():
+    """Test idempotent remote addition when remote doesn't exist."""
     calls = []
 
     class D:
-        def cmd(self, *args, **kwargs):
+        """Mock RbGit for testing remote addition."""
+        def cmd(self, *args, **_kwargs):
+            """Mock command execution for remote operations."""
             calls.append(args)
             return ''
 
@@ -110,10 +131,13 @@ def test_add_remote_idempotent_adds():
 
 
 def test_add_remote_idempotent_set_url():
+    """Test idempotent remote addition when remote already exists."""
     calls = []
 
     class D:
-        def cmd(self, *args, **kwargs):
+        """Mock RbGit for testing remote URL setting."""
+        def cmd(self, *args, **_kwargs):
+            """Mock command execution for remote URL operations."""
             calls.append(args)
             if args[:2] == ('remote', 'add'):
                 raise RuntimeError('exists')
@@ -125,15 +149,18 @@ def test_add_remote_idempotent_set_url():
 
 
 def test_fetch_only_tags_and_set_tag():
+    """Test fetching only tags and setting a specific tag."""
     calls = []
 
     class D:
-        def cmd(self, *args, **kwargs):
+        """Mock RbGit for testing tag operations."""
+        def cmd(self, *args, **_kwargs):
+            """Mock command execution for tag fetch and set operations."""
             calls.append(args)
             return ''
 
     dummy = D()
     RbGit.fetch_only_tags(dummy, 'origin')
-    RbGit.set_tag(dummy, 'v1', 'sha')
+    RbGit.set_tag(dummy, tag_name='v1', tag_val='sha')
     assert ('fetch', 'origin', 'refs/tags/*:refs/tags/*') in calls
     assert ('tag', '--force', 'v1', 'sha') in calls

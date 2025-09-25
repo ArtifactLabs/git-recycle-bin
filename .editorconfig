@@ -1,7 +1,10 @@
-# EditorConfig helps maintain consistent coding styles
-# across editors and IDEs.
+# EditorConfig helps maintain consistent coding styles across various editors and IDEs
+# https://editorconfig.org
+
+# Prevents potential parent directory .editorconfig files from influencing our project's style
 root = true
 
+# Default settings for all files
 [*]
 charset = utf-8
 end_of_line = lf
@@ -10,26 +13,39 @@ trim_trailing_whitespace = true
 indent_style = space
 indent_size = 4
 
+# Python files
 [*.py]
 indent_size = 4
+max_line_length = 120
 
-[*.sh]
-indent_size = 4
-
-[justfile]
-indent_size = 4
-
-[*.nix]
-indent_size = 2
-
-[*.yml]
-indent_size = 2
-
-[*.yaml]
+# YAML, JSON, and other config files often use 2 spaces
+[*.{yml,yaml,json}]
 indent_size = 2
 
 [*.toml]
 indent_size = 4
 
+# Markdown files
 [*.md]
+trim_trailing_whitespace = false  # trailing whitespace has meaning in markdown
+max_line_length = 120
+
+# RestructuredText documentation
+[*.rst]
+max_line_length = 120
+
+# Text files
+[*.txt]
+max_line_length = off
+
+# Shell scripts
+[*.sh]
 indent_size = 4
+
+# Justfile - a command runner
+[justfile,Justfile,*.just,*.justfile]
+indent_size = 4
+
+# Nix files
+[*.nix]
+indent_size = 2

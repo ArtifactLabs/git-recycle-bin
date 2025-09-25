@@ -1,8 +1,11 @@
+"""Tests for printer module functionality."""
+
 from io import StringIO
-from printer import Printer
+from git_recycle_bin.printer import Printer
 
 
 def test_printer_levels():
+    """Test printer output at different verbosity levels."""
     buf = StringIO()
     p = Printer(verbosity=2, colorize=False)
     p.high_level('A', file=buf)
@@ -13,6 +16,7 @@ def test_printer_levels():
 
 
 def test_strcolor():
+    """Test string colorization functionality."""
     p = Printer(colorize=True)
     colored = p.strcolor('\x1b[31m', 'msg')
     assert colored.startswith('\x1b[31m') and colored.endswith('\x1b[0m')

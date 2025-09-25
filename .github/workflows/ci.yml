@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: cachix/install-nix-action@v25
       - name: Usage help
-        run: nix-shell --pure --run "git_recycle_bin.py --help"
+        run: nix-shell --pure --run "git-recycle-bin --help"
       - name: Just list
         run: nix-shell --pure --run "just --list"
 
@@ -47,9 +47,25 @@ jobs:
       - name: Install test deps
         run: pip install pytest
       - name: Run tests
-        run: PYTHONPATH=$PWD:$PWD/src pytest
+        run: pytest
       - name: CLI help
-        run: git_recycle_bin.py --help
+        run: git-recycle-bin --help
+
+  python-sweep:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v25
+      - name: Test across all Python versions
+        run: nix-shell --pure --run "just python-sweep"
+
+  git-sweep:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: cachix/install-nix-action@v25
+      - name: Test across all Git versions
+        run: nix-shell --pure --run "just git-sweep"
 
   demo_help:
     runs-on: ubuntu-latest

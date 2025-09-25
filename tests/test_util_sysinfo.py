@@ -1,5 +1,5 @@
 import os
-from util_sysinfo import get_user, get_hostname
+from git_recycle_bin.utils.sysinfo import get_user, get_hostname
 
 
 def test_get_user_env(monkeypatch):

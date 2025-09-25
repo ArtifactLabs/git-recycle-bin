@@ -1,6 +1,8 @@
 import datetime
 import re
-from commit_msg import extract_gerrit_change_id, parse_commit_msg, emit_commit_msg
+from git_recycle_bin.commit_msg import (
+    extract_gerrit_change_id, parse_commit_msg, emit_commit_msg
+)
 
 
 def test_extract_gerrit_change_id():

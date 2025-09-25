@@ -1,6 +1,6 @@
 # Run unit tests
 unittest:
-    PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src" pytest --cov=src --cov-report=xml
+    pytest
 
 # Demonstrate help
 demo0:
@@ -29,9 +29,9 @@ lint: lint-shell lint-md
 # Output goes to docs/_build/html
 # Use PYTHONPATH so autodoc can find modules
 docs:
-    PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src" sphinx-build -b html docs docs/_build/html
+    sphinx-build -b html docs docs/_build/html
 
 # Lint documentation with Sphinx
 # Treat warnings as errors to catch broken references
 docs-lint:
-    PYTHONPATH="$PYTHONPATH:$PWD:$PWD/src" sphinx-build -E -n -W -b dummy docs docs/_build/dummy
+    sphinx-build -E -n -W -b dummy docs docs/_build/dummy

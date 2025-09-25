@@ -9,20 +9,20 @@ _remove_artifacts:
 
 # Demonstrate the list command with no artifacts
 demo1: _remove_artifacts
-    git_recycle_bin.py list .
+    git-recycle-bin list .
 
 # Demonstrate the list command with artifacts
 demo2: _remove_artifacts
     just --justfile=push.justfile demo1
-    git_recycle_bin.py list .
+    git-recycle-bin list .
 
 # Same as demo2 but with --name filter
 demo3: _remove_artifacts
     just --justfile=push.justfile demo1
-    git_recycle_bin.py list . --name "demo 1"
+    git-recycle-bin list . --name "demo 1"
 
 # Same as demo2 but with --path filter
 demo4: _remove_artifacts
     just --justfile=push.justfile demo1
     # notice the path is demos as remote is .
-    git_recycle_bin.py list . --path demos
+    git-recycle-bin list . --path demos

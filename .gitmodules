@@ -1,0 +1,4 @@
+[submodule "docs/artwork"]
+	path = docs/artwork
+	url = https://github.com/ArtifactLabs/artwork.git
+	branch = main

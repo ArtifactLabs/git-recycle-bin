@@ -10,11 +10,20 @@ pkgs.mkShell {
   name = "git-recycle-bin";
   packages = [
     pkgs.just
-    git-recycle-bin
+    (pkgs.python311.withPackages (ps: [
+      git-recycle-bin
+
+      # test
+      ps.pytest
+      ps.pytest-cov
+
+      # documentation
+      ps.sphinx
+      ps.sphinx-material
+    ]))
     pkgs.shellcheck
     pkgs.nodePackages.markdownlint-cli
-    pkgs.python311Packages.sphinx
-    pkgs.python311Packages.sphinx-material
+    pkgs.git
   ];
   shellHook = ''
     export JUST_UNSTABLE=1
