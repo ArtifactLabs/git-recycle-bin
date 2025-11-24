@@ -11,5 +11,5 @@ _remove_artifacts:
 demo1: _remove_artifacts
     just --justfile=push.justfile demo4
     git ls-remote . | grep "artifact"
-    git_recycle_bin.py clean .
+    git-recycle-bin clean .
     git ls-remote . | grep "artifact" || true

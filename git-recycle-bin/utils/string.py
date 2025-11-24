@@ -1,6 +1,15 @@
 import re
 import urllib.parse
 
+def str2bool(v):
+    if isinstance(v, bool):
+       return v
+    if v.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    if v.lower() in ('no', 'false', 'f', 'n', '0'):
+        return False
+    raise ValueError('Boolean value expected.')
+
 def trim_all_lines(input_string: str) -> str:
     """ Trim leading and trailing whitespaces from every line """
     lines = input_string.split('\n')

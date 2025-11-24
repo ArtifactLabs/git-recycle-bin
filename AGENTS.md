@@ -9,7 +9,7 @@ runnable outside of Nix as a normal Python package.
 
 The repository is organised into a few key folders:
 
-- `src/` contains the application code and executable entrypoints.
+- `git-recycle-bin/` contains the application code and executable entrypoints.
 - `tests/` holds unit and future integration tests.
 - `demos/` shows practical usage of the tools.
 - `aux/` holds helper scripts that are not part of the build itself but may be

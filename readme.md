@@ -108,7 +108,7 @@ pip install .
 Push an artifact to a binary repository:
 
 ```bash
-git_recycle_bin.py push \
+git-recycle-bin push \
     git@example.com:documentation/generated/rst_html.git \
     --path ../obj/doc/html \
     --name "Example-RST-Documentation" --tag
@@ -117,33 +117,33 @@ git_recycle_bin.py push \
 Push with expiry:
 
 ```bash
-git_recycle_bin.py push . --path build --name demo --expire "in 1 hour"
+git-recycle-bin push . --path build --name demo --expire "in 1 hour"
 ```
 
 Download an artifact back into your working tree:
 
 ```bash
-git_recycle_bin.py list . | head -n 1 | \
-    xargs -I _ git_recycle_bin.py download . _
+git-recycle-bin list . | head -n 1 | \
+    xargs -I _ git-recycle-bin download . _
 ```
 
 List artifacts:
 
 ```bash
-git_recycle_bin.py list . --name "Example-RST-Documentation"
+git-recycle-bin list . --name "Example-RST-Documentation"
 ```
 
 Enable build avoidance in your build script by checking for an existing
 artifact before building:
 
 ```bash
-if git_recycle_bin.py list . --name demo | grep -q .; then
-    git_recycle_bin.py list . --name demo | head -n 1 | \
-        xargs -I _ git_recycle_bin.py download . _
+if git-recycle-bin list . --name demo | grep -q .; then
+    git-recycle-bin list . --name demo | head -n 1 | \
+        xargs -I _ git-recycle-bin download . _
     echo "Build skipped - using downloaded artifact"
 else
     make all
-    git_recycle_bin.py push . --path ./build --name demo
+    git-recycle-bin push . --path ./build --name demo
 fi
 ```
 
@@ -152,13 +152,13 @@ fi
 Set a custom expiry date when pushing an artifact:
 
 ```bash
-git_recycle_bin.py push . --path ./build --name demo --expire "1 month"
+git-recycle-bin push . --path ./build --name demo --expire "1 month"
 ```
 
 List all artifacts for the current repository:
 
 ```bash
-git_recycle_bin.py list .
+git-recycle-bin list .
 ```
 
 ## How it works

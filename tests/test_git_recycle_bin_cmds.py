@@ -1,6 +1,11 @@
 import datetime
 from types import SimpleNamespace
+
 import git_recycle_bin as grb
+from git_recycle_bin.utils.string import (
+    sanitize_branch_name,
+    sanitize_slashes,
+)
 
 
 def test_push_branch_force(monkeypatch):
@@ -8,9 +13,11 @@ def test_push_branch_force(monkeypatch):
     dummy = SimpleNamespace(
         cmd=lambda *a, **k: calls.append(a)
     )
-    args = SimpleNamespace(force_branch=True)
-    d = {'bin_branch_name': 'b', 'bin_ref_only_metadata': 'm'}
-    grb.push_branch(args, d, dummy, 'remote')
+    commit_info = SimpleNamespace(
+        bin_branch_name='b',
+        bin_ref_only_metadata='m'
+    )
+    grb.push_branch(dummy, 'remote', commit_info, force=True)
     assert ('push', '--force', 'remote', 'b') in calls
     assert ('push', '--force', 'remote', 'm') in calls
 
@@ -27,9 +34,11 @@ def test_push_branch_skip_existing(monkeypatch):
             return ref == 'b'
 
     dummy = Dummy()
-    args = SimpleNamespace(force_branch=False)
-    d = {'bin_branch_name': 'b', 'bin_ref_only_metadata': 'm'}
-    grb.push_branch(args, d, dummy, 'remote')
+    commit_info = SimpleNamespace(
+        bin_branch_name='b',
+        bin_ref_only_metadata='m'
+    )
+    grb.push_branch(dummy, 'remote', commit_info)
     assert ('push', 'remote', 'm') in calls
     assert ('push', 'remote', 'b') not in calls
 
@@ -46,14 +55,13 @@ def test_push_tag_new(monkeypatch):
             return ''
 
     dummy = Dummy()
-    args = SimpleNamespace(force_tag=False)
-    d = {
-        'bin_tag_name': 'tag',
-        'src_commits_ahead': '',
-        'bin_sha_commit': 'sha',
-        'src_time_commit': 'Wed, 21 Jun 2023 12:00:00 +0000',
-    }
-    grb.push_tag(args, d, dummy, 'remote')
+    commit_info = SimpleNamespace(
+        bin_tag_name='tag',
+        src_commits_ahead='',
+        bin_sha_commit='sha',
+        src_time_commit='Wed, 21 Jun 2023 12:00:00 +0000',
+    )
+    grb.push_tag(dummy, 'remote', commit_info)
     assert ('push', 'remote', 'tag') in calls
 
 
@@ -72,14 +80,14 @@ def test_push_tag_force_when_newer(monkeypatch):
             return ''
 
     dummy = Dummy()
-    args = SimpleNamespace(force_tag=False)
-    d = {
-        'bin_tag_name': 'tag',
-        'src_commits_ahead': '',
-        'bin_sha_commit': 'ours',
-        'src_time_commit': 'Wed, 21 Jun 2023 12:00:00 +0000',
-    }
-    grb.push_tag(args, d, dummy, 'remote')
+    commit_info = SimpleNamespace(
+        bin_tag_name='tag',
+        src_commits_ahead='',
+        bin_sha_commit='ours',
+        bin_ref_only_metadata='unused',
+        src_time_commit='Wed, 21 Jun 2023 12:00:00 +0000',
+    )
+    grb.push_tag(dummy, 'remote', commit_info, force=False)
     assert ('push', '--force', 'remote', 'tag') in calls
 
 
@@ -119,6 +127,9 @@ def test_remote_flush_meta_for_commit(monkeypatch):
             calls.append(a)
             return ''
 
+        def meta_for_commit_refs(self, remote):
+            return [f'{sha1}\trefs/artifact/meta-for-commit/{sha1}']
+
     dummy = Dummy()
     grb.remote_flush_meta_for_commit(dummy, 'remote')
     assert ('push', 'remote', '--delete', 'refs/artifact/meta-for-commit/' + sha1) in calls
@@ -136,10 +147,10 @@ def test_note_append_push(monkeypatch):
         calls.append(("exec_nostderr", cmd, env))
         return ''
 
-    monkeypatch.setattr(grb, 'exec', fake_exec)
-    monkeypatch.setattr(grb, 'exec_nostderr', fake_exec_nostderr)
-    monkeypatch.setattr(grb, 'get_user', lambda: 'u')
-    monkeypatch.setattr(grb, 'get_hostname', lambda: 'h')
+    monkeypatch.setattr(grb.commands.push, 'exec', fake_exec)
+    monkeypatch.setattr(grb.commands.push, 'exec_nostderr', fake_exec_nostderr)
+    monkeypatch.setattr(grb.commands.push, 'get_user', lambda: 'u')
+    monkeypatch.setattr(grb.commands.push, 'get_hostname', lambda: 'h')
 
     args = SimpleNamespace(
         remote='https://remote',
@@ -148,18 +159,18 @@ def test_note_append_push(monkeypatch):
         user_name='me',
         user_email='me@example.com',
     )
-    d = {
-        'src_status': '',
-        'bin_time_commit': 't',
-        'bin_branch_expire': 'exp',
-        'bin_sha_commit': 'sha',
-    }
+    commit_info = SimpleNamespace(
+        src_status='',
+        bin_time_commit='t',
+        bin_branch_expire='exp',
+        bin_sha_commit='sha',
+    )
 
-    grb.note_append_push(args, d)
+    grb.note_append_push(args, commit_info)
 
     gitenv = calls[0][2]
-    expected_ref = grb.sanitize_branch_name(
-        f"refs/notes/artifact/{grb.sanitize_slashes(args.remote)}/{grb.sanitize_slashes(args.name)}/{d['bin_sha_commit']}-clean"
+    expected_ref = sanitize_branch_name(
+        f"refs/notes/artifact/{sanitize_slashes(args.remote)}/{sanitize_slashes(args.name)}/{commit_info.bin_sha_commit}-clean"
     )
     assert gitenv['GIT_NOTES_REF'] == expected_ref
     assert gitenv['GIT_AUTHOR_NAME'] == 'me'
